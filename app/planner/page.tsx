@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/Toast";
 import { ATMOSPHERE_TAGS, type SessionPlan } from "@/lib/clinical-data";
 import {
   CalendarDays, Plus, Trash2, ChevronDown, ChevronUp, CheckSquare,
-  Square, ArrowRight, Clock, Search, Printer,
+  ArrowRight, Clock, Search, Printer,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

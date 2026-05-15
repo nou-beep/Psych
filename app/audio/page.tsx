@@ -6,10 +6,9 @@ import { useApp } from "@/contexts/AppContext";
 import { useToast } from "@/components/ui/Toast";
 import { type AudioNote } from "@/lib/clinical-data";
 import {
-  Mic, MicOff, Play, Square, Trash2, Plus, Clock, Tag, Bookmark,
-  FileText, Search, Download,
+  Mic, Square, Trash2, Plus, Clock, Bookmark,
+  FileText, Search,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 declare global {
   interface Window {

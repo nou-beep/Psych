@@ -114,7 +114,7 @@ function ConsentCard({ record, linkedCase, onUpdate }: {
 }
 
 export default function EthicsPage() {
-  const { consent, upsertConsent, getConsent } = useClinical();
+  const { consent, upsertConsent } = useClinical();
   const { cases } = useApp();
   const { toast } = useToast();
   const [search, setSearch] = useState("");

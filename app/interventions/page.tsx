@@ -319,11 +319,4 @@ export default function InterventionsPage() {
       )}
     </div>
   );
-
-  function effectivenessColor(n: number) {
-    if (n >= 4) return "#10b981";
-    if (n === 3) return "var(--psych-primary)";
-    if (n === 2) return "#f59e0b";
-    return "#ef4444";
-  }
 }
