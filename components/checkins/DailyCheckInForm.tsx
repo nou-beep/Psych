@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/shared/SectionCard";
-import { mockCases } from "@/lib/mock-data";
 import { CheckCircle } from "lucide-react";
+import { useApp } from "@/contexts/AppContext";
+import { useToast } from "@/components/ui/Toast";
 
 interface FormData {
   date: string;
@@ -52,6 +53,8 @@ const empty: FormData = {
 export function DailyCheckInForm() {
   const [form, setForm] = useState<FormData>(empty);
   const [submitted, setSubmitted] = useState(false);
+  const { createCheckIn, cases } = useApp();
+  const { toast } = useToast();
 
   function update(field: keyof FormData, value: string | boolean) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -59,6 +62,8 @@ export function DailyCheckInForm() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    createCheckIn(form);
+    toast("Check-in saved", "success");
     setSubmitted(true);
   }
 
@@ -68,7 +73,7 @@ export function DailyCheckInForm() {
   }
 
   if (submitted) {
-    const relatedCase = mockCases.find((c) => c.id === form.caseId);
+    const relatedCase = cases.find((c) => c.id === form.caseId);
     return (
       <div className="animate-fade-in space-y-4">
         <div
@@ -138,7 +143,7 @@ export function DailyCheckInForm() {
           <Label htmlFor="case">Case</Label>
           <Select id="case" value={form.caseId} onChange={(e) => update("caseId", e.target.value)} required>
             <option value="">Select a case…</option>
-            {mockCases.map((c) => (
+            {cases.filter((c) => !c.isArchived).map((c) => (
               <option key={c.id} value={c.id}>{c.code} — {c.type}</option>
             ))}
           </Select>

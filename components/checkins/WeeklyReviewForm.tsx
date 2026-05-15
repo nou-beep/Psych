@@ -8,8 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/shared/SectionCard";
-import { mockCases } from "@/lib/mock-data";
 import { CheckCircle } from "lucide-react";
+import { useApp } from "@/contexts/AppContext";
+import { useToast } from "@/components/ui/Toast";
 
 interface FormData {
   caseId: string;
@@ -50,6 +51,8 @@ const fields: { id: keyof FormData; label: string; placeholder: string }[] = [
 export function WeeklyReviewForm() {
   const [form, setForm] = useState<FormData>(empty);
   const [submitted, setSubmitted] = useState(false);
+  const { createWeekly, cases } = useApp();
+  const { toast } = useToast();
 
   function update(field: keyof FormData, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -57,6 +60,8 @@ export function WeeklyReviewForm() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    createWeekly(form);
+    toast("Weekly review saved", "success");
     setSubmitted(true);
   }
 
@@ -66,7 +71,7 @@ export function WeeklyReviewForm() {
   }
 
   if (submitted) {
-    const relatedCase = mockCases.find((c) => c.id === form.caseId);
+    const relatedCase = cases.find((c) => c.id === form.caseId);
     return (
       <div className="animate-fade-in space-y-4">
         <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border" style={{ backgroundColor: "#F0FDF4", borderColor: "#BBF7D0" }}>
@@ -95,7 +100,7 @@ export function WeeklyReviewForm() {
           <Label>Case</Label>
           <Select value={form.caseId} onChange={(e) => update("caseId", e.target.value)} required>
             <option value="">Select a case…</option>
-            {mockCases.map((c) => <option key={c.id} value={c.id}>{c.code} — {c.type}</option>)}
+            {cases.map((c) => <option key={c.id} value={c.id}>{c.code} — {c.type}</option>)}
           </Select>
         </div>
         <div>

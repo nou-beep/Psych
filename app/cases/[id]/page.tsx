@@ -1,22 +1,17 @@
 "use client";
-// Case details page — dynamic route [id] resolves to a case code.
-// All tabs have full mock data displayed.
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, AlertCircle, Tag } from "lucide-react";
+import { ArrowLeft, AlertCircle, Tag, Target, CheckCircle2, Plus, Trash2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge, getStatusVariant } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/shared/SectionCard";
-import {
-  getCaseById,
-  getCheckInsForCase,
-  getWeeklyReviewsForCase,
-  getMonthlyReviewsForCase,
-  getSessionsForCase,
-  getSupervisionNotesForCase,
-  mockAssessments,
-} from "@/lib/mock-data";
+import { ProgressBar } from "@/components/ui/ProgressBar";
+import { useApp } from "@/contexts/AppContext";
+import { useToast } from "@/components/ui/Toast";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { mockAssessments } from "@/lib/mock-data";
 
 interface PageProps {
   params: { id: string };
@@ -35,13 +30,32 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+const priorityColor: Record<string, string> = {
+  high: "#EF4444",
+  medium: "#F59E0B",
+  low: "#6B7280",
+};
+
+const statusBg: Record<string, string> = {
+  "in-progress": "var(--psych-primary-light)",
+  completed: "#F0FDF4",
+  "not-started": "var(--psych-bg)",
+  paused: "#FEF9C3",
+};
+
 export default function CaseDetailPage({ params }: PageProps) {
-  const caseData = getCaseById(params.id);
+  const { getCase, getCaseCheckIns, getCaseWeekly, getCaseMonthly, getCaseSessions, getCaseSupervision, getCaseGoals, getCaseFiles, cases, updateGoal, deleteGoal, removeFile } = useApp();
+  const { toast } = useToast();
+  const [deleteGoalId, setDeleteGoalId] = useState<string | null>(null);
+  const [deleteFileId, setDeleteFileId] = useState<string | null>(null);
+
+  const caseData = getCase(params.id) ?? cases.find((c) => c.id === params.id);
+
   if (!caseData) {
     return (
       <div className="max-w-xl mx-auto pt-16 text-center">
         <p className="text-lg font-semibold mb-2" style={{ color: "var(--psych-text)" }}>Case not found</p>
-        <p className="text-sm mb-6" style={{ color: "var(--psych-muted)" }}>The case "{params.id}" does not exist in the demo data.</p>
+        <p className="text-sm mb-6" style={{ color: "var(--psych-muted)" }}>The case "{params.id}" does not exist.</p>
         <Link href="/cases">
           <Button variant="secondary" size="sm">← Back to Cases</Button>
         </Link>
@@ -49,16 +63,24 @@ export default function CaseDetailPage({ params }: PageProps) {
     );
   }
 
-  const checkIns = getCheckInsForCase(caseData.id);
-  const weeklyReviews = getWeeklyReviewsForCase(caseData.id);
-  const monthlyReviews = getMonthlyReviewsForCase(caseData.id);
-  const sessions = getSessionsForCase(caseData.id);
-  const supervisionNotes = getSupervisionNotesForCase(caseData.id);
+  const checkIns = getCaseCheckIns(caseData.id);
+  const weeklyReviews = getCaseWeekly(caseData.id);
+  const monthlyReviews = getCaseMonthly(caseData.id);
+  const sessions = getCaseSessions(caseData.id);
+  const supervisionNotes = getCaseSupervision(caseData.id);
+  const goals = getCaseGoals(caseData.id);
+  const files = getCaseFiles(caseData.id);
+
+  function toggleMilestone(goalId: string, milestoneId: string, completed: boolean) {
+    const goal = goals.find((g) => g.id === goalId);
+    if (!goal) return;
+    updateGoal(goalId, {
+      milestones: goal.milestones.map((m) => m.id === milestoneId ? { ...m, completed } : m),
+    });
+  }
 
   return (
     <div className="max-w-5xl mx-auto animate-fade-in">
-
-      {/* Back button */}
       <Link href="/cases">
         <Button variant="ghost" size="sm" className="mb-4">
           <ArrowLeft size={14} />
@@ -85,6 +107,7 @@ export default function CaseDetailPage({ params }: PageProps) {
             </span>
             <Badge>{caseData.type}</Badge>
             <Badge variant={getStatusVariant(caseData.status)}>{caseData.status}</Badge>
+            {caseData.isArchived && <Badge variant="secondary">Archived</Badge>}
           </div>
           <div className="flex gap-2">
             <Link href="/reports/daily">
@@ -96,7 +119,6 @@ export default function CaseDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Case meta grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <InfoRow label="Age" value={`${caseData.age} years`} />
           <InfoRow label="Gender" value={caseData.gender} />
@@ -105,14 +127,11 @@ export default function CaseDetailPage({ params }: PageProps) {
           <InfoRow label="Next Report" value={caseData.nextReportDue} />
           <InfoRow label="Supervisor" value={caseData.supervisor} />
           <div className="col-span-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: "var(--psych-muted)" }}>
-              Institution
-            </span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: "var(--psych-muted)" }}>Institution</span>
             <p className="text-sm mt-0.5" style={{ color: "var(--psych-text)" }}>{caseData.institution}</p>
           </div>
         </div>
 
-        {/* Tags */}
         <div className="flex flex-wrap gap-1">
           {caseData.tags.map((tag) => (
             <span
@@ -126,12 +145,8 @@ export default function CaseDetailPage({ params }: PageProps) {
           ))}
         </div>
 
-        {/* Alerts */}
         {caseData.alerts && caseData.alerts.length > 0 && (
-          <div
-            className="mt-4 px-4 py-3 rounded-xl flex items-start gap-2"
-            style={{ backgroundColor: "#FEF9C3" }}
-          >
+          <div className="mt-4 px-4 py-3 rounded-xl flex items-start gap-2" style={{ backgroundColor: "#FEF9C3" }}>
             <AlertCircle size={14} style={{ color: "#92400E", flexShrink: 0, marginTop: 2 }} />
             <div className="space-y-1">
               {caseData.alerts.map((alert, i) => (
@@ -150,24 +165,21 @@ export default function CaseDetailPage({ params }: PageProps) {
           <TabsTrigger value="checkins">Daily Check-ins</TabsTrigger>
           <TabsTrigger value="weekly">Weekly Reviews</TabsTrigger>
           <TabsTrigger value="monthly">Monthly Reviews</TabsTrigger>
+          <TabsTrigger value="goals">Goals {goals.length > 0 && `(${goals.length})`}</TabsTrigger>
           <TabsTrigger value="assessments">Assessments</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="supervision">Supervision</TabsTrigger>
-          <TabsTrigger value="attachments">Attachments</TabsTrigger>
+          <TabsTrigger value="attachments">Files {files.length > 0 && `(${files.length})`}</TabsTrigger>
         </TabsList>
 
         {/* OVERVIEW */}
         <TabsContent value="overview">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SectionCard title="Context">
-              <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>
-                {caseData.context}
-              </p>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>{caseData.context}</p>
             </SectionCard>
             <SectionCard title="Presenting Concerns">
-              <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>
-                {caseData.presentingConcerns}
-              </p>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>{caseData.presentingConcerns}</p>
             </SectionCard>
             <SectionCard title="Current Goals">
               <ul className="space-y-2">
@@ -180,14 +192,25 @@ export default function CaseDetailPage({ params }: PageProps) {
               </ul>
             </SectionCard>
             <SectionCard title="Key Observations">
-              <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>
-                {caseData.keyObservations}
-              </p>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>{caseData.keyObservations}</p>
             </SectionCard>
+            {goals.length > 0 && (
+              <SectionCard title="Goal Progress" className="md:col-span-2">
+                <div className="space-y-3">
+                  {goals.slice(0, 3).map((goal) => (
+                    <div key={goal.id}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium" style={{ color: "var(--psych-text)" }}>{goal.title}</span>
+                        <span className="text-xs" style={{ color: "var(--psych-muted)" }}>{goal.progress}%</span>
+                      </div>
+                      <ProgressBar value={goal.progress} size="sm" />
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+            )}
             <SectionCard title="Latest Summary" className="md:col-span-2">
-              <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>
-                {caseData.latestSummary}
-              </p>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>{caseData.latestSummary}</p>
             </SectionCard>
           </div>
         </TabsContent>
@@ -256,10 +279,7 @@ export default function CaseDetailPage({ params }: PageProps) {
                       <p style={{ color: "var(--psych-text)" }}>{chk.freeNotes}</p>
                     </div>
                     {chk.followUpNeeded && (
-                      <div
-                        className="md:col-span-2 px-3 py-2 rounded-lg text-xs"
-                        style={{ backgroundColor: "#FEF9C3", color: "#92400E" }}
-                      >
+                      <div className="md:col-span-2 px-3 py-2 rounded-lg text-xs" style={{ backgroundColor: "#FEF9C3", color: "#92400E" }}>
                         ⚠ Follow-up needed: {chk.followUpNote}
                       </div>
                     )}
@@ -269,7 +289,15 @@ export default function CaseDetailPage({ params }: PageProps) {
             </div>
           ) : (
             <SectionCard title="Daily Check-ins">
-              <p className="text-sm py-4 text-center" style={{ color: "var(--psych-muted)" }}>No check-ins logged for this case yet.</p>
+              <div className="py-8 text-center">
+                <p className="text-sm mb-3" style={{ color: "var(--psych-muted)" }}>No check-ins logged for this case yet.</p>
+                <Link href="/checkins">
+                  <Button variant="secondary" size="sm">
+                    <Plus size={14} />
+                    New Check-in
+                  </Button>
+                </Link>
+              </div>
             </SectionCard>
           )}
         </TabsContent>
@@ -336,6 +364,82 @@ export default function CaseDetailPage({ params }: PageProps) {
           ) : (
             <SectionCard title="Monthly Reviews">
               <p className="text-sm py-4 text-center" style={{ color: "var(--psych-muted)" }}>No monthly reviews for this case yet.</p>
+            </SectionCard>
+          )}
+        </TabsContent>
+
+        {/* GOALS */}
+        <TabsContent value="goals">
+          {goals.length > 0 ? (
+            <div className="space-y-4">
+              {goals.filter((g) => !g.isArchived).map((goal) => (
+                <SectionCard
+                  key={goal.id}
+                  title={goal.title}
+                  description={`${goal.category} · ${goal.status}`}
+                  action={
+                    <button
+                      onClick={() => setDeleteGoalId(goal.id)}
+                      className="p-1.5 rounded-lg transition-colors"
+                      style={{ color: "var(--psych-muted)" }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  }
+                >
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs" style={{ color: "var(--psych-muted)" }}>Progress</span>
+                        <span className="text-xs font-semibold" style={{ color: priorityColor[goal.priority] ?? "var(--psych-primary)" }}>
+                          {goal.priority} priority · {goal.progress}%
+                        </span>
+                      </div>
+                      <ProgressBar value={goal.progress} size="sm" />
+                    </div>
+                    {goal.description && (
+                      <p className="text-sm" style={{ color: "var(--psych-muted)" }}>{goal.description}</p>
+                    )}
+                    {goal.milestones.length > 0 && (
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: "var(--psych-muted)" }}>Milestones</p>
+                        {goal.milestones.map((m) => (
+                          <label key={m.id} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={m.completed}
+                              onChange={(e) => toggleMilestone(goal.id, m.id, e.target.checked)}
+                              className="rounded"
+                            />
+                            <span
+                              className="text-sm"
+                              style={{
+                                color: m.completed ? "var(--psych-muted)" : "var(--psych-text)",
+                                textDecoration: m.completed ? "line-through" : "none",
+                              }}
+                            >
+                              {m.title}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </SectionCard>
+              ))}
+            </div>
+          ) : (
+            <SectionCard title="Goals">
+              <div className="py-8 text-center">
+                <Target size={28} className="mx-auto mb-3 opacity-30" style={{ color: "var(--psych-primary)" }} />
+                <p className="text-sm mb-3" style={{ color: "var(--psych-muted)" }}>No goals linked to this case.</p>
+                <Link href="/goals">
+                  <Button variant="secondary" size="sm">
+                    <Plus size={14} />
+                    Create a Goal
+                  </Button>
+                </Link>
+              </div>
             </SectionCard>
           )}
         </TabsContent>
@@ -420,39 +524,89 @@ export default function CaseDetailPage({ params }: PageProps) {
             </div>
           ) : (
             <SectionCard title="Supervision Notes">
-              <p className="text-sm py-4 text-center" style={{ color: "var(--psych-muted)" }}>No supervision notes linked to this case.</p>
+              <div className="py-8 text-center">
+                <p className="text-sm mb-3" style={{ color: "var(--psych-muted)" }}>No supervision notes linked to this case.</p>
+                <Link href="/supervision">
+                  <Button variant="secondary" size="sm">
+                    <Plus size={14} />
+                    Add Supervision Note
+                  </Button>
+                </Link>
+              </div>
             </SectionCard>
           )}
         </TabsContent>
 
-        {/* ATTACHMENTS */}
+        {/* FILES */}
         <TabsContent value="attachments">
-          <SectionCard title="Attachments" description="Documents and files linked to this case">
-            <div className="space-y-2">
-              {[
-                { name: "Initial_Interview_Checklist.pdf", date: caseData.startDate, size: "180 KB" },
-                { name: "Behavioral_Grid_Session3.pdf", date: "2026-03-22", size: "95 KB" },
-                { name: "Assessment_Notes_April.docx", date: "2026-04-30", size: "42 KB" },
-              ].map((file) => (
-                <div
-                  key={file.name}
-                  className="flex items-center justify-between p-3 rounded-xl"
-                  style={{ backgroundColor: "var(--psych-bg)" }}
-                >
-                  <div>
-                    <p className="text-xs font-medium" style={{ color: "var(--psych-text)" }}>{file.name}</p>
-                    <p className="text-[10px]" style={{ color: "var(--psych-muted)" }}>{file.date} · {file.size}</p>
+          <SectionCard title="Files & Attachments" description="Documents linked to this case">
+            {files.length > 0 ? (
+              <div className="space-y-2">
+                {files.map((file) => (
+                  <div
+                    key={file.id}
+                    className="flex items-center justify-between p-3 rounded-xl"
+                    style={{ backgroundColor: "var(--psych-bg)" }}
+                  >
+                    <div>
+                      <p className="text-xs font-medium" style={{ color: "var(--psych-text)" }}>{file.name}</p>
+                      <p className="text-[10px]" style={{ color: "var(--psych-muted)" }}>
+                        {file.category} · {new Date(file.uploadedAt).toLocaleDateString()} · {(file.size / 1024).toFixed(0)} KB
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setDeleteFileId(file.id)}
+                      className="p-1.5 rounded-lg transition-colors"
+                      style={{ color: "var(--psych-muted)" }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
                   </div>
-                  <Button variant="ghost" size="sm">Download</Button>
-                </div>
-              ))}
-              <p className="text-[10px] text-center mt-2" style={{ color: "var(--psych-muted)" }}>
-                File upload will be available when connected to Supabase storage.
-              </p>
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-6 text-center">
+                <p className="text-sm" style={{ color: "var(--psych-muted)" }}>No files attached yet.</p>
+                <p className="text-[10px] mt-1" style={{ color: "var(--psych-muted)" }}>
+                  File upload available in a future update.
+                </p>
+              </div>
+            )}
           </SectionCard>
         </TabsContent>
       </Tabs>
+
+      {/* Confirm delete goal */}
+      <ConfirmDialog
+        open={!!deleteGoalId}
+        title="Delete Goal"
+        description="This goal and all its milestones will be permanently removed."
+        confirmLabel="Delete"
+        onConfirm={() => {
+          if (deleteGoalId) {
+            deleteGoal(deleteGoalId);
+            toast("Goal deleted", "success");
+          }
+          setDeleteGoalId(null);
+        }}
+        onCancel={() => setDeleteGoalId(null)}
+      />
+
+      {/* Confirm delete file */}
+      <ConfirmDialog
+        open={!!deleteFileId}
+        title="Remove File"
+        description="This will remove the file from the case. This cannot be undone."
+        confirmLabel="Remove"
+        onConfirm={() => {
+          if (deleteFileId) {
+            removeFile(deleteFileId);
+            toast("File removed", "success");
+          }
+          setDeleteFileId(null);
+        }}
+        onCancel={() => setDeleteFileId(null)}
+      />
     </div>
   );
 }
