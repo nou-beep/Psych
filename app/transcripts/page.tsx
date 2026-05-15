@@ -1,6 +1,5 @@
 "use client";
 import { useState, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
 import {
   ScrollText,
   Plus,
@@ -48,9 +47,7 @@ export default function TranscriptsPage() {
   const [search, setSearch] = useState("");
   const [filterCase, setFilterCase] = useState("all");
   const [viewId, setViewId] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(
-    searchParams?.get("action") === "new"
-  );
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Partial<Transcript>>(emptyTranscript());
   const [deleteTarget, setDeleteTarget] = useState<Transcript | null>(null);

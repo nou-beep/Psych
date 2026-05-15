@@ -1,6 +1,5 @@
 "use client";
 import { useState, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
 import { Search, Plus, Pin, Archive, Trash2, Copy, Edit3, MoreHorizontal } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { CaseCard } from "@/components/shared/CaseCard";
@@ -61,9 +60,7 @@ export default function CasesPage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [showArchived, setShowArchived] = useState(false);
 
-  const [modalOpen, setModalOpen] = useState(
-    searchParams?.get("action") === "new"
-  );
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingCase, setEditingCase] = useState<CaseWithMeta | null>(null);
   const [form, setForm] = useState<Partial<CaseWithMeta>>(emptyCase());
   const [deleteTarget, setDeleteTarget] = useState<CaseWithMeta | null>(null);

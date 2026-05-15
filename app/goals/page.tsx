@@ -1,6 +1,5 @@
 "use client";
 import { useState, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
 import {
   Target,
   Plus,
@@ -76,9 +75,7 @@ export default function GoalsPage() {
   const [filterCategory, setFilterCategory] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
 
-  const [modalOpen, setModalOpen] = useState(
-    searchParams?.get("action") === "new"
-  );
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [form, setForm] = useState<Partial<Goal>>(emptyGoal());
   const [deleteTarget, setDeleteTarget] = useState<Goal | null>(null);
