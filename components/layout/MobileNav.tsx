@@ -5,7 +5,7 @@ import {
   LayoutDashboard,
   FolderOpen,
   ClipboardCheck,
-  Target,
+  GraduationCap,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ const mobileNavItems = [
   { href: "/", label: "Home", icon: LayoutDashboard },
   { href: "/cases", label: "Cases", icon: FolderOpen },
   { href: "/checkins", label: "Check-ins", icon: ClipboardCheck },
-  { href: "/goals", label: "Goals", icon: Target },
+  { href: "/thesis", label: "Thesis", icon: GraduationCap },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

@@ -15,6 +15,7 @@ import {
   Target,
   ScrollText,
   Command,
+  GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/contexts/AppContext";
@@ -43,6 +44,7 @@ const navGroups = [
     items: [
       { href: "/transcripts", label: "Transcripts", icon: ScrollText },
       { href: "/research", label: "Research", icon: FlaskConical },
+      { href: "/thesis", label: "Thesis Studio", icon: GraduationCap },
     ],
   },
   {

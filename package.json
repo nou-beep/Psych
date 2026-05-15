@@ -15,7 +15,8 @@
     "lucide-react": "^0.400.0",
     "next-themes": "^0.3.0",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^2.4.0"
+    "tailwind-merge": "^2.4.0",
+    "recharts": "^2.12.7"
   },
   "devDependencies": {
     "typescript": "^5",

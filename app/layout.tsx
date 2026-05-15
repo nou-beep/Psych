@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { AppProvider } from "@/contexts/AppContext";
+import { ThesisProvider } from "@/contexts/ThesisContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <AppProvider>
+            <ThesisProvider>
             <ToastProvider>
               <div className="flex min-h-screen">
                 <Sidebar />
@@ -39,6 +41,7 @@ export default function RootLayout({
               <CommandPalette />
               <QuickAddButton />
             </ToastProvider>
+            </ThesisProvider>
           </AppProvider>
         </ThemeProvider>
       </body>
