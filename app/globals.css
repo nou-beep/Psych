@@ -1,0 +1,334 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================
+   PSYCH — GLOBAL STYLES
+   This file defines the 7 themes (as CSS variables) and the
+   print system. Themes are applied by setting data-psych-theme
+   on the <html> element via ThemeProvider.
+   ========================================================== */
+
+/* ── DEFAULT THEME: Rose Clinic ─────────────────────────── */
+:root {
+  --psych-bg: #FFF5F7;
+  --psych-card: #FFFFFF;
+  --psych-sidebar: #FFF0F3;
+  --psych-primary: #F43F5E;
+  --psych-primary-hover: #E11D48;
+  --psych-primary-light: #FFE4E6;
+  --psych-accent: #9F1239;
+  --psych-text: #1E293B;
+  --psych-muted: #64748B;
+  --psych-border: #FECDD3;
+  --psych-gradient-from: #FFF1F5;
+  --psych-gradient-to: #FDF2F8;
+  --psych-shadow: 0 4px 24px rgba(244, 63, 94, 0.08);
+  --psych-sidebar-active: #FFE4E6;
+  --psych-sidebar-active-text: #E11D48;
+}
+
+/* ── THEME 2: Sage Mind ──────────────────────────────────── */
+[data-psych-theme="sage-mind"] {
+  --psych-bg: #F4F7F4;
+  --psych-card: #FAFAF9;
+  --psych-sidebar: #EEF3EE;
+  --psych-primary: #5A7C5A;
+  --psych-primary-hover: #4A6B4A;
+  --psych-primary-light: #D4E6D4;
+  --psych-accent: #3D5C3D;
+  --psych-text: #1C2B1C;
+  --psych-muted: #6B8068;
+  --psych-border: #C3D6C3;
+  --psych-gradient-from: #EEF3EE;
+  --psych-gradient-to: #E8F0E8;
+  --psych-shadow: 0 4px 24px rgba(90, 124, 90, 0.08);
+  --psych-sidebar-active: #D4E6D4;
+  --psych-sidebar-active-text: #4A6B4A;
+}
+
+/* ── THEME 3: Midnight Study ─────────────────────────────── */
+[data-psych-theme="midnight-study"] {
+  --psych-bg: #0F0F1A;
+  --psych-card: #1A1A2E;
+  --psych-sidebar: #16213E;
+  --psych-primary: #A78BFA;
+  --psych-primary-hover: #8B5CF6;
+  --psych-primary-light: #2D2B55;
+  --psych-accent: #7C3AED;
+  --psych-text: #E2E8F0;
+  --psych-muted: #94A3B8;
+  --psych-border: #2D2D48;
+  --psych-gradient-from: #1A1A2E;
+  --psych-gradient-to: #16213E;
+  --psych-shadow: 0 4px 24px rgba(167, 139, 250, 0.12);
+  --psych-sidebar-active: #2D2B55;
+  --psych-sidebar-active-text: #A78BFA;
+}
+
+/* ── THEME 4: Ocean Notes ────────────────────────────────── */
+[data-psych-theme="ocean-notes"] {
+  --psych-bg: #F0F8FF;
+  --psych-card: #FFFFFF;
+  --psych-sidebar: #E8F4FD;
+  --psych-primary: #3B82F6;
+  --psych-primary-hover: #2563EB;
+  --psych-primary-light: #DBEAFE;
+  --psych-accent: #1E40AF;
+  --psych-text: #1E293B;
+  --psych-muted: #64748B;
+  --psych-border: #BFDBFE;
+  --psych-gradient-from: #EFF6FF;
+  --psych-gradient-to: #F0F9FF;
+  --psych-shadow: 0 4px 24px rgba(59, 130, 246, 0.08);
+  --psych-sidebar-active: #DBEAFE;
+  --psych-sidebar-active-text: #2563EB;
+}
+
+/* ── THEME 5: Sunset Desk ────────────────────────────────── */
+[data-psych-theme="sunset-desk"] {
+  --psych-bg: #FFF8F3;
+  --psych-card: #FFFFFF;
+  --psych-sidebar: #FFF0E8;
+  --psych-primary: #F97316;
+  --psych-primary-hover: #EA580C;
+  --psych-primary-light: #FFEDD5;
+  --psych-accent: #C2410C;
+  --psych-text: #1C1917;
+  --psych-muted: #78716C;
+  --psych-border: #FED7AA;
+  --psych-gradient-from: #FFF7ED;
+  --psych-gradient-to: #FFF3E8;
+  --psych-shadow: 0 4px 24px rgba(249, 115, 22, 0.08);
+  --psych-sidebar-active: #FFEDD5;
+  --psych-sidebar-active-text: #EA580C;
+}
+
+/* ── THEME 6: Soft Lavender ──────────────────────────────── */
+[data-psych-theme="soft-lavender"] {
+  --psych-bg: #FAF7FF;
+  --psych-card: #FFFFFF;
+  --psych-sidebar: #F5F0FF;
+  --psych-primary: #A855F7;
+  --psych-primary-hover: #9333EA;
+  --psych-primary-light: #F3E8FF;
+  --psych-accent: #7E22CE;
+  --psych-text: #1E1B4B;
+  --psych-muted: #6B7280;
+  --psych-border: #E9D5FF;
+  --psych-gradient-from: #FAF5FF;
+  --psych-gradient-to: #F5F0FF;
+  --psych-shadow: 0 4px 24px rgba(168, 85, 247, 0.08);
+  --psych-sidebar-active: #F3E8FF;
+  --psych-sidebar-active-text: #9333EA;
+}
+
+/* ── THEME 7: Classic Minimal ────────────────────────────── */
+[data-psych-theme="classic-minimal"] {
+  --psych-bg: #F8FAFC;
+  --psych-card: #FFFFFF;
+  --psych-sidebar: #F1F5F9;
+  --psych-primary: #1E293B;
+  --psych-primary-hover: #0F172A;
+  --psych-primary-light: #E2E8F0;
+  --psych-accent: #475569;
+  --psych-text: #0F172A;
+  --psych-muted: #64748B;
+  --psych-border: #E2E8F0;
+  --psych-gradient-from: #F8FAFC;
+  --psych-gradient-to: #F1F5F9;
+  --psych-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+  --psych-sidebar-active: #E2E8F0;
+  --psych-sidebar-active-text: #0F172A;
+}
+
+/* ==========================================================
+   BASE STYLES
+   ========================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--psych-bg);
+  color: var(--psych-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Smooth transitions for theme switching */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+/* Disable transitions during initial load to avoid flash */
+.theme-transitioning * {
+  transition: none !important;
+}
+
+/* ==========================================================
+   UTILITY CLASSES FOR THEME COLORS
+   These classes make it easy to use theme colors in components.
+   ========================================================== */
+
+.bg-theme { background-color: var(--psych-bg); }
+.bg-theme-card { background-color: var(--psych-card); }
+.bg-theme-sidebar { background-color: var(--psych-sidebar); }
+.bg-theme-primary { background-color: var(--psych-primary); }
+.bg-theme-primary-light { background-color: var(--psych-primary-light); }
+.text-theme { color: var(--psych-text); }
+.text-theme-muted { color: var(--psych-muted); }
+.text-theme-primary { color: var(--psych-primary); }
+.border-theme { border-color: var(--psych-border); }
+
+/* ==========================================================
+   PRINT STYLES
+   When the user clicks Print, the sidebar, header, and buttons
+   are hidden. Only the report or grid content is printed.
+   The output is formatted for A4 paper (standard European size).
+   ========================================================== */
+
+@media print {
+  /* Hide all navigation and UI chrome */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Show print-only content */
+  .print-only {
+    display: block !important;
+  }
+
+  /* A4 page setup */
+  @page {
+    size: A4;
+    margin: 2cm;
+  }
+
+  /* Clean print body — no themes, just black on white */
+  html, body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+    font-family: "Times New Roman", Georgia, serif;
+    /* Remove all theme transitions for print */
+    transition: none !important;
+  }
+
+  /* Reset card styles for print */
+  .print-card {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Page breaks */
+  .print-page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  /* Avoid breaking inside these elements */
+  .print-keep-together {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Tables for print */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    font-size: 10pt;
+  }
+
+  th, td {
+    border: 1px solid #333 !important;
+    padding: 5px 8px !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  th {
+    background-color: #f0f0f0 !important;
+    font-weight: bold;
+  }
+
+  /* Print headers */
+  .print-header {
+    border-bottom: 2px solid #333;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  /* Print section titles */
+  .print-section-title {
+    font-size: 12pt;
+    font-weight: bold;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #666;
+    padding-bottom: 4px;
+  }
+
+  /* Signature area */
+  .print-signature {
+    margin-top: 32px;
+    border-top: 1px solid #333;
+    padding-top: 8px;
+  }
+
+  /* Empty rows in grids (for handwriting) */
+  .print-empty-row td {
+    height: 28px !important;
+  }
+
+  /* Hide decorative elements */
+  .decorative {
+    display: none !important;
+  }
+}
+
+/* ==========================================================
+   SCROLLBAR STYLING (non-print)
+   ========================================================== */
+
+@media screen {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--psych-border);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--psych-muted);
+  }
+}
+
+/* ==========================================================
+   ANIMATION HELPERS
+   ========================================================== */
+
+.animate-fade-in {
+  animation: fade-in 0.35s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
