@@ -42,7 +42,6 @@ export default function TranscriptsPage() {
   const { transcripts, cases, createTranscript, updateTranscript, deleteTranscript, archiveTranscript } =
     useApp();
   const { toast } = useToast();
-  const searchParams = useSearchParams();
 
   const [search, setSearch] = useState("");
   const [filterCase, setFilterCase] = useState("all");

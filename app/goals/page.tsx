@@ -68,7 +68,6 @@ function emptyGoal(): Partial<Goal> {
 export default function GoalsPage() {
   const { goals, createGoal, updateGoal, deleteGoal, archiveGoal, cases } = useApp();
   const { toast } = useToast();
-  const searchParams = useSearchParams();
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");

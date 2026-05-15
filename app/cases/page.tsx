@@ -53,7 +53,6 @@ export default function CasesPage() {
   const { cases, createCase, updateCase, deleteCase, archiveCase, duplicateCase, togglePinCase, pinnedCaseIds } =
     useApp();
   const { toast } = useToast();
-  const searchParams = useSearchParams();
 
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
