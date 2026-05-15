@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { AppProvider } from "@/contexts/AppContext";
 import { ThesisProvider } from "@/contexts/ThesisContext";
+import { ClinicalProvider } from "@/contexts/ClinicalContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -27,6 +28,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AppProvider>
             <ThesisProvider>
+            <ClinicalProvider>
             <ToastProvider>
               <div className="flex min-h-screen">
                 <Sidebar />
@@ -41,6 +43,7 @@ export default function RootLayout({
               <CommandPalette />
               <QuickAddButton />
             </ToastProvider>
+            </ClinicalProvider>
             </ThesisProvider>
           </AppProvider>
         </ThemeProvider>

@@ -16,6 +16,14 @@ import {
   ScrollText,
   Command,
   GraduationCap,
+  BookOpen,
+  CalendarDays,
+  BookMarked,
+  Languages,
+  Network,
+  Mic,
+  Zap,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/contexts/AppContext";
@@ -33,10 +41,23 @@ const navGroups = [
   {
     label: "Clinical",
     items: [
+      { href: "/reflect", label: "Reflections", icon: BookOpen },
+      { href: "/planner", label: "Session Planner", icon: CalendarDays },
+      { href: "/interventions", label: "Interventions", icon: Zap },
+      { href: "/formulation", label: "Formulation", icon: Network },
       { href: "/assessments", label: "Assessments", icon: Brain },
       { href: "/grids", label: "Grids", icon: Grid3X3 },
       { href: "/reports", label: "Reports", icon: FileText },
       { href: "/supervision", label: "Supervision", icon: Users },
+    ],
+  },
+  {
+    label: "Tools",
+    items: [
+      { href: "/workbook", label: "Workbook", icon: BookMarked },
+      { href: "/dictionary", label: "Dictionary", icon: Languages },
+      { href: "/audio", label: "Audio Notes", icon: Mic },
+      { href: "/ethics", label: "Ethics & Consent", icon: ShieldCheck },
     ],
   },
   {
