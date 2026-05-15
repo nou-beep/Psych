@@ -9,9 +9,8 @@ import { ReportHeader } from "@/components/reports/ReportHeader";
 import { ReportSection } from "@/components/reports/ReportSection";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { mockResearchParticipants } from "@/lib/mock-data";
-import { Printer, Tag } from "lucide-react";
+import { Printer } from "lucide-react";
 
 export default function ResearchPage() {
   const [showPrint, setShowPrint] = useState(false);

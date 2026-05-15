@@ -4,7 +4,6 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionCard } from "@/components/shared/SectionCard";
-import { PrintButton } from "@/components/shared/PrintButton";
 import { PrintableLayout } from "@/components/reports/PrintableLayout";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { ReportSection } from "@/components/reports/ReportSection";

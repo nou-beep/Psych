@@ -2,8 +2,7 @@
 import Link from "next/link";
 import { type Assessment } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Tag } from "lucide-react";
+import { Calendar } from "lucide-react";
 
 interface AssessmentCardProps {
   assessment: Assessment;

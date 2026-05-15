@@ -19,7 +19,7 @@ import { StatCard } from "@/components/shared/StatCard";
 import { CaseCard } from "@/components/shared/CaseCard";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
-import { Badge, getStatusVariant } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
   mockCases,
   mockDailyCheckIns,

@@ -134,7 +134,6 @@ function ChecklistGrid({
   date,
   studentName,
   institution,
-  supervisorName,
 }: Omit<GridTemplateProps, "grid"> & { grid: GridDefinition }) {
   return (
     <div className="print-keep-together">
