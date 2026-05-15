@@ -1,7 +1,4 @@
 "use client";
-// Dashboard — the home page of Psych. Shows daily check-ins, recent cases,
-// stat cards, quick actions, and assessment reminders.
-
 import Link from "next/link";
 import {
   FolderOpen,
@@ -12,23 +9,19 @@ import {
   Plus,
   AlertCircle,
   Sparkles,
-  Calendar,
+  Target,
+  ScrollText,
   TrendingUp,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import { StatCard } from "@/components/shared/StatCard";
-import { CaseCard } from "@/components/shared/CaseCard";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  mockCases,
-  mockDailyCheckIns,
-  mockAssessments,
-} from "@/lib/mock-data";
+import { ProgressBar } from "@/components/ui/ProgressBar";
+import { useApp } from "@/contexts/AppContext";
 
-// Today's date for display
 const today = new Date();
-const todayStr = today.toLocaleDateString("en-CA"); // YYYY-MM-DD
 const displayDate = today.toLocaleDateString("en-US", {
   weekday: "long",
   year: "numeric",
@@ -37,27 +30,39 @@ const displayDate = today.toLocaleDateString("en-US", {
 });
 
 const quickActions = [
-  { label: "New Case", icon: FolderOpen, href: "/cases", color: "#F43F5E" },
-  { label: "Check-in", icon: ClipboardCheck, href: "/checkins", color: "#8B5CF6" },
-  { label: "Assessment", icon: Brain, href: "/assessments", color: "#0EA5E9" },
-  { label: "Report", icon: FileText, href: "/reports", color: "#F97316" },
-  { label: "Print Grid", icon: Grid3X3, href: "/grids", color: "#10B981" },
+  { label: "New Case", icon: FolderOpen, href: "/cases?action=new", color: "var(--psych-primary)" },
+  { label: "Check-in", icon: ClipboardCheck, href: "/checkins?action=new", color: "#3B82F6" },
+  { label: "New Goal", icon: Target, href: "/goals?action=new", color: "#10B981" },
+  { label: "Transcript", icon: ScrollText, href: "/transcripts?action=new", color: "#F59E0B" },
+  { label: "Print Grid", icon: Grid3X3, href: "/grids", color: "#8B5CF6" },
+  { label: "Report", icon: FileText, href: "/reports", color: "#EC4899" },
 ];
 
-export default function Dashboard() {
-  const activeCases = mockCases.filter((c) => c.status === "Active").length;
-  const needsReview = mockCases.filter((c) => c.status === "Needs Review").length;
-  const pendingReports = mockCases.filter(
-    (c) => c.status === "Active" || c.status === "Needs Review"
-  ).length;
-  const recentCheckIns = mockDailyCheckIns.slice(0, 3);
-  const recentCases = mockCases.slice(0, 3);
-  const assessmentsDue = mockAssessments.filter((a) => a.lastCompleted === null).length;
+export default function DashboardPage() {
+  const { cases, checkIns, goals, transcripts, assessments } = useApp();
+
+  const activeCases = cases.filter((c) => !c.isArchived && c.status === "Active");
+  const needsReview = cases.filter((c) => !c.isArchived && c.status === "Needs Review");
+  const todayStr = today.toISOString().split("T")[0];
+  const todayCheckIns = checkIns.filter((c) => c.date === todayStr && !c.isArchived);
+  const activeGoals = goals.filter((g) => !g.isArchived && g.status === "in-progress");
+  const achievedGoals = goals.filter((g) => !g.isArchived && g.status === "achieved");
+  const recentCases = cases.filter((c) => !c.isArchived).slice(0, 3);
+  const pendingAssessments = assessments.filter((a) => a.scoreStatus === "Not started").length;
+
+  const avgProgress =
+    activeGoals.length > 0
+      ? Math.round(activeGoals.reduce((s, g) => s + g.progress, 0) / activeGoals.length)
+      : 0;
+
+  const greetingHour = today.getHours();
+  const greeting =
+    greetingHour < 12 ? "Good morning" : greetingHour < 17 ? "Good afternoon" : "Good evening";
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
 
-      {/* Welcome hero */}
+      {/* Hero */}
       <div
         className="relative rounded-3xl p-6 md:p-8 overflow-hidden"
         style={{
@@ -65,272 +70,307 @@ export default function Dashboard() {
           border: "1px solid var(--psych-border)",
         }}
       >
-        {/* Decorative sparkles */}
-        <div className="absolute top-4 right-6 decorative opacity-30">
-          <Sparkles size={32} style={{ color: "var(--psych-primary)" }} />
-        </div>
-        <div className="absolute top-10 right-16 decorative opacity-20">
-          <Sparkles size={16} style={{ color: "var(--psych-accent)" }} />
-        </div>
-        <div className="absolute bottom-4 right-10 decorative opacity-20 text-2xl">✦</div>
+        {/* Decorative orbs */}
+        <div className="orb orb-primary decorative" style={{ width: 180, height: 180, top: -40, right: -40 }} />
+        <div className="orb orb-accent decorative" style={{ width: 100, height: 100, bottom: -20, right: 120 }} />
 
-        <p
-          className="text-xs font-semibold uppercase tracking-widest mb-1"
-          style={{ color: "var(--psych-primary)" }}
-        >
-          {displayDate}
-        </p>
-        <h2
-          className="text-2xl md:text-3xl font-bold mb-2"
-          style={{ color: "var(--psych-text)" }}
-        >
-          Welcome back ✦
-        </h2>
-        <p className="text-sm max-w-lg" style={{ color: "var(--psych-muted)" }}>
-          Your clinical workspace is ready. You have{" "}
-          <strong style={{ color: "var(--psych-primary)" }}>{activeCases} active cases</strong>
-          {needsReview > 0 && (
-            <>
-              {" "}and{" "}
-              <strong style={{ color: "#DC2626" }}>{needsReview} needing review</strong>
-            </>
-          )}
-          .
-        </p>
-      </div>
-
-      {/* Quick actions */}
-      <div>
-        <h3
-          className="text-xs font-semibold uppercase tracking-widest mb-3"
-          style={{ color: "var(--psych-muted)" }}
-        >
-          Quick actions
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {quickActions.map(({ label, icon: Icon, href, color }) => (
-            <Link key={href} href={href}>
-              <button
-                className="flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all hover:scale-105 hover:shadow-md"
-                style={{
-                  backgroundColor: "var(--psych-card)",
-                  borderColor: "var(--psych-border)",
-                  color: "var(--psych-text)",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = color;
-                  (e.currentTarget as HTMLElement).style.color = color;
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--psych-border)";
-                  (e.currentTarget as HTMLElement).style.color = "var(--psych-text)";
-                }}
-              >
-                <Plus size={13} />
-                <Icon size={14} />
-                {label}
-              </button>
-            </Link>
-          ))}
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles size={14} className="animate-sparkle" style={{ color: "var(--psych-primary)" }} />
+            <span className="text-xs font-medium" style={{ color: "var(--psych-primary)" }}>
+              {displayDate}
+            </span>
+          </div>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--psych-text)" }}>
+            {greeting} ✦
+          </h1>
+          <p className="text-sm" style={{ color: "var(--psych-muted)" }}>
+            {activeCases.length} active cases · {activeGoals.length} goals in progress
+            {needsReview.length > 0 && ` · ${needsReview.length} need review`}
+          </p>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard
-          label="Active Cases"
-          value={activeCases}
-          icon={FolderOpen}
-          trend="+1 this month"
-          trendPositive
-        />
-        <StatCard
-          label="Pending Reports"
-          value={pendingReports}
-          icon={FileText}
-          trend="2 due this week"
-          trendPositive={false}
-        />
-        <StatCard
-          label="Check-ins (week)"
-          value={recentCheckIns.length}
-          icon={ClipboardCheck}
-          trend="Logged today"
-          trendPositive
-        />
-        <StatCard
-          label="Assessments Due"
-          value={assessmentsDue}
-          icon={Brain}
-          trend="Not yet started"
-          trendPositive={false}
-        />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          {
+            label: "Active Cases",
+            value: activeCases.length,
+            icon: <FolderOpen size={16} />,
+            color: "var(--psych-primary)",
+            sub: `${needsReview.length} need review`,
+          },
+          {
+            label: "Today's Check-ins",
+            value: todayCheckIns.length,
+            icon: <ClipboardCheck size={16} />,
+            color: "#3B82F6",
+            sub: "logged today",
+          },
+          {
+            label: "Goals In Progress",
+            value: activeGoals.length,
+            icon: <Target size={16} />,
+            color: "#10B981",
+            sub: `${achievedGoals.length} achieved`,
+          },
+          {
+            label: "Assessments Pending",
+            value: pendingAssessments,
+            icon: <Brain size={16} />,
+            color: "#F59E0B",
+            sub: "not started",
+          },
+        ].map((s, i) => (
+          <StatCard
+            key={s.label}
+            label={s.label}
+            value={String(s.value)}
+            icon={s.icon}
+            color={s.color}
+            subtext={s.sub}
+            delay={i * 50}
+          />
+        ))}
       </div>
 
-      {/* Two-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* Today's check-ins */}
-        <SectionCard
-          title="Today's Check-ins"
-          description={todayStr}
-          headerAction={
-            <Link href="/checkins">
-              <Button variant="ghost" size="sm">+ New</Button>
-            </Link>
-          }
-        >
-          {recentCheckIns.length > 0 ? (
-            <div className="space-y-3">
-              {recentCheckIns.map((checkIn) => {
-                const relatedCase = mockCases.find((c) => c.id === checkIn.caseId);
-                return (
-                  <div
-                    key={checkIn.id}
-                    className="flex items-start gap-3 p-3 rounded-xl"
-                    style={{ backgroundColor: "var(--psych-bg)" }}
-                  >
-                    <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-xs font-bold"
-                      style={{
-                        backgroundColor: "var(--psych-primary-light)",
-                        color: "var(--psych-primary)",
-                      }}
-                    >
-                      <ClipboardCheck size={14} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="text-xs font-mono font-bold"
-                          style={{ color: "var(--psych-primary)" }}
-                        >
-                          {relatedCase?.code ?? checkIn.caseId}
-                        </span>
-                        <span
-                          className="text-xs"
-                          style={{ color: "var(--psych-muted)" }}
-                        >
-                          {checkIn.date}
-                        </span>
-                      </div>
-                      <p
-                        className="text-xs mt-0.5 line-clamp-1"
-                        style={{ color: "var(--psych-muted)" }}
-                      >
-                        {checkIn.contextType}
-                      </p>
-                      {checkIn.followUpNeeded && (
-                        <span className="inline-flex items-center gap-1 text-[10px] mt-1" style={{ color: "#92400E" }}>
-                          <AlertCircle size={10} /> Follow-up needed
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-center py-6" style={{ color: "var(--psych-muted)" }}>
-              No check-ins logged today yet.
-            </p>
-          )}
-        </SectionCard>
-
-        {/* Assessment reminders */}
-        <SectionCard
-          title="Assessment Reminders"
-          description="Not yet completed"
-          headerAction={
-            <Link href="/assessments">
-              <Button variant="ghost" size="sm">View all</Button>
-            </Link>
-          }
-        >
-          <div className="space-y-2">
-            {mockAssessments
-              .filter((a) => a.lastCompleted === null || a.scoreStatus === "Not started")
-              .map((assessment) => (
+      {/* Quick actions */}
+      <SectionCard title="Quick Actions" className="animate-fade-up delay-2">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+          {quickActions.map((action) => (
+            <Link key={action.href} href={action.href}>
+              <div
+                className="flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all hover:scale-105 cursor-pointer text-center"
+                style={{
+                  backgroundColor: "var(--psych-bg)",
+                  borderColor: "var(--psych-border)",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = action.color;
+                  (e.currentTarget as HTMLElement).style.backgroundColor = "var(--psych-primary-light)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "var(--psych-border)";
+                  (e.currentTarget as HTMLElement).style.backgroundColor = "var(--psych-bg)";
+                }}
+              >
                 <div
-                  key={assessment.id}
-                  className="flex items-center justify-between p-3 rounded-xl"
-                  style={{ backgroundColor: "var(--psych-bg)" }}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: action.color + "20" }}
                 >
-                  <div>
-                    <p
-                      className="text-xs font-semibold"
-                      style={{ color: "var(--psych-text)" }}
-                    >
-                      {assessment.title}
-                    </p>
-                    <p className="text-[10px]" style={{ color: "var(--psych-muted)" }}>
-                      {assessment.category} · Not started
-                    </p>
-                  </div>
-                  <Link href="/assessments">
-                    <Button variant="secondary" size="sm">
-                      Open
-                    </Button>
-                  </Link>
+                  <action.icon size={16} style={{ color: action.color }} />
                 </div>
-              ))}
-          </div>
-        </SectionCard>
-      </div>
-
-      {/* Recent cases */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3
-            className="text-sm font-semibold flex items-center gap-2"
-            style={{ color: "var(--psych-text)" }}
-          >
-            <TrendingUp size={14} style={{ color: "var(--psych-primary)" }} />
-            Recent Cases
-          </h3>
-          <Link href="/cases">
-            <Button variant="ghost" size="sm">View all cases →</Button>
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {recentCases.map((c) => (
-            <CaseCard key={c.id} caseData={c} />
-          ))}
-        </div>
-      </div>
-
-      {/* Weekly snapshot */}
-      <SectionCard title="Weekly Snapshot" description="Current week overview">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: "Sessions held", value: "4", icon: "📅" },
-            { label: "Check-ins logged", value: "5", icon: "✅" },
-            { label: "Reports pending", value: "3", icon: "📄" },
-            { label: "Reviews due", value: "2", icon: "🔍" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-xl p-4 text-center"
-              style={{ backgroundColor: "var(--psych-bg)" }}
-            >
-              <div className="text-2xl mb-1">{item.icon}</div>
-              <div
-                className="text-xl font-bold"
-                style={{ color: "var(--psych-primary)" }}
-              >
-                {item.value}
+                <span className="text-[11px] font-medium leading-tight" style={{ color: "var(--psych-text)" }}>
+                  {action.label}
+                </span>
               </div>
-              <div
-                className="text-[10px] font-medium uppercase tracking-wide mt-0.5"
-                style={{ color: "var(--psych-muted)" }}
-              >
-                {item.label}
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       </SectionCard>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent cases */}
+        <div className="lg:col-span-2 animate-fade-up delay-3">
+          <SectionCard
+            title="Recent Cases"
+            action={
+              <Link href="/cases">
+                <Button variant="ghost" size="sm">View all</Button>
+              </Link>
+            }
+          >
+            {recentCases.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-sm" style={{ color: "var(--psych-muted)" }}>No cases yet</p>
+                <Link href="/cases?action=new">
+                  <Button size="sm" className="mt-3">
+                    <Plus size={13} /> Create First Case
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentCases.map((c) => (
+                  <Link key={c.id} href={`/cases/${c.id}`}>
+                    <div
+                      className="flex items-center gap-3 p-3 rounded-xl border transition-all hover:scale-[1.01] cursor-pointer"
+                      style={{
+                        backgroundColor: "var(--psych-bg)",
+                        borderColor: "var(--psych-border)",
+                      }}
+                    >
+                      <div
+                        className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                        style={{ background: "linear-gradient(135deg, var(--psych-primary), var(--psych-accent))" }}
+                      >
+                        {c.code.slice(0, 1)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium font-mono" style={{ color: "var(--psych-text)" }}>
+                          {c.code}
+                        </p>
+                        <p className="text-xs truncate" style={{ color: "var(--psych-muted)" }}>
+                          {c.shortNote}
+                        </p>
+                      </div>
+                      <span
+                        className="text-[10px] px-2 py-0.5 rounded-full flex-shrink-0"
+                        style={{
+                          backgroundColor:
+                            c.status === "Active"
+                              ? "#D1FAE5"
+                              : c.status === "Needs Review"
+                              ? "#FEE2E2"
+                              : "var(--psych-primary-light)",
+                          color:
+                            c.status === "Active"
+                              ? "#065F46"
+                              : c.status === "Needs Review"
+                              ? "#991B1B"
+                              : "var(--psych-primary)",
+                        }}
+                      >
+                        {c.status}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+        </div>
+
+        {/* Goals snapshot */}
+        <div className="animate-fade-up delay-4">
+          <SectionCard
+            title="Goals"
+            action={
+              <Link href="/goals">
+                <Button variant="ghost" size="sm">View all</Button>
+              </Link>
+            }
+          >
+            {activeGoals.length === 0 ? (
+              <div className="text-center py-6">
+                <Target size={24} className="mx-auto mb-2" style={{ color: "var(--psych-muted)" }} />
+                <p className="text-xs" style={{ color: "var(--psych-muted)" }}>No active goals</p>
+                <Link href="/goals?action=new">
+                  <Button size="sm" className="mt-3">
+                    <Plus size={13} /> Add Goal
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs mb-2">
+                  <span style={{ color: "var(--psych-muted)" }}>Avg. progress</span>
+                  <span className="font-medium" style={{ color: "var(--psych-primary)" }}>{avgProgress}%</span>
+                </div>
+                <ProgressBar value={avgProgress} size="md" />
+                <div className="space-y-2.5 mt-3">
+                  {activeGoals.slice(0, 4).map((g) => (
+                    <div key={g.id} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs truncate flex-1" style={{ color: "var(--psych-text)" }}>
+                          {g.title}
+                        </p>
+                        <span className="text-[10px] ml-2 flex-shrink-0" style={{ color: "var(--psych-muted)" }}>
+                          {g.progress}%
+                        </span>
+                      </div>
+                      <ProgressBar value={g.progress} size="xs" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </SectionCard>
+        </div>
+      </div>
+
+      {/* Alerts */}
+      {(needsReview.length > 0 || cases.filter((c) => c.alerts && c.alerts.length > 0 && !c.isArchived).length > 0) && (
+        <SectionCard className="animate-fade-up delay-5">
+          <div className="flex items-start gap-3">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: "#FEE2E2" }}
+            >
+              <AlertCircle size={16} style={{ color: "#DC2626" }} />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium mb-2" style={{ color: "var(--psych-text)" }}>
+                Alerts
+              </p>
+              <div className="space-y-1">
+                {needsReview.map((c) => (
+                  <Link key={c.id} href={`/cases/${c.id}`}>
+                    <p className="text-xs hover:underline" style={{ color: "#DC2626" }}>
+                      ✦ {c.code} — needs review
+                    </p>
+                  </Link>
+                ))}
+                {cases
+                  .filter((c) => c.alerts && c.alerts.length > 0 && !c.isArchived)
+                  .map((c) =>
+                    c.alerts!.map((alert, i) => (
+                      <p key={i} className="text-xs" style={{ color: "var(--psych-muted)" }}>
+                        · {c.code}: {alert}
+                      </p>
+                    ))
+                  )}
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+      )}
+
+      {/* Recent activity */}
+      <SectionCard title="Recent Activity" className="animate-fade-up delay-5">
+        <div className="space-y-2">
+          {[
+            ...checkIns.filter((c) => !c.isArchived).slice(0, 2).map((c) => ({
+              icon: <ClipboardCheck size={12} />,
+              text: `Check-in logged for case ${c.caseId}`,
+              date: c.date,
+              color: "#3B82F6",
+            })),
+            ...goals.filter((g) => !g.isArchived && g.status === "achieved").slice(0, 1).map((g) => ({
+              icon: <CheckCircle size={12} />,
+              text: `Goal achieved: ${g.title}`,
+              date: g.updatedAt.split("T")[0],
+              color: "#10B981",
+            })),
+            ...transcripts.filter((t) => !t.isArchived).slice(0, 1).map((t) => ({
+              icon: <ScrollText size={12} />,
+              text: `Transcript: ${t.title}`,
+              date: t.createdAt.split("T")[0],
+              color: "#F59E0B",
+            })),
+          ]
+            .sort((a, b) => b.date.localeCompare(a.date))
+            .slice(0, 5)
+            .map((item, i) => (
+              <div key={i} className="flex items-center gap-3 text-xs py-1">
+                <div
+                  className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: item.color + "20", color: item.color }}
+                >
+                  {item.icon}
+                </div>
+                <span className="flex-1" style={{ color: "var(--psych-text)" }}>{item.text}</span>
+                <span style={{ color: "var(--psych-muted)" }}>{item.date}</span>
+              </div>
+            ))}
+          {checkIns.length === 0 && goals.length === 0 && (
+            <p className="text-xs text-center py-4" style={{ color: "var(--psych-muted)" }}>
+              No activity yet — start by creating a case ✦
+            </p>
+          )}
+        </div>
+      </SectionCard>
     </div>
   );
 }

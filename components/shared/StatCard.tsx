@@ -1,56 +1,58 @@
-// StatCard — dashboard metric card showing a number, label, and optional trend.
-import { type LucideIcon } from "lucide-react";
+import { type ReactNode } from "react";
 
 interface StatCardProps {
   label: string;
   value: string | number;
-  icon: LucideIcon;
+  icon: ReactNode;
+  color?: string;
+  subtext?: string;
   trend?: string;
   trendPositive?: boolean;
-  accent?: string; // override the primary color for the icon bg
+  delay?: number;
 }
 
-export function StatCard({ label, value, icon: Icon, trend, trendPositive, accent }: StatCardProps) {
+export function StatCard({
+  label,
+  value,
+  icon,
+  color,
+  subtext,
+  trend,
+  trendPositive,
+  delay = 0,
+}: StatCardProps) {
   return (
     <div
-      className="rounded-2xl border p-5 flex items-start gap-4 transition-all hover:shadow-md"
+      className="rounded-2xl border p-4 flex flex-col gap-2 card-hover animate-fade-up"
       style={{
         backgroundColor: "var(--psych-card)",
         borderColor: "var(--psych-border)",
         boxShadow: "var(--psych-shadow)",
+        animationDelay: `${delay}ms`,
       }}
     >
-      {/* Icon */}
       <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+        className="w-8 h-8 rounded-xl flex items-center justify-center"
         style={{
-          backgroundColor: accent ?? "var(--psych-primary-light)",
-          color: accent ? "white" : "var(--psych-primary)",
+          backgroundColor: color ? color + "18" : "var(--psych-primary-light)",
+          color: color ?? "var(--psych-primary)",
         }}
       >
-        <Icon size={20} />
+        {icon}
       </div>
-
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <p
-          className="text-xs font-semibold uppercase tracking-wide mb-0.5"
-          style={{ color: "var(--psych-muted)" }}
-        >
-          {label}
-        </p>
-        <p
-          className="text-2xl font-bold"
-          style={{ color: "var(--psych-text)" }}
-        >
+      <div>
+        <p className="text-2xl font-bold" style={{ color: "var(--psych-text)" }}>
           {value}
         </p>
-        {trend && (
+        <p className="text-xs font-medium leading-snug" style={{ color: "var(--psych-muted)" }}>
+          {label}
+        </p>
+        {(subtext || trend) && (
           <p
-            className="text-xs mt-0.5"
-            style={{ color: trendPositive ? "#15803D" : "#DC2626" }}
+            className="text-[10px] mt-0.5"
+            style={{ color: trend ? (trendPositive ? "#15803D" : "#DC2626") : "var(--psych-muted)" }}
           >
-            {trend}
+            {trend || subtext}
           </p>
         )}
       </div>

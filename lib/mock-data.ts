@@ -134,6 +134,159 @@ export interface Session {
   nextSteps: string;
 }
 
+// ── NEW TYPES ─────────────────────────────────────────────────
+
+export interface Milestone {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+export interface Goal {
+  id: string;
+  caseId?: string;
+  title: string;
+  category: "therapeutic" | "behavioral" | "research" | "observation" | "intervention";
+  description: string;
+  status: "not-started" | "in-progress" | "achieved" | "paused";
+  priority: "low" | "medium" | "high";
+  progress: number;
+  milestones: Milestone[];
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  isArchived: boolean;
+}
+
+export interface TranscriptAnnotation {
+  id: string;
+  selectedText: string;
+  note: string;
+  color: "pink" | "yellow" | "green" | "blue" | "purple";
+}
+
+export interface Transcript {
+  id: string;
+  caseId?: string;
+  title: string;
+  content: string;
+  annotations: TranscriptAnnotation[];
+  tags: string[];
+  importantMoments: string[];
+  createdAt: string;
+  updatedAt: string;
+  isArchived: boolean;
+}
+
+export interface UploadedFile {
+  id: string;
+  caseId?: string;
+  name: string;
+  type: string;
+  size: number;
+  category: "pdf" | "docx" | "txt" | "image" | "audio" | "transcript" | "other";
+  uploadedAt: string;
+  isArchived: boolean;
+}
+
+// ── SEED GOALS ────────────────────────────────────────────────
+
+export const seedGoals: Goal[] = [
+  {
+    id: "goal-001",
+    caseId: "case-001",
+    title: "Develop anxiety regulation strategies",
+    category: "therapeutic",
+    description:
+      "Help client build a toolkit of evidence-based anxiety regulation strategies including breathing, grounding, and cognitive restructuring.",
+    status: "in-progress",
+    priority: "high",
+    progress: 60,
+    milestones: [
+      { id: "m1", title: "Introduce breathing techniques", completed: true },
+      { id: "m2", title: "Practice cognitive restructuring", completed: true },
+      { id: "m3", title: "Independent use outside sessions", completed: false },
+    ],
+    tags: ["anxiety", "CBT", "regulation"],
+    createdAt: "2026-02-15T10:00:00Z",
+    updatedAt: "2026-05-10T14:30:00Z",
+    isArchived: false,
+  },
+  {
+    id: "goal-002",
+    caseId: "case-002",
+    title: "Reduce behavioral outbursts",
+    category: "behavioral",
+    description:
+      "Target reduction in classroom behavioral incidents from baseline of 4/week to below 1/week through emotion regulation and antecedent strategies.",
+    status: "in-progress",
+    priority: "high",
+    progress: 45,
+    milestones: [
+      { id: "m4", title: "Baseline behavioral assessment", completed: true },
+      { id: "m5", title: "Introduce emotion vocabulary", completed: true },
+      { id: "m6", title: "Teacher strategy training", completed: false },
+      { id: "m7", title: "Sustained reduction below 1/week", completed: false },
+    ],
+    tags: ["behavior", "child", "school"],
+    createdAt: "2026-03-01T09:00:00Z",
+    updatedAt: "2026-05-09T11:00:00Z",
+    isArchived: false,
+  },
+  {
+    id: "goal-003",
+    caseId: "int-ap-001",
+    title: "Build sensory regulation toolkit",
+    category: "intervention",
+    description:
+      "Co-create a personalized sensory toolkit including preferred calming strategies, sensory-safe spaces, and self-advocacy scripts.",
+    status: "in-progress",
+    priority: "medium",
+    progress: 75,
+    milestones: [
+      { id: "m8", title: "Sensory profile mapping", completed: true },
+      { id: "m9", title: "Identify calming strategies", completed: true },
+      { id: "m10", title: "Create visual toolkit card", completed: true },
+      { id: "m11", title: "Independent use at school", completed: false },
+    ],
+    tags: ["sensory", "autism", "self-advocacy"],
+    createdAt: "2026-01-20T10:00:00Z",
+    updatedAt: "2026-05-11T09:30:00Z",
+    isArchived: false,
+  },
+];
+
+// ── SEED TRANSCRIPTS ──────────────────────────────────────────
+
+export const seedTranscripts: Transcript[] = [
+  {
+    id: "tr-001",
+    caseId: "res-004",
+    title: "Interview 1 — RES-004",
+    content:
+      "<p><strong>Researcher:</strong> Can you tell me a bit about what it was like returning to work after the incident?</p><br/><p><strong>Participant:</strong> It was... honestly, terrifying. I kept waiting for something to go wrong again. My whole team was different with me — some people were overly kind, which was almost harder than people being distant.</p><br/><p><strong>Researcher:</strong> What do you mean by that?</p><br/><p><strong>Participant:</strong> It's like they were walking on eggshells. And that made me feel more broken, you know? Like I was fragile. I didn't want to be fragile. I wanted to just do my job.</p><br/><p><strong>Researcher:</strong> How did you eventually find a way to manage?</p><br/><p><strong>Participant:</strong> Honestly, it was one colleague. She didn't treat me differently. She just... included me. That made all the difference.</p>",
+    annotations: [
+      {
+        id: "ann-001",
+        selectedText: "walking on eggshells",
+        note: "Key theme: peer avoidance behavior — explore further in Interview 2",
+        color: "yellow",
+      },
+      {
+        id: "ann-002",
+        selectedText: "She just... included me",
+        note: "Protective factor: peer inclusion as catalyst for recovery",
+        color: "green",
+      },
+    ],
+    tags: ["occupational-trauma", "peer-support", "return-to-work"],
+    importantMoments: ["terrifying return experience", "fragility perception", "inclusion as turning point"],
+    createdAt: "2026-05-06T14:00:00Z",
+    updatedAt: "2026-05-08T10:00:00Z",
+    isArchived: false,
+  },
+];
+
 // ── CASES ────────────────────────────────────────────────────
 
 export const mockCases: PsychCase[] = [

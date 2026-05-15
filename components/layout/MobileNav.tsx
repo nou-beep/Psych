@@ -1,15 +1,11 @@
 "use client";
-
-// MobileNav — bottom tab bar, visible only on mobile screens.
-// Shows the 5 most important navigation items.
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   FolderOpen,
   ClipboardCheck,
-  FileText,
+  Target,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,7 +14,7 @@ const mobileNavItems = [
   { href: "/", label: "Home", icon: LayoutDashboard },
   { href: "/cases", label: "Cases", icon: FolderOpen },
   { href: "/checkins", label: "Check-ins", icon: ClipboardCheck },
-  { href: "/reports", label: "Reports", icon: FileText },
+  { href: "/goals", label: "Goals", icon: Target },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -38,7 +34,7 @@ export function MobileNav() {
         borderColor: "var(--psych-border)",
       }}
     >
-      <div className="flex items-center justify-around py-1.5 px-2 safe-area-inset-bottom">
+      <div className="flex items-center justify-around py-1.5 px-2">
         {mobileNavItems.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           return (
@@ -49,11 +45,7 @@ export function MobileNav() {
                 "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all min-w-[52px]",
                 active && "scale-105"
               )}
-              style={
-                active
-                  ? { color: "var(--psych-primary)" }
-                  : { color: "var(--psych-muted)" }
-              }
+              style={active ? { color: "var(--psych-primary)" } : { color: "var(--psych-muted)" }}
             >
               <Icon size={20} strokeWidth={active ? 2.2 : 1.8} />
               <span className="text-[10px] font-medium leading-none">{label}</span>
