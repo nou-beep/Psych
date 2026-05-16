@@ -13,7 +13,11 @@ import { QuickAddButton } from "@/components/shared/QuickAddButton";
 
 function isImmersiveRoute(pathname: string | null): boolean {
   if (!pathname) return false;
+  // The new gateway lives at /. Login and the legacy /welcome are also
+  // chrome-less so they can render edge-to-edge.
+  if (pathname === "/") return true;
   if (pathname === "/welcome") return true;
+  if (pathname.startsWith("/login/")) return true;
   if (pathname === "/client" || pathname.startsWith("/client/")) return true;
   return false;
 }

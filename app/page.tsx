@@ -1,376 +1,373 @@
 "use client";
-import Link from "next/link";
+// Entry Gateway — full-screen split-entry between the Therapist Portal
+// and the Client Portal. Always shown on first visit; if a session is
+// already active we offer a "continue" path but never auto-bounce away
+// (the user asked: do NOT automatically open the therapist dashboard).
+
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import {
-  FolderOpen,
-  ClipboardCheck,
-  Brain,
-  FileText,
-  Grid3X3,
-  Plus,
-  AlertCircle,
+  Stethoscope,
+  Heart,
   Sparkles,
-  Target,
-  ScrollText,
-  TrendingUp,
-  CheckCircle,
-  Clock,
+  ArrowRight,
+  LogOut,
 } from "lucide-react";
-import { StatCard } from "@/components/shared/StatCard";
-import { SectionCard } from "@/components/shared/SectionCard";
-import { Button } from "@/components/ui/button";
-import { ProgressBar } from "@/components/ui/ProgressBar";
-import { useApp } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { setPortalPreference } from "@/lib/client/portal-store";
+import { homePathFor, loginPathFor, type Portal } from "@/lib/auth";
 
-const today = new Date();
-const displayDate = today.toLocaleDateString("en-US", {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+export default function GatewayPage() {
+  const router = useRouter();
+  const { session, signOut } = useAuth();
 
-const quickActions = [
-  { label: "New Case", icon: FolderOpen, href: "/cases?action=new", color: "var(--psych-primary)" },
-  { label: "Check-in", icon: ClipboardCheck, href: "/checkins?action=new", color: "#3B82F6" },
-  { label: "New Goal", icon: Target, href: "/goals?action=new", color: "#10B981" },
-  { label: "Transcript", icon: ScrollText, href: "/transcripts?action=new", color: "#F59E0B" },
-  { label: "Print Grid", icon: Grid3X3, href: "/grids", color: "#8B5CF6" },
-  { label: "Report", icon: FileText, href: "/reports", color: "#EC4899" },
-];
+  // Soft prefetch — no auto-redirect. The user must choose.
+  useEffect(() => {
+    router.prefetch("/login/therapist");
+    router.prefetch("/login/client");
+  }, [router]);
 
-export default function DashboardPage() {
-  const { cases, checkIns, goals, transcripts, assessments } = useApp();
-
-  const activeCases = cases.filter((c) => !c.isArchived && c.status === "Active");
-  const needsReview = cases.filter((c) => !c.isArchived && c.status === "Needs Review");
-  const todayStr = today.toISOString().split("T")[0];
-  const todayCheckIns = checkIns.filter((c) => c.date === todayStr && !c.isArchived);
-  const activeGoals = goals.filter((g) => !g.isArchived && g.status === "in-progress");
-  const achievedGoals = goals.filter((g) => !g.isArchived && g.status === "achieved");
-  const recentCases = cases.filter((c) => !c.isArchived).slice(0, 3);
-  const pendingAssessments = assessments.filter((a) => a.scoreStatus === "Not started").length;
-
-  const avgProgress =
-    activeGoals.length > 0
-      ? Math.round(activeGoals.reduce((s, g) => s + g.progress, 0) / activeGoals.length)
-      : 0;
-
-  const greetingHour = today.getHours();
-  const greeting =
-    greetingHour < 12 ? "Good morning" : greetingHour < 17 ? "Good afternoon" : "Good evening";
+  function go(portal: Portal) {
+    setPortalPreference(portal);
+    if (session?.portal === portal) {
+      router.push(homePathFor(portal));
+    } else {
+      router.push(loginPathFor(portal));
+    }
+  }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
+    <div
+      style={{
+        minHeight: "100vh",
+        position: "relative",
+        background:
+          "linear-gradient(155deg, #FFF1F5 0%, #F4ECF7 45%, #E6E2F2 100%)",
+        overflow: "hidden",
+      }}
+    >
+      {/* Subtle ambient orbs — soft but professional */}
+      <div className="cp-ambient" aria-hidden>
+        <div
+          className="cp-orb cp-orb-1"
+          style={{ background: "#F0B5C9", opacity: 0.35 }}
+        />
+        <div
+          className="cp-orb cp-orb-2"
+          style={{ background: "#C5B5DC", opacity: 0.3 }}
+        />
+        <div
+          className="cp-orb cp-orb-3"
+          style={{ background: "#DBD0E8", opacity: 0.22 }}
+        />
+      </div>
 
-      {/* Hero */}
       <div
-        className="relative rounded-3xl p-6 md:p-8 overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--psych-gradient-from), var(--psych-gradient-to))",
-          border: "1px solid var(--psych-border)",
+          position: "relative",
+          zIndex: 1,
+          maxWidth: 1200,
+          margin: "0 auto",
+          padding: "4rem 1.5rem 3rem",
         }}
       >
-        {/* Decorative orbs */}
-        <div className="orb orb-primary decorative" style={{ width: 180, height: 180, top: -40, right: -40 }} />
-        <div className="orb orb-accent decorative" style={{ width: 100, height: 100, bottom: -20, right: 120 }} />
-
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles size={14} className="animate-sparkle" style={{ color: "var(--psych-primary)" }} />
-            <span className="text-xs font-medium" style={{ color: "var(--psych-primary)" }}>
-              {displayDate}
-            </span>
+        {/* Brand line */}
+        <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "0.4rem 0.85rem",
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.7)",
+              border: "1px solid rgba(180,120,170,0.22)",
+              fontSize: 11,
+              color: "#6B4970",
+              marginBottom: 18,
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+            }}
+          >
+            <Sparkles size={11} /> Psych · Clinical Workspace
           </div>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--psych-text)" }}>
-            {greeting} ✦
+          <h1
+            style={{
+              fontSize: "clamp(2rem, 4.5vw, 2.75rem)",
+              fontWeight: 600,
+              color: "#1F1733",
+              letterSpacing: "-0.02em",
+              margin: 0,
+              lineHeight: 1.15,
+            }}
+          >
+            Choose your portal.
           </h1>
-          <p className="text-sm" style={{ color: "var(--psych-muted)" }}>
-            {activeCases.length} active cases · {activeGoals.length} goals in progress
-            {needsReview.length > 0 && ` · ${needsReview.length} need review`}
+          <p
+            style={{
+              color: "#5C4870",
+              fontSize: "1rem",
+              marginTop: 12,
+              maxWidth: 540,
+              marginLeft: "auto",
+              marginRight: "auto",
+              lineHeight: 1.55,
+            }}
+          >
+            Psych is a dual-space platform. The therapist workspace is built
+            for documentation and clinical reasoning. The client space is a
+            quieter companion for the work between sessions.
           </p>
-        </div>
-      </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          {
-            label: "Active Cases",
-            value: activeCases.length,
-            icon: <FolderOpen size={16} />,
-            color: "var(--psych-primary)",
-            sub: `${needsReview.length} need review`,
-          },
-          {
-            label: "Today's Check-ins",
-            value: todayCheckIns.length,
-            icon: <ClipboardCheck size={16} />,
-            color: "#3B82F6",
-            sub: "logged today",
-          },
-          {
-            label: "Goals In Progress",
-            value: activeGoals.length,
-            icon: <Target size={16} />,
-            color: "#10B981",
-            sub: `${achievedGoals.length} achieved`,
-          },
-          {
-            label: "Assessments Pending",
-            value: pendingAssessments,
-            icon: <Brain size={16} />,
-            color: "#F59E0B",
-            sub: "not started",
-          },
-        ].map((s, i) => (
-          <StatCard
-            key={s.label}
-            label={s.label}
-            value={String(s.value)}
-            icon={s.icon}
-            color={s.color}
-            subtext={s.sub}
-            delay={i * 50}
-          />
-        ))}
-      </div>
-
-      {/* Quick actions */}
-      <SectionCard title="Quick Actions" className="animate-fade-up delay-2">
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-          {quickActions.map((action) => (
-            <Link key={action.href} href={action.href}>
-              <div
-                className="flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all hover:scale-105 cursor-pointer text-center"
+          {session && (
+            <div
+              style={{
+                marginTop: 18,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "0.4rem 0.85rem",
+                borderRadius: 999,
+                background: "rgba(255,255,255,0.75)",
+                border: "1px solid rgba(180,120,170,0.22)",
+                fontSize: 12,
+                color: "#5C4870",
+              }}
+            >
+              Signed in as <strong>{session.email}</strong> · portal{" "}
+              <strong>{session.portal}</strong>
+              <button
+                onClick={signOut}
                 style={{
-                  backgroundColor: "var(--psych-bg)",
-                  borderColor: "var(--psych-border)",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = action.color;
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "var(--psych-primary-light)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--psych-border)";
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "var(--psych-bg)";
+                  all: "unset",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  color: "#9F1239",
+                  fontSize: 12,
+                  textDecoration: "underline",
                 }}
               >
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: action.color + "20" }}
-                >
-                  <action.icon size={16} style={{ color: action.color }} />
-                </div>
-                <span className="text-[11px] font-medium leading-tight" style={{ color: "var(--psych-text)" }}>
-                  {action.label}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </SectionCard>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent cases */}
-        <div className="lg:col-span-2 animate-fade-up delay-3">
-          <SectionCard
-            title="Recent Cases"
-            action={
-              <Link href="/cases">
-                <Button variant="ghost" size="sm">View all</Button>
-              </Link>
-            }
-          >
-            {recentCases.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-sm" style={{ color: "var(--psych-muted)" }}>No cases yet</p>
-                <Link href="/cases?action=new">
-                  <Button size="sm" className="mt-3">
-                    <Plus size={13} /> Create First Case
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {recentCases.map((c) => (
-                  <Link key={c.id} href={`/cases/${c.id}`}>
-                    <div
-                      className="flex items-center gap-3 p-3 rounded-xl border transition-all hover:scale-[1.01] cursor-pointer"
-                      style={{
-                        backgroundColor: "var(--psych-bg)",
-                        borderColor: "var(--psych-border)",
-                      }}
-                    >
-                      <div
-                        className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                        style={{ background: "linear-gradient(135deg, var(--psych-primary), var(--psych-accent))" }}
-                      >
-                        {c.code.slice(0, 1)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium font-mono" style={{ color: "var(--psych-text)" }}>
-                          {c.code}
-                        </p>
-                        <p className="text-xs truncate" style={{ color: "var(--psych-muted)" }}>
-                          {c.shortNote}
-                        </p>
-                      </div>
-                      <span
-                        className="text-[10px] px-2 py-0.5 rounded-full flex-shrink-0"
-                        style={{
-                          backgroundColor:
-                            c.status === "Active"
-                              ? "#D1FAE5"
-                              : c.status === "Needs Review"
-                              ? "#FEE2E2"
-                              : "var(--psych-primary-light)",
-                          color:
-                            c.status === "Active"
-                              ? "#065F46"
-                              : c.status === "Needs Review"
-                              ? "#991B1B"
-                              : "var(--psych-primary)",
-                        }}
-                      >
-                        {c.status}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </SectionCard>
-        </div>
-
-        {/* Goals snapshot */}
-        <div className="animate-fade-up delay-4">
-          <SectionCard
-            title="Goals"
-            action={
-              <Link href="/goals">
-                <Button variant="ghost" size="sm">View all</Button>
-              </Link>
-            }
-          >
-            {activeGoals.length === 0 ? (
-              <div className="text-center py-6">
-                <Target size={24} className="mx-auto mb-2" style={{ color: "var(--psych-muted)" }} />
-                <p className="text-xs" style={{ color: "var(--psych-muted)" }}>No active goals</p>
-                <Link href="/goals?action=new">
-                  <Button size="sm" className="mt-3">
-                    <Plus size={13} /> Add Goal
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs mb-2">
-                  <span style={{ color: "var(--psych-muted)" }}>Avg. progress</span>
-                  <span className="font-medium" style={{ color: "var(--psych-primary)" }}>{avgProgress}%</span>
-                </div>
-                <ProgressBar value={avgProgress} size="md" />
-                <div className="space-y-2.5 mt-3">
-                  {activeGoals.slice(0, 4).map((g) => (
-                    <div key={g.id} className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs truncate flex-1" style={{ color: "var(--psych-text)" }}>
-                          {g.title}
-                        </p>
-                        <span className="text-[10px] ml-2 flex-shrink-0" style={{ color: "var(--psych-muted)" }}>
-                          {g.progress}%
-                        </span>
-                      </div>
-                      <ProgressBar value={g.progress} size="xs" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </SectionCard>
-        </div>
-      </div>
-
-      {/* Alerts */}
-      {(needsReview.length > 0 || cases.filter((c) => c.alerts && c.alerts.length > 0 && !c.isArchived).length > 0) && (
-        <SectionCard className="animate-fade-up delay-5">
-          <div className="flex items-start gap-3">
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: "#FEE2E2" }}
-            >
-              <AlertCircle size={16} style={{ color: "#DC2626" }} />
+                <LogOut size={11} /> Sign out
+              </button>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium mb-2" style={{ color: "var(--psych-text)" }}>
-                Alerts
-              </p>
-              <div className="space-y-1">
-                {needsReview.map((c) => (
-                  <Link key={c.id} href={`/cases/${c.id}`}>
-                    <p className="text-xs hover:underline" style={{ color: "#DC2626" }}>
-                      ✦ {c.code} — needs review
-                    </p>
-                  </Link>
-                ))}
-                {cases
-                  .filter((c) => c.alerts && c.alerts.length > 0 && !c.isArchived)
-                  .map((c) =>
-                    c.alerts!.map((alert, i) => (
-                      <p key={i} className="text-xs" style={{ color: "var(--psych-muted)" }}>
-                        · {c.code}: {alert}
-                      </p>
-                    ))
-                  )}
-              </div>
-            </div>
-          </div>
-        </SectionCard>
-      )}
-
-      {/* Recent activity */}
-      <SectionCard title="Recent Activity" className="animate-fade-up delay-5">
-        <div className="space-y-2">
-          {[
-            ...checkIns.filter((c) => !c.isArchived).slice(0, 2).map((c) => ({
-              icon: <ClipboardCheck size={12} />,
-              text: `Check-in logged for case ${c.caseId}`,
-              date: c.date,
-              color: "#3B82F6",
-            })),
-            ...goals.filter((g) => !g.isArchived && g.status === "achieved").slice(0, 1).map((g) => ({
-              icon: <CheckCircle size={12} />,
-              text: `Goal achieved: ${g.title}`,
-              date: g.updatedAt.split("T")[0],
-              color: "#10B981",
-            })),
-            ...transcripts.filter((t) => !t.isArchived).slice(0, 1).map((t) => ({
-              icon: <ScrollText size={12} />,
-              text: `Transcript: ${t.title}`,
-              date: t.createdAt.split("T")[0],
-              color: "#F59E0B",
-            })),
-          ]
-            .sort((a, b) => b.date.localeCompare(a.date))
-            .slice(0, 5)
-            .map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-xs py-1">
-                <div
-                  className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: item.color + "20", color: item.color }}
-                >
-                  {item.icon}
-                </div>
-                <span className="flex-1" style={{ color: "var(--psych-text)" }}>{item.text}</span>
-                <span style={{ color: "var(--psych-muted)" }}>{item.date}</span>
-              </div>
-            ))}
-          {checkIns.length === 0 && goals.length === 0 && (
-            <p className="text-xs text-center py-4" style={{ color: "var(--psych-muted)" }}>
-              No activity yet — start by creating a case ✦
-            </p>
           )}
         </div>
-      </SectionCard>
+
+        {/* Two portal cards */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "1.5rem",
+          }}
+        >
+          {/* Therapist card */}
+          <button
+            onClick={() => go("therapist")}
+            style={{
+              all: "unset",
+              cursor: "pointer",
+              display: "block",
+              borderRadius: 24,
+              padding: "2rem",
+              background:
+                "linear-gradient(160deg, rgba(255,255,255,0.96), rgba(252,232,240,0.85))",
+              border: "1px solid rgba(180,90,140,0.18)",
+              boxShadow: "0 12px 40px rgba(199,125,170,0.18)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              transition: "transform 0.3s, box-shadow 0.3s",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.transform =
+                "translateY(-3px)";
+              (e.currentTarget as HTMLElement).style.boxShadow =
+                "0 18px 50px rgba(199,125,170,0.28)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.transform = "none";
+              (e.currentTarget as HTMLElement).style.boxShadow =
+                "0 12px 40px rgba(199,125,170,0.18)";
+            }}
+          >
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 16,
+                background:
+                  "linear-gradient(135deg, #F9A8D4, #D67B9E)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                marginBottom: 16,
+              }}
+            >
+              <Stethoscope size={22} />
+            </div>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: "1.4rem",
+                fontWeight: 600,
+                color: "#1F1733",
+              }}
+            >
+              Therapist Portal
+            </h2>
+            <p
+              style={{
+                marginTop: 8,
+                color: "#5C4870",
+                fontSize: "0.95rem",
+                lineHeight: 1.6,
+              }}
+            >
+              Cases, structured interviews, MSE, formulations, longitudinal
+              tracking, hypotheses, reports, and supervision — built for
+              documentation and clinical reasoning.
+            </p>
+            <ul
+              style={{
+                marginTop: 12,
+                listStyle: "none",
+                padding: 0,
+                color: "#7A6090",
+                fontSize: "0.82rem",
+                lineHeight: 1.7,
+              }}
+            >
+              <li>· Structured documentation</li>
+              <li>· Standardised assessments</li>
+              <li>· Clinical hypothesis workspace</li>
+              <li>· Supervision & research</li>
+            </ul>
+            <div
+              style={{
+                marginTop: 20,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: "0.9rem",
+                fontWeight: 500,
+                color: "#9F1239",
+              }}
+            >
+              Continue as Therapist <ArrowRight size={14} />
+            </div>
+          </button>
+
+          {/* Client card */}
+          <button
+            onClick={() => go("client")}
+            style={{
+              all: "unset",
+              cursor: "pointer",
+              display: "block",
+              borderRadius: 24,
+              padding: "2rem",
+              background:
+                "linear-gradient(160deg, rgba(255,255,255,0.92), rgba(230,210,240,0.78))",
+              border: "1px solid rgba(140,100,180,0.18)",
+              boxShadow: "0 12px 40px rgba(140,110,200,0.2)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              transition: "transform 0.3s, box-shadow 0.3s",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.transform =
+                "translateY(-3px)";
+              (e.currentTarget as HTMLElement).style.boxShadow =
+                "0 18px 50px rgba(140,110,200,0.32)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.transform = "none";
+              (e.currentTarget as HTMLElement).style.boxShadow =
+                "0 12px 40px rgba(140,110,200,0.2)";
+            }}
+          >
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 16,
+                background: "linear-gradient(135deg, #C7B2E0, #D6A4D6)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                marginBottom: 16,
+              }}
+            >
+              <Heart size={22} />
+            </div>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: "1.4rem",
+                fontWeight: 600,
+                color: "#1F1733",
+              }}
+            >
+              Client Portal
+            </h2>
+            <p
+              style={{
+                marginTop: 8,
+                color: "#5C4870",
+                fontSize: "0.95rem",
+                lineHeight: 1.6,
+              }}
+            >
+              A clinically grounded companion for therapy work — assigned
+              workbooks, structured reflections, symptom tracking, and
+              grounding tools. Quieter, calmer, focused.
+            </p>
+            <ul
+              style={{
+                marginTop: 12,
+                listStyle: "none",
+                padding: 0,
+                color: "#7A6090",
+                fontSize: "0.82rem",
+                lineHeight: 1.7,
+              }}
+            >
+              <li>· Therapist-assigned work</li>
+              <li>· Structured reflections</li>
+              <li>· Symptom monitoring</li>
+              <li>· Grounding & psychoeducation</li>
+            </ul>
+            <div
+              style={{
+                marginTop: 20,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: "0.9rem",
+                fontWeight: 500,
+                color: "#7C4FB3",
+              }}
+            >
+              Continue as Client <ArrowRight size={14} />
+            </div>
+          </button>
+        </div>
+
+        <p
+          style={{
+            marginTop: "3rem",
+            textAlign: "center",
+            fontSize: "0.78rem",
+            color: "#7A6090",
+          }}
+        >
+          You can switch portals any time from Settings.
+        </p>
+      </div>
     </div>
   );
 }

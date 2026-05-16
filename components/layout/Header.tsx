@@ -2,11 +2,10 @@
 import { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sparkles, Search, Command, X } from "lucide-react";
-import { ThemeSelector } from "@/components/shared/ThemeSelector";
 import { useApp } from "@/contexts/AppContext";
 
 const pageTitles: Record<string, string> = {
-  "/": "Dashboard",
+  "/therapist": "Dashboard",
   "/cases": "Cases",
   "/checkins": "Check-ins",
   "/assessments": "Assessments",
@@ -231,8 +230,6 @@ export function Header() {
       >
         <Command size={12} />
       </button>
-
-      <ThemeSelector compact />
     </header>
   );
 }

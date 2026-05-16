@@ -94,6 +94,81 @@ the pre-existing lint errors are cleaned up.
 
 ---
 
+## Dual-portal architecture
+
+Psych is split into two distinct ecosystems that share the same local
+data layer but feel intentionally different.
+
+```
+                       /  (entry gateway)
+                       │
+              ┌────────┴────────┐
+              ▼                 ▼
+   /login/therapist     /login/client
+              │                 │
+              ▼                 ▼
+   /therapist + /cases,  /client + /client/*
+   /clinical, /reports,
+   /thesis, /supervision …
+```
+
+- **Gateway** at `/` — full-screen split-entry. The app NEVER auto-opens
+  the therapist dashboard; the user always chooses a portal.
+- **Therapist portal** — workspace, cases, clinical tools, reports,
+  research. Lives at `/therapist` (dashboard) plus all the existing
+  routes (`/cases`, `/clinical/*`, `/reports/*`, …). Higher information
+  density, advanced tools, supervision and research surfaces.
+- **Client portal** — quieter companion for between-session work.
+  Therapist-guided, lower cognitive load, simpler navigation.
+- **Mock auth** — `/login/therapist` and `/login/client` accept any
+  credentials. The session lives in `localStorage` under
+  `psych-session-v1`. `RequireAuth` (a client-side guard wrapping the
+  app) bounces unauthenticated users to the right login screen.
+  `lib/auth.ts` exports `homePathFor`, `loginPathFor`, `isPublicRoute`,
+  `portalForRoute`.
+
+### Client portal philosophy
+
+The portal is now a **clinically grounded therapeutic companion**, not a
+fantasy healing world. Decorative emotional mechanics are de-emphasised
+in favour of:
+
+- Structured reflections (post-session, things forgot to say, emotional
+  reactions, questions for next session)
+- Daily symptom check-ins across six domains (anxiety, mood, sleep,
+  emotional regulation, dissociation, stress) plus homework completion
+- Therapist-assigned workbooks, assessments, and resources
+- Psychoeducation viewer with reading-level variants
+- Grounding / stabilization tools
+
+The simplified client navigation has nine items only: **Home, Workbooks,
+Reflections, Assessments, Progress, Resources, Grounding, Therapist
+notes, Settings**. Legacy client routes (cards, journeys, comfort,
+audio, safe-people, the "I can't explain it" canvas) still exist for
+users who want them but are no longer in the primary nav.
+
+### Therapist ↔ client workflow
+
+The therapist case detail has a **Client portal ✦** tab where the
+clinician assigns:
+
+- Workbooks → appear on the client's home and `/client/workbooks`
+- Assessments → appear on `/client/assessments`
+- Therapeutic cards / paths → appear on `/client/notes` and `/client/resources`
+- Supportive notes → surface on the client home as "From your therapist"
+
+Assignments use a shared `localStorage` key — no real backend yet. The
+shape models a future real-time sync.
+
+### Appearance + terminology in Settings
+
+Theme controls have moved out of the top header into **Settings →
+Appearance** for a more professional feel. Settings also now hosts a
+**Client terminology** toggle (Client / Patient / Participant) for
+clinicians who use different language for the people they work with.
+
+---
+
 ## Clinical-scientific toolkit
 
 A new clinical hub at `/clinical` brings together evidence-informed

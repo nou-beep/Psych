@@ -5,28 +5,34 @@
 // inside this shell.
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  Heart,
   Home,
-  Compass,
-  Layers,
   Library,
-  ShieldHalf,
-  Sparkles,
+  Notebook,
+  ClipboardList,
+  LineChart,
+  BookOpen,
+  Compass,
+  Mail,
+  Settings as SettingsIcon,
+  LogOut,
 } from "lucide-react";
 import { useClientPortal } from "@/contexts/ClientPortalContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { AftercareOverlay } from "@/components/client/AftercareOverlay";
 import { CrisisOverlay } from "@/components/client/CrisisOverlay";
 
 const NAV_ITEMS = [
   { href: "/client", label: "Home", icon: Home },
-  { href: "/client/checkin", label: "Check-in", icon: Heart },
-  { href: "/client/grounding", label: "Grounding", icon: Compass },
-  { href: "/client/cards", label: "Cards", icon: Layers },
   { href: "/client/workbooks", label: "Workbooks", icon: Library },
-  { href: "/client/comfort", label: "Comfort", icon: ShieldHalf },
-  { href: "/client/settings", label: "You", icon: Sparkles },
+  { href: "/client/reflections", label: "Reflections", icon: Notebook },
+  { href: "/client/assessments", label: "Assessments", icon: ClipboardList },
+  { href: "/client/progress", label: "Progress", icon: LineChart },
+  { href: "/client/resources", label: "Resources", icon: BookOpen },
+  { href: "/client/grounding", label: "Grounding", icon: Compass },
+  { href: "/client/notes", label: "Therapist notes", icon: Mail },
+  { href: "/client/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 export function ClientShell({

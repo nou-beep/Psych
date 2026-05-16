@@ -6,8 +6,10 @@ import { ThesisProvider } from "@/contexts/ThesisContext";
 import { ClinicalProvider } from "@/contexts/ClinicalContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ClientPortalProvider } from "@/contexts/ClientPortalContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ChromeGate } from "@/components/shared/ChromeGate";
+import { RequireAuth } from "@/components/auth/RequireAuth";
 import { PWARegister } from "@/components/shared/PWARegister";
 import { AccessibilityShell } from "@/components/shared/AccessibilityShell";
 
@@ -44,13 +46,16 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <SettingsProvider>
+          <AuthProvider>
           <AppProvider>
             <ThesisProvider>
             <ClinicalProvider>
             <ClientPortalProvider>
             <ToastProvider>
               <AccessibilityShell>
-                <ChromeGate>{children}</ChromeGate>
+                <RequireAuth>
+                  <ChromeGate>{children}</ChromeGate>
+                </RequireAuth>
                 <PWARegister />
               </AccessibilityShell>
             </ToastProvider>
@@ -58,6 +63,7 @@ export default function RootLayout({
             </ClinicalProvider>
             </ThesisProvider>
           </AppProvider>
+          </AuthProvider>
           </SettingsProvider>
         </ThemeProvider>
       </body>

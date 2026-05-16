@@ -1,33 +1,24 @@
 "use client";
-// Client portal home — feels like entering a safe emotional space.
-// No dashboard cards; soft sections with gentle copy.
+// Client home — clinically grounded entry surface. No fantasy aesthetic.
+// Surfaces: today's check-in, assigned work, upcoming session, recent
+// reflections, progress snapshot, grounding quick access.
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
-  CloudFog,
-  CloudRain,
-  Cloud,
-  Wind,
-  Heart,
+  ClipboardCheck,
   Compass,
   Library,
-  Layers,
-  ShieldHalf,
-  Mic,
-  Palette,
-  Sparkles,
+  Notebook,
+  LineChart,
+  BookOpen,
+  ArrowRight,
+  CalendarClock,
 } from "lucide-react";
 import { ClientShell } from "@/components/client/ClientShell";
 import { useClientPortal } from "@/contexts/ClientPortalContext";
-import {
-  ALL_WEATHERS,
-  WEATHER_META,
-  rankByWeather,
-  type EmotionalWeather,
-} from "@/lib/client/emotional-weather";
-import { ALL_JOURNEYS } from "@/lib/client/journeys";
-import { buildMemoryNotes } from "@/lib/client/memory";
+import { useAuth } from "@/contexts/AuthContext";
+import { loadFromStorage } from "@/lib/store";
 import {
   loadAssignments,
   acknowledge,
@@ -35,146 +26,167 @@ import {
   type ClientAssignment,
 } from "@/lib/client/assignments";
 import { ALL_WORKBOOKS } from "@/lib/client/workbooks";
-import { ALL_CARDS } from "@/lib/client/therapy-cards";
-
-const WEATHER_ICONS: Partial<Record<EmotionalWeather, typeof CloudFog>> = {
-  foggy: CloudFog,
-  stormy: CloudRain,
-  floating: Cloud,
-  loud: Wind,
-  underwater: Cloud,
-  numb: Cloud,
-  heavy: Cloud,
-  static: Wind,
-  frozen: Cloud,
-  open: Sparkles,
-};
+import { ALL_JOURNEYS } from "@/lib/client/journeys";
+import {
+  TRACKING_DOMAINS,
+  TRACKING_STORAGE_KEY,
+  domainAverages,
+  homeworkCompletionRate,
+  type ClientTrackingEntry,
+} from "@/lib/client/client-tracking";
+import {
+  REFLECTIONS_STORAGE_KEY,
+  REFLECTION_KIND_LABELS,
+  timeline,
+  type ClientReflection,
+} from "@/lib/client/reflections";
 
 export default function ClientHomePage() {
-  const {
-    weather,
-    setWeather,
-    weatherHistory,
-    audioReflectionCount,
-    groundingUses,
-    lowEnergySessionCount,
-    journeyProgress,
-    favouriteCardIds,
-    comfortObjects,
-  } = useClientPortal();
+  const { session } = useAuth();
+  const { setLowEnergyMode, lowEnergyMode } = useClientPortal();
 
-  // A short list of suggested journeys for the current weather.
-  const suggestedJourneys = useMemo(() => {
-    return rankByWeather(ALL_JOURNEYS, weather).slice(0, 3);
-  }, [weather]);
-
-  // Recent in-progress journey (if any).
-  const activeJourney = useMemo(() => {
-    const entries = Object.values(journeyProgress).filter(
-      (p): p is NonNullable<typeof p> => !!p && p.completedSteps.length > 0
-    );
-    if (entries.length === 0) return null;
-    const latest = entries.sort((a, b) =>
-      b.updatedAt.localeCompare(a.updatedAt)
-    )[0];
-    return ALL_JOURNEYS.find((j) => j.id === latest.journeyId) ?? null;
-  }, [journeyProgress]);
-
-  const memoryNotes = useMemo(
-    () =>
-      buildMemoryNotes({
-        weatherHistory,
-        audioReflectionCount,
-        groundingUses,
-        lowEnergySessionCount,
-        favouriteDecks: favouriteCardIds,
-        comfortObjectCount: comfortObjects.length,
-        completedSteps: Object.values(journeyProgress).reduce(
-          (acc, p) => acc + (p?.completedSteps.length ?? 0),
-          0
-        ),
-      }),
-    [
-      weatherHistory,
-      audioReflectionCount,
-      groundingUses,
-      lowEnergySessionCount,
-      favouriteCardIds,
-      comfortObjects.length,
-      journeyProgress,
-    ]
-  );
-
-  // Therapist→client assignments (read from shared localStorage).
   const [assignments, setAssignments] = useState<ClientAssignment[]>([]);
+  const [entries, setEntries] = useState<ClientTrackingEntry[]>([]);
+  const [reflections, setReflections] = useState<ClientReflection[]>([]);
+
   useEffect(() => {
     setAssignments(loadAssignments());
+    setEntries(loadFromStorage<ClientTrackingEntry[]>(TRACKING_STORAGE_KEY, []));
+    setReflections(
+      loadFromStorage<ClientReflection[]>(REFLECTIONS_STORAGE_KEY, [])
+    );
   }, []);
-  const unread = assignments.filter((a) => !a.acknowledged);
 
-  function ackAssignment(id: string) {
+  const today = new Date().toISOString().split("T")[0];
+  const todayEntry = entries.find((e) => e.date === today);
+  const unreadAssignments = useMemo(
+    () => assignments.filter((a) => !a.acknowledged),
+    [assignments]
+  );
+  const averages = useMemo(() => domainAverages(entries, 14), [entries]);
+  const homework = useMemo(() => homeworkCompletionRate(entries, 30), [entries]);
+  const recentReflections = useMemo(() => timeline(reflections).slice(0, 3), [reflections]);
+
+  function ack(id: string) {
     const next = acknowledge(assignments, id);
     setAssignments(next);
     saveAssignments(next);
   }
 
+  function assignmentLabel(a: ClientAssignment): string {
+    if (a.kind === "workbook") {
+      const wb = ALL_WORKBOOKS.find((w) => w.id === a.targetId);
+      return wb ? `Workbook · ${wb.title}` : "Workbook";
+    }
+    if (a.kind === "journey") {
+      const j = ALL_JOURNEYS.find((x) => x.id === a.targetId);
+      return j ? `Path · ${j.title}` : "Therapeutic path";
+    }
+    if (a.kind === "card") return "Therapeutic card";
+    return "Therapist note";
+  }
+
   function assignmentHref(a: ClientAssignment): string | null {
     if (a.kind === "workbook" && a.targetId) return `/client/workbooks/${a.targetId}`;
     if (a.kind === "journey" && a.targetId) return `/client/journeys/${a.targetId}`;
-    if (a.kind === "card") return "/client/cards";
+    if (a.kind === "card") return "/client/resources";
     return null;
   }
 
-  function describeAssignment(a: ClientAssignment): string {
-    if (a.kind === "workbook") {
-      const wb = ALL_WORKBOOKS.find((w) => w.id === a.targetId);
-      return wb ? `Workbook: ${wb.title}` : "A workbook";
-    }
-    if (a.kind === "journey") {
-      // Avoid extra imports — journey display name fallback.
-      return `A journey: ${a.targetId ?? ""}`;
-    }
-    if (a.kind === "card") {
-      const card = ALL_CARDS.find((c) => c.id === a.targetId);
-      return card ? `A card: "${card.prompt}"` : "A card";
-    }
-    return "A supportive note";
-  }
-
   return (
-    <ClientShell title="A softer place to land." microcopy="You can move slowly here.">
+    <ClientShell
+      title="Welcome back."
+      microcopy={
+        session
+          ? `Signed in as ${session.email}. A quieter companion for the work between sessions.`
+          : "A quieter companion for the work between sessions."
+      }
+    >
+      {/* Today's check-in */}
+      <section className="cp-card cp-fade-in" style={{ marginBottom: "1.25rem" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 8,
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "0.95rem",
+              fontWeight: 600,
+              margin: 0,
+              color: "var(--cp-text)",
+            }}
+          >
+            Today&rsquo;s check-in
+          </h2>
+          <span
+            style={{
+              fontSize: "0.72rem",
+              color: "var(--cp-muted)",
+            }}
+          >
+            {today}
+          </span>
+        </div>
+        {todayEntry ? (
+          <div>
+            <p
+              className="cp-microcopy"
+              style={{ fontSize: "0.84rem", marginBottom: 8 }}
+            >
+              You&rsquo;ve checked in today. Edit or review anytime.
+            </p>
+            <Link
+              href="/client/progress"
+              style={ctaLinkStyle()}
+            >
+              <ClipboardCheck size={14} /> Update today&rsquo;s entry
+            </Link>
+          </div>
+        ) : (
+          <div>
+            <p
+              className="cp-microcopy"
+              style={{ fontSize: "0.84rem", marginBottom: 8 }}
+            >
+              A short, structured check-in tracks mood, sleep, anxiety, and
+              other domains over time.
+            </p>
+            <Link href="/client/progress" style={ctaLinkStyle()}>
+              <ClipboardCheck size={14} /> Start today&rsquo;s check-in
+            </Link>
+          </div>
+        )}
+      </section>
+
       {/* From your therapist */}
-      {unread.length > 0 && (
+      {unreadAssignments.length > 0 && (
         <section className="cp-card cp-fade-in" style={{ marginBottom: "1.25rem" }}>
           <h2
             style={{
               fontSize: "0.95rem",
               fontWeight: 600,
-              margin: "0 0 0.5rem",
+              margin: "0 0 8px",
               color: "var(--cp-text)",
             }}
           >
             From your therapist
           </h2>
-          <p
-            className="cp-microcopy"
-            style={{ fontSize: "0.82rem", marginBottom: 10 }}
-          >
-            Soft things they wanted you to have.
-          </p>
           <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
-            {unread.map((a) => {
+            {unreadAssignments.map((a) => {
               const href = assignmentHref(a);
-              const label = describeAssignment(a);
               return (
                 <li
                   key={a.id}
                   className="cp-card-soft"
-                  style={{ display: "flex", gap: 10, alignItems: "center" }}
+                  style={{ display: "flex", alignItems: "center", gap: 10 }}
                 >
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: "0.88rem", color: "var(--cp-text)" }}>
-                      {label}
+                      {assignmentLabel(a)}
                     </div>
                     {a.note && (
                       <div
@@ -192,31 +204,15 @@ export default function ClientHomePage() {
                   {href ? (
                     <Link
                       href={href}
-                      onClick={() => ackAssignment(a.id)}
-                      style={{
-                        padding: "0.45rem 0.8rem",
-                        borderRadius: 999,
-                        background: "var(--cp-accent)",
-                        color: "white",
-                        textDecoration: "none",
-                        fontSize: "0.78rem",
-                      }}
+                      onClick={() => ack(a.id)}
+                      style={pillButtonStyle()}
                     >
                       Open
                     </Link>
                   ) : (
                     <button
-                      onClick={() => ackAssignment(a.id)}
-                      style={{
-                        all: "unset",
-                        cursor: "pointer",
-                        padding: "0.45rem 0.8rem",
-                        borderRadius: 999,
-                        background: "var(--cp-card)",
-                        border: "1px solid var(--cp-border)",
-                        fontSize: "0.78rem",
-                        color: "var(--cp-muted)",
-                      }}
+                      onClick={() => ack(a.id)}
+                      style={{ ...pillButtonStyle(), background: "var(--cp-card)" }}
                     >
                       Got it
                     </button>
@@ -228,137 +224,44 @@ export default function ClientHomePage() {
         </section>
       )}
 
-      {/* Today's emotional weather */}
+      {/* Upcoming session — placeholder until real scheduling */}
       <section className="cp-card cp-fade-in" style={{ marginBottom: "1.25rem" }}>
-        <div
+        <h2
           style={{
+            fontSize: "0.95rem",
+            fontWeight: 600,
+            margin: "0 0 6px",
+            color: "var(--cp-text)",
             display: "flex",
-            justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "0.6rem",
+            gap: 6,
           }}
         >
-          <h2
-            style={{
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              margin: 0,
-              color: "var(--cp-text)",
-            }}
-          >
-            Today&rsquo;s emotional weather
-          </h2>
-          <Link
-            href="/client/express"
-            style={{
-              fontSize: "0.78rem",
-              color: "var(--cp-accent)",
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-            }}
-          >
-            <Palette size={12} /> I can&rsquo;t explain it
-          </Link>
-        </div>
-        <p className="cp-microcopy" style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>
-          {weather ? WEATHER_META[weather].microcopy : "What feels closest today?"}
+          <CalendarClock size={14} /> Upcoming session
+        </h2>
+        <p className="cp-microcopy" style={{ fontSize: "0.84rem" }}>
+          Your therapist hasn&rsquo;t shared a next session yet. When they do,
+          you&rsquo;ll see it here along with anything to prepare.
         </p>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))",
-            gap: 8,
-          }}
-        >
-          {ALL_WEATHERS.map((w) => {
-            const Icon = WEATHER_ICONS[w] ?? Cloud;
-            const active = weather === w;
-            return (
-              <button
-                key={w}
-                onClick={() => setWeather(active ? null : w)}
-                aria-pressed={active}
-                style={{
-                  all: "unset",
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 4,
-                  padding: "0.7rem 0.4rem",
-                  borderRadius: 14,
-                  border: `1px solid ${
-                    active ? "var(--cp-accent)" : "var(--cp-border)"
-                  }`,
-                  background: active
-                    ? "var(--cp-glow)"
-                    : "var(--cp-card-soft)",
-                  color: "var(--cp-text)",
-                  fontSize: "0.75rem",
-                  textAlign: "center",
-                  transition: "transform 0.2s, background 0.2s",
-                }}
-              >
-                <Icon size={16} style={{ color: "var(--cp-accent)" }} />
-                {WEATHER_META[w].label}
-              </button>
-            );
-          })}
-        </div>
       </section>
 
-      {/* Continue your journey */}
-      {activeJourney && (
-        <section className="cp-card cp-fade-in" style={{ marginBottom: "1.25rem" }}>
-          <h2
-            style={{
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              margin: "0 0 0.4rem",
-              color: "var(--cp-text)",
-            }}
-          >
-            Continue your journey
-          </h2>
-          <p className="cp-microcopy" style={{ marginBottom: "0.8rem", fontSize: "0.85rem" }}>
-            {activeJourney.microcopy}
-          </p>
-          <Link
-            href={`/client/journeys/${activeJourney.id}`}
-            style={{
-              display: "inline-block",
-              padding: "0.5rem 1rem",
-              borderRadius: 999,
-              background: "var(--cp-accent)",
-              color: "white",
-              fontSize: "0.85rem",
-              textDecoration: "none",
-            }}
-          >
-            {activeJourney.title} →
-          </Link>
-        </section>
-      )}
-
-      {/* Gentle quick actions */}
+      {/* Quick access tiles */}
       <section
         className="cp-fade-in"
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
           gap: 10,
           marginBottom: "1.25rem",
         }}
       >
         {[
-          { href: "/client/checkin", icon: Heart, label: "Gentle check-in", sub: "What's closest?" },
-          { href: "/client/grounding", icon: Compass, label: "Grounding", sub: "A reset room" },
-          { href: "/client/cards", icon: Layers, label: "A card", sub: "Just one" },
-          { href: "/client/workbooks", icon: Library, label: "Workbook", sub: "Soft pages" },
-          { href: "/client/comfort", icon: ShieldHalf, label: "Comfort shelf", sub: "Anchors" },
-          { href: "/client/audio", icon: Mic, label: "Voice note", sub: "Quieter than typing" },
+          { href: "/client/workbooks", icon: Library, label: "Workbooks", sub: "Assigned & open" },
+          { href: "/client/reflections", icon: Notebook, label: "Reflections", sub: "Between sessions" },
+          { href: "/client/progress", icon: LineChart, label: "Progress", sub: "Daily check-ins" },
+          { href: "/client/resources", icon: BookOpen, label: "Resources", sub: "Psychoeducation" },
+          { href: "/client/grounding", icon: Compass, label: "Grounding", sub: "Stabilization tools" },
+          { href: "/client/notes", icon: Notebook, label: "Therapist notes", sub: "From your therapist" },
         ].map((item) => {
           const Icon = item.icon;
           return (
@@ -374,8 +277,8 @@ export default function ClientHomePage() {
             >
               <div
                 style={{
-                  width: 32,
-                  height: 32,
+                  width: 30,
+                  height: 30,
                   borderRadius: 10,
                   background: "var(--cp-glow)",
                   display: "flex",
@@ -385,14 +288,12 @@ export default function ClientHomePage() {
                   marginBottom: 8,
                 }}
               >
-                <Icon size={16} />
+                <Icon size={15} />
               </div>
-              <div style={{ fontSize: "0.88rem", fontWeight: 500 }}>
-                {item.label}
-              </div>
+              <div style={{ fontSize: "0.86rem", fontWeight: 500 }}>{item.label}</div>
               <div
                 style={{
-                  fontSize: "0.74rem",
+                  fontSize: "0.72rem",
                   color: "var(--cp-muted)",
                   marginTop: 2,
                 }}
@@ -404,92 +305,250 @@ export default function ClientHomePage() {
         })}
       </section>
 
-      {/* Suggested journeys (weather-aware) */}
-      {weather && suggestedJourneys.length > 0 && (
-        <section className="cp-card cp-fade-in" style={{ marginBottom: "1.25rem" }}>
+      {/* Progress snapshot */}
+      <section className="cp-card cp-fade-in" style={{ marginBottom: "1.25rem" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 8,
+          }}
+        >
           <h2
             style={{
               fontSize: "0.95rem",
               fontWeight: 600,
-              margin: "0 0 0.6rem",
+              margin: 0,
               color: "var(--cp-text)",
             }}
           >
-            For a day that feels {WEATHER_META[weather].label.toLowerCase()}
+            Progress overview
           </h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {suggestedJourneys.map((j) => (
-              <Link
-                key={j.id}
-                href={`/client/journeys/${j.id}`}
+          <Link
+            href="/client/progress"
+            style={{
+              fontSize: "0.78rem",
+              color: "var(--cp-accent)",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            Open <ArrowRight size={11} />
+          </Link>
+        </div>
+        <p
+          className="cp-microcopy"
+          style={{ fontSize: "0.78rem", marginBottom: 12 }}
+        >
+          Two-week averages across tracked domains. Empty rows haven&rsquo;t
+          been recorded yet.
+        </p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+            gap: 8,
+          }}
+        >
+          {TRACKING_DOMAINS.map((d) => {
+            const v = averages[d.id];
+            return (
+              <div
+                key={d.id}
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
                   padding: "0.7rem 0.85rem",
                   borderRadius: 14,
-                  background: "var(--cp-card-soft)",
-                  textDecoration: "none",
-                  color: "var(--cp-text)",
                   border: "1px solid var(--cp-border)",
+                  background: "var(--cp-card-soft)",
                 }}
               >
-                <span style={{ fontSize: "0.88rem" }}>{j.title}</span>
-                <span style={{ fontSize: "0.74rem", color: "var(--cp-muted)" }}>
-                  {j.microcopy}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+                <div
+                  style={{
+                    fontSize: "0.68rem",
+                    color: "var(--cp-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    marginBottom: 2,
+                  }}
+                >
+                  {d.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "1.05rem",
+                    color: "var(--cp-text)",
+                    fontWeight: 600,
+                  }}
+                >
+                  {v === null ? "—" : v.toFixed(1)}
+                </div>
+              </div>
+            );
+          })}
+          {homework.rate !== null && (
+            <div
+              style={{
+                padding: "0.7rem 0.85rem",
+                borderRadius: 14,
+                border: "1px solid var(--cp-border)",
+                background: "var(--cp-card-soft)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "0.68rem",
+                  color: "var(--cp-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  marginBottom: 2,
+                }}
+              >
+                Homework done
+              </div>
+              <div
+                style={{
+                  fontSize: "1.05rem",
+                  color: "var(--cp-text)",
+                  fontWeight: 600,
+                }}
+              >
+                {Math.round(homework.rate * 100)}%
+              </div>
+              <div
+                style={{
+                  fontSize: "0.66rem",
+                  color: "var(--cp-muted)",
+                  marginTop: 2,
+                }}
+              >
+                {homework.numerator} / {homework.denominator} · last 30 days
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
 
-      {/* Therapy memory — gentle observations */}
-      {memoryNotes.length > 0 && (
+      {/* Recent reflections */}
+      {recentReflections.length > 0 && (
         <section className="cp-card cp-fade-in" style={{ marginBottom: "1.25rem" }}>
-          <h2
+          <div
             style={{
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              margin: "0 0 0.6rem",
-              color: "var(--cp-text)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 8,
             }}
           >
-            Some things this space has noticed
-          </h2>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {memoryNotes.map((n) => (
+            <h2
+              style={{
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                margin: 0,
+                color: "var(--cp-text)",
+              }}
+            >
+              Recent reflections
+            </h2>
+            <Link
+              href="/client/reflections"
+              style={{
+                fontSize: "0.78rem",
+                color: "var(--cp-accent)",
+                textDecoration: "none",
+              }}
+            >
+              View all →
+            </Link>
+          </div>
+          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 6 }}>
+            {recentReflections.map((r) => (
               <li
-                key={n.id}
-                style={{
-                  fontSize: "0.86rem",
-                  color: "var(--cp-text)",
-                  padding: "0.55rem 0.7rem",
-                  borderRadius: 12,
-                  background: "var(--cp-card-soft)",
-                  marginBottom: 6,
-                  lineHeight: 1.5,
-                }}
+                key={r.id}
+                className="cp-card-soft"
+                style={{ fontSize: "0.86rem", color: "var(--cp-text)" }}
               >
-                ✦ {n.text}
+                <div
+                  style={{
+                    fontSize: "0.68rem",
+                    color: "var(--cp-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    marginBottom: 2,
+                  }}
+                >
+                  {REFLECTION_KIND_LABELS[r.kind]} · {r.date}
+                </div>
+                <p
+                  style={{
+                    margin: 0,
+                    lineHeight: 1.5,
+                    color: "var(--cp-text)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {r.body || "(empty draft)"}
+                </p>
               </li>
             ))}
           </ul>
         </section>
       )}
 
-      <footer
-        className="cp-microcopy cp-fade-in"
-        style={{ marginTop: "2rem", textAlign: "center", fontSize: "0.78rem" }}
+      {/* Low-energy quick toggle */}
+      <section
+        className="cp-fade-in"
+        style={{
+          textAlign: "center",
+          fontSize: "0.78rem",
+          color: "var(--cp-muted)",
+          marginTop: "2rem",
+        }}
       >
-        No pressure to explain everything.
-        <br />
-        <Link
-          href="/welcome"
-          style={{ color: "var(--cp-accent)", textDecoration: "none" }}
+        <button
+          onClick={() => setLowEnergyMode(!lowEnergyMode)}
+          style={{
+            all: "unset",
+            cursor: "pointer",
+            color: "var(--cp-accent)",
+            textDecoration: "underline",
+          }}
         >
-          Switch portal →
-        </Link>
-      </footer>
+          {lowEnergyMode ? "Turn off low-energy mode" : "Turn on low-energy mode"}
+        </button>
+      </section>
     </ClientShell>
   );
+}
+
+function ctaLinkStyle(): React.CSSProperties {
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    padding: "0.5rem 0.9rem",
+    borderRadius: 999,
+    background: "var(--cp-accent)",
+    color: "white",
+    fontSize: "0.85rem",
+    textDecoration: "none",
+    fontWeight: 500,
+  };
+}
+
+function pillButtonStyle(): React.CSSProperties {
+  return {
+    padding: "0.4rem 0.8rem",
+    borderRadius: 999,
+    background: "var(--cp-accent)",
+    color: "white",
+    textDecoration: "none",
+    fontSize: "0.78rem",
+    cursor: "pointer",
+    border: "none",
+  };
 }

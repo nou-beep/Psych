@@ -1,7 +1,9 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import {
+  LogOut,
   LayoutDashboard,
   FolderOpen,
   ClipboardCheck,
@@ -35,7 +37,7 @@ const navGroups = [
   {
     label: "Workspace",
     items: [
-      { href: "/", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/therapist", label: "Dashboard", icon: LayoutDashboard },
       { href: "/cases", label: "Cases", icon: FolderOpen },
       { href: "/checkins", label: "Check-ins", icon: ClipboardCheck },
       { href: "/goals", label: "Goals", icon: Target },
@@ -84,10 +86,13 @@ const navGroups = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { activeCases, goals } = useApp();
+  const { session, signOut } = useAuth();
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
+    if (href === "/therapist") return pathname === "/therapist";
     return pathname.startsWith(href);
   }
 
@@ -240,13 +245,43 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer */}
+      {/* Footer — session + sign out */}
       <div
-        className="px-5 py-4 border-t text-xs relative"
+        className="px-4 py-3 border-t relative text-xs"
         style={{ borderColor: "var(--psych-border)", color: "var(--psych-muted)" }}
       >
-        <p className="font-medium" style={{ color: "var(--psych-text)" }}>Psych v2.0</p>
-        <p className="mt-0.5 opacity-60">Local mode · All data saved</p>
+        {session && (
+          <div className="mb-2 truncate" style={{ color: "var(--psych-text)" }}>
+            <span className="opacity-70">Signed in · </span>
+            <span className="font-medium">{session.email}</span>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              signOut();
+              router.push("/");
+            }}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg border"
+            style={{
+              borderColor: "var(--psych-border)",
+              color: "var(--psych-muted)",
+            }}
+            aria-label="Sign out"
+          >
+            <LogOut size={11} /> Sign out
+          </button>
+          <Link
+            href="/"
+            className="px-2 py-1 rounded-lg border"
+            style={{
+              borderColor: "var(--psych-border)",
+              color: "var(--psych-muted)",
+            }}
+          >
+            Switch portal
+          </Link>
+        </div>
       </div>
     </aside>
   );

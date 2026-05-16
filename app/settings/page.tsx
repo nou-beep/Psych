@@ -13,6 +13,7 @@ import { Select } from "@/components/ui/select";
 import { CheckCircle, Download, Smartphone } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import type { AccessibilitySettings } from "@/lib/accessibility";
+import { CLIENT_TERMS, TERM_LABELS, type ClientTerm } from "@/lib/terminology";
 
 const SETTINGS_KEY = "psych-settings";
 
@@ -56,6 +57,8 @@ export default function SettingsPage() {
     updateAccessibility,
     toggleSensorySafe,
     resetAccessibility,
+    clientTerm,
+    setClientTerm,
   } = useSettings();
 
   useEffect(() => {
@@ -85,14 +88,48 @@ export default function SettingsPage() {
 
       <div className="space-y-6">
 
-        {/* Theme */}
-        <SectionCard title="Theme" description="Choose the color theme for your workspace">
-          <div className="py-2">
-            <ThemeSelector />
+        {/* Appearance — theme + density */}
+        <SectionCard
+          title="Appearance"
+          description="Workspace theme and visual density. Moved here from the top navigation."
+        >
+          <div className="space-y-3">
+            <div>
+              <Label className="block mb-2">Theme</Label>
+              <ThemeSelector />
+              <p className="text-xs mt-2" style={{ color: "var(--psych-muted)" }}>
+                Your theme choice is saved automatically. Print pages always
+                use clean black/white styling regardless of theme.
+              </p>
+            </div>
+          </div>
+        </SectionCard>
+
+        {/* Terminology */}
+        <SectionCard
+          title="Client terminology"
+          description="How Psych refers to the people you work with"
+        >
+          <div className="flex items-center gap-3">
+            <Label htmlFor="term-select" className="text-sm">
+              Default term
+            </Label>
+            <Select
+              id="term-select"
+              value={clientTerm}
+              onChange={(e) => setClientTerm(e.target.value as ClientTerm)}
+              className="w-48"
+            >
+              {(CLIENT_TERMS as ClientTerm[]).map((t) => (
+                <option key={t} value={t}>
+                  {TERM_LABELS[t]}
+                </option>
+              ))}
+            </Select>
           </div>
           <p className="text-xs mt-3" style={{ color: "var(--psych-muted)" }}>
-            Your theme choice is saved automatically to your browser.
-            Print pages always use clean black/white styling regardless of theme.
+            Applies across the UI where the platform refers to the people in
+            your care.
           </p>
         </SectionCard>
 

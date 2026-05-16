@@ -765,7 +765,11 @@ body {
   -webkit-backdrop-filter: blur(12px);
   z-index: 50;
   box-shadow: 0 8px 24px var(--cp-glow);
+  max-width: calc(100% - 2rem);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.cp-nav::-webkit-scrollbar { display: none; }
 
 .cp-nav-item {
   display: inline-flex;

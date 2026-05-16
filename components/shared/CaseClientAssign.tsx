@@ -22,6 +22,7 @@ import {
 import { ALL_WORKBOOKS } from "@/lib/client/workbooks";
 import { ALL_JOURNEYS } from "@/lib/client/journeys";
 import { ALL_CARDS, DECK_LABELS } from "@/lib/client/therapy-cards";
+import { ASSESSMENT_LIBRARY } from "@/lib/clinical/assessments";
 
 export function CaseClientAssign({
   caseId,
@@ -86,7 +87,8 @@ export function CaseClientAssign({
               }}
             >
               <option value="workbook">Workbook</option>
-              <option value="journey">Journey</option>
+              <option value="assessment">Assessment</option>
+              <option value="journey">Therapeutic path</option>
               <option value="card">Therapeutic card</option>
               <option value="note">Supportive note</option>
             </Select>
@@ -105,6 +107,12 @@ export function CaseClientAssign({
                   ALL_WORKBOOKS.map((w) => (
                     <option key={w.id} value={w.id}>
                       {w.title}
+                    </option>
+                  ))}
+                {kind === "assessment" &&
+                  ASSESSMENT_LIBRARY.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.code} — {a.title}
                     </option>
                   ))}
                 {kind === "journey" &&
@@ -176,6 +184,9 @@ export function CaseClientAssign({
                     {a.kind === "workbook" &&
                       (ALL_WORKBOOKS.find((w) => w.id === a.targetId)?.title ??
                         "Workbook")}
+                    {a.kind === "assessment" &&
+                      (ASSESSMENT_LIBRARY.find((x) => x.id === a.targetId)?.code ??
+                        "Assessment")}
                     {a.kind === "journey" &&
                       (ALL_JOURNEYS.find((j) => j.id === a.targetId)?.title ??
                         "Journey")}

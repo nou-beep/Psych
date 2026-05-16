@@ -5,7 +5,12 @@ import { loadFromStorage, saveToStorage, generateId, nowISO } from "@/lib/store"
 
 export const ASSIGNMENTS_STORAGE_KEY = "psych-client-assignments-v1";
 
-export type AssignmentKind = "workbook" | "card" | "journey" | "note";
+export type AssignmentKind =
+  | "workbook"
+  | "card"
+  | "journey"
+  | "note"
+  | "assessment";
 
 export interface ClientAssignment {
   id: string;
