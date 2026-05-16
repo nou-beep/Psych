@@ -50,6 +50,50 @@ npm run start
 
 ---
 
+## Testing
+
+Tests are written with [Vitest](https://vitest.dev/) and
+[React Testing Library](https://testing-library.com/), running in a `jsdom`
+environment.
+
+```bash
+# Run the full test suite once
+npm run test
+
+# Re-run tests on file changes
+npm run test:watch
+
+# Type-check the modules covered by tests (lib/, contexts/, test/)
+npm run typecheck
+```
+
+Test files live under `test/` and mirror the source layout — e.g.
+`lib/store.ts` is tested by `test/lib/store.test.ts`, and
+`contexts/AppContext.tsx` case reducers by
+`test/contexts/AppContext.cases.test.tsx`.
+
+`test/setup.ts` clears `localStorage` between tests so each spec starts
+from a known baseline. Vitest is configured in `vitest.config.ts` with
+the `@/*` path alias mirrored from `tsconfig.json`.
+
+### Typecheck scope
+
+`npm run typecheck` uses a dedicated `tsconfig.typecheck.json` that
+covers the modules we have under test (`lib/`, `contexts/`, `test/`).
+The broader app code is still type-checked at editor time via
+`tsconfig.json`, but isn't part of the CI gate yet (the repo has
+pre-existing `tsc` and ESLint errors that `next build` already
+ignores via `next.config.mjs`). Expand the include list as more
+modules are cleaned up and covered.
+
+### CI
+
+`.github/workflows/ci.yml` runs `lint`, `typecheck`, and `test` on push
+and pull request to `master`. `lint` is currently non-blocking until
+the pre-existing lint errors are cleaned up.
+
+---
+
 ## Deploying to Vercel
 
 1. Push this folder to a GitHub repository named **Psych**

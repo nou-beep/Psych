@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "lib/**/*.ts",
+    "lib/**/*.tsx",
+    "contexts/**/*.ts",
+    "contexts/**/*.tsx",
+    "test/**/*.ts",
+    "test/**/*.tsx",
+    "vitest.config.ts"
+  ],
+  "exclude": ["node_modules", ".next"]
+}
