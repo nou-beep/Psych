@@ -94,6 +94,67 @@ the pre-existing lint errors are cleaned up.
 
 ---
 
+## Navigation & sidebar architecture
+
+### Sidebar (desktop)
+
+The sidebar is `position: fixed` at `h-screen` (full viewport height —
+not `min-h-screen`, which used to let it grow off-screen and clip the
+bottom). Inside, navigation lives in a flex-1 host with `min-h: 0` so
+its child `<nav>` can actually scroll:
+
+```
+<aside h-screen fixed overflow-hidden flex flex-col>
+  ↑ logo
+  ↑ quick search
+  <div sidebar-scroll-host flex-1 min-h-0>    ← takes remaining height
+    <nav sidebar-scroll h-full overflow-y-auto>
+      …collapsible groups…
+    </nav>
+  </div>
+  ↓ footer (session + sign out + switch portal)
+</aside>
+```
+
+This means small-laptop and iPad-landscape viewports never require
+zoom-out to reach the System group at the bottom.
+
+- **Subtle scrollbar** (`.sidebar-scroll`) — thin track using the theme
+  border colour, hidden until hover on WebKit.
+- **Scroll cues** (`.sidebar-scroll-host`) — top / bottom gradient
+  fades signal that more nav is available offscreen.
+- **Collapsible groups** persisted under `psych-sidebar-groups-v1`; each
+  group has a caret that rotates via `.sidebar-group-caret`.
+- The main content area scrolls **separately** from the sidebar (`ml-60`
+  pushes the content off the fixed sidebar's width).
+
+### Mobile / tablet
+
+Below `lg` (1024px) the sidebar hides and the `MobileNav` bar appears
+at the bottom. iPad portrait gets the bottom nav; iPad landscape (≥1024
+px) gets the full sidebar.
+
+### Dashboard infrastructure
+
+The therapist dashboard surfaces three new infrastructure widgets so
+the calendar / pinned / recent work are reachable in one glance:
+
+| Widget | What it shows |
+|---|---|
+| `CalendarDashboardWidgets` | Four cards driven by `/calendar` data: Today's sessions · Upcoming deadlines · This week's load · Overdue (or upcoming supervision if nothing's overdue). Each row links into the case and the calendar itself. Defensive against malformed local data. |
+| `QuickAccessRail` | Pinned cases · recent cases · recent reports · recent assessments · recent transcripts. One column per category, items truncated and lined up. |
+| `WorkingOn` | (Existing) Drafts in flight across every module. |
+
+### Calendar event modal
+
+Clicking a calendar event for a linked case now surfaces a **case
+snapshot panel** inside the modal — code, type, last-session date and
+topic, next-session focus, and any active risk note — plus a one-click
+"Open case" link. Built on `buildLastSessionSummary` so prep happens
+without leaving the calendar.
+
+---
+
 ## Visual identity & workflow intelligence
 
 Psych is designed to read as a working psychologist's environment, not a

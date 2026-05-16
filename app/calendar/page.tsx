@@ -3,7 +3,10 @@
 // load widgets. Events stored in localStorage.
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Trash2, ChevronLeft, ChevronRight, Printer } from "lucide-react";
+import Link from "next/link";
+import { Plus, Trash2, ChevronLeft, ChevronRight, Printer, ArrowRight } from "lucide-react";
+import { useClinical } from "@/contexts/ClinicalContext";
+import { buildLastSessionSummary } from "@/lib/clinical/last-session";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
@@ -45,7 +48,8 @@ function shiftMonth(date: string, months: number): string {
 }
 
 export default function CalendarPage() {
-  const { cases } = useApp();
+  const { cases, sessions, checkIns } = useApp();
+  const { plans } = useClinical();
   const { toast } = useToast();
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
@@ -293,6 +297,96 @@ export default function CalendarPage() {
           size="md"
         >
           <ModalBody>
+            {editing.caseId && (() => {
+              const linkedCase = cases.find((c) => c.id === editing.caseId);
+              if (!linkedCase) return null;
+              const summary = buildLastSessionSummary(linkedCase.id, {
+                sessions: sessions.map((s) => ({
+                  id: s.id,
+                  caseId: s.caseId,
+                  date: s.date,
+                  mainTopics: s.mainTopics,
+                  observations: s.observations,
+                  interventions: s.interventions,
+                  nextSteps: s.nextSteps,
+                })),
+                sessionPlans: plans.map((p) => ({
+                  id: p.id,
+                  caseId: p.caseId,
+                  date: p.date,
+                  status: p.status,
+                  postSessionNotes: p.postSessionNotes,
+                  goals: p.goals,
+                  worksheetsToGive: p.worksheetsToGive,
+                  riskReminders: p.riskReminders,
+                })),
+                checkIns: checkIns.map((c) => ({
+                  id: c.id,
+                  caseId: c.caseId,
+                  date: c.date,
+                  moodAffect: c.moodAffect,
+                  followUpNeeded: c.followUpNeeded,
+                  followUpNote: c.followUpNote,
+                })),
+              });
+              return (
+                <div
+                  className="rounded-xl border p-3 mb-3"
+                  style={{
+                    borderColor: "var(--psych-border)",
+                    background: "var(--psych-bg)",
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span
+                      className="text-[10px] font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--psych-muted)" }}
+                    >
+                      Linked case
+                    </span>
+                    <span className="text-sm font-mono" style={{ color: "var(--psych-text)" }}>
+                      {linkedCase.code}
+                    </span>
+                    <span className="text-xs" style={{ color: "var(--psych-muted)" }}>
+                      · {linkedCase.type}
+                    </span>
+                    <Link
+                      href={`/cases/${linkedCase.id}`}
+                      className="ml-auto text-[11px] inline-flex items-center gap-1"
+                      style={{ color: "var(--psych-primary)" }}
+                    >
+                      Open case <ArrowRight size={10} />
+                    </Link>
+                  </div>
+                  {summary.date ? (
+                    <div className="text-xs space-y-1" style={{ color: "var(--psych-text)" }}>
+                      <div>
+                        <span style={{ color: "var(--psych-muted)" }}>Last session:</span>{" "}
+                        <span className="font-mono">{summary.date}</span>
+                        {summary.topic && summary.topic !== "—" && (
+                          <> · {summary.topic}</>
+                        )}
+                      </div>
+                      {summary.nextSessionFocus && (
+                        <div>
+                          <span style={{ color: "var(--psych-muted)" }}>Next focus:</span>{" "}
+                          {summary.nextSessionFocus}
+                        </div>
+                      )}
+                      {summary.riskUpdate && (
+                        <div style={{ color: "#9B4D3A" }}>
+                          ⚠ {summary.riskUpdate}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs" style={{ color: "var(--psych-muted)" }}>
+                      No prior session yet for this case.
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="md:col-span-2">
                 <Label htmlFor="ev-title">Title</Label>

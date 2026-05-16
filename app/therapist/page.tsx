@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useApp } from "@/contexts/AppContext";
 import { WorkingOn } from "@/components/clinical/WorkingOn";
+import { CalendarDashboardWidgets } from "@/components/clinical/CalendarDashboardWidgets";
+import { QuickAccessRail } from "@/components/clinical/QuickAccessRail";
 
 const today = new Date();
 const displayDate = today.toLocaleDateString("en-US", {
@@ -168,6 +170,12 @@ export default function DashboardPage() {
           ))}
         </div>
       </SectionCard>
+
+      {/* Calendar widgets */}
+      <CalendarDashboardWidgets />
+
+      {/* Quick access rail */}
+      <QuickAccessRail />
 
       {/* Currently working on */}
       <WorkingOn />

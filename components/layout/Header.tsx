@@ -6,11 +6,15 @@ import { useApp } from "@/contexts/AppContext";
 
 const pageTitles: Record<string, string> = {
   "/therapist": "Dashboard",
+  "/calendar": "Clinical calendar",
+  "/quick-notes": "Quick notes",
   "/cases": "Cases",
   "/checkins": "Check-ins",
   "/assessments": "Assessments",
+  "/assessments/library": "Assessment library",
   "/grids": "Grids",
   "/reports": "Reports",
+  "/reports/builder": "Smart report builder",
   "/reports/daily": "Daily Report",
   "/reports/weekly": "Weekly Report",
   "/reports/monthly": "Monthly Report",
@@ -22,7 +26,18 @@ const pageTitles: Record<string, string> = {
   "/research": "Research",
   "/goals": "Goals",
   "/transcripts": "Transcripts",
+  "/backup": "Backup & Export",
   "/settings": "Settings",
+  "/clinical": "Clinical tools",
+  "/clinical/interview": "Clinical interview",
+  "/clinical/mse": "Mental Status Exam",
+  "/clinical/longitudinal": "Longitudinal tracking",
+  "/clinical/hypothesis": "Hypothesis workspace",
+  "/clinical/interventions": "Intervention library",
+  "/clinical/disorders": "Disorder reference",
+  "/clinical/psychoeducation": "Psychoeducation",
+  "/clinical/phrases": "Phrase library",
+  "/clinical/search": "Clinical search",
 };
 
 export function Header() {

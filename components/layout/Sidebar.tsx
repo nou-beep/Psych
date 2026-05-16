@@ -128,7 +128,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="no-print hidden lg:flex flex-col w-60 min-h-screen fixed left-0 top-0 z-30 border-r overflow-hidden"
+      className="no-print hidden lg:flex flex-col w-60 h-screen fixed left-0 top-0 z-30 border-r overflow-hidden"
       style={{
         backgroundColor: "var(--psych-sidebar)",
         borderColor: "var(--psych-border)",
@@ -198,8 +198,9 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-2 overflow-y-auto space-y-4">
-        {navGroups.map((group) => {
+      <div className="sidebar-scroll-host flex-1 min-h-0">
+        <nav className="sidebar-scroll h-full px-3 py-2 overflow-y-auto space-y-4">
+          {navGroups.map((group) => {
           const open = openGroups[group.label] !== false;
           return (
           <div key={group.label}>
@@ -292,7 +293,8 @@ export function Sidebar() {
           </div>
           );
         })}
-      </nav>
+        </nav>
+      </div>
 
       {/* Footer — session + sign out */}
       <div

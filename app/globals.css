@@ -1077,3 +1077,50 @@ body {
     display: none !important;
   }
 }
+
+/* Sidebar — subtle scrollbar to indicate scrollable area without
+   intruding. Falls back to native scrollbar in unsupported browsers. */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--psych-border) transparent;
+}
+.sidebar-scroll::-webkit-scrollbar { width: 6px; }
+.sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--psych-border);
+  border-radius: 999px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--psych-muted);
+}
+
+/* Top + bottom scroll shadows so a clinician knows the nav continues. */
+.sidebar-scroll-host {
+  position: relative;
+}
+.sidebar-scroll-host::before,
+.sidebar-scroll-host::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18px;
+  pointer-events: none;
+  z-index: 1;
+}
+.sidebar-scroll-host::before {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--psych-sidebar) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+.sidebar-scroll-host::after {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--psych-sidebar) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
