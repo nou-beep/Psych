@@ -88,6 +88,37 @@ describe("buildWorkspace", () => {
     expect(items.map((i) => i.title)).toEqual(["New", "Old"]);
   });
 
+  it("does not crash on malformed inputs (defensive)", () => {
+    // Old data with missing fields used to throw on .length / Object.values.
+    expect(() =>
+      buildWorkspace({
+        formulations: [
+          { id: "f", caseId: "c1", sections: undefined as never, updatedAt: "x" },
+        ],
+        sessionNoteDrafts: [
+          {
+            id: "n",
+            caseId: "c1",
+            date: "2026-05-01",
+            plannedGoals: undefined as never,
+            completedGoals: undefined as never,
+            updatedAt: "2026-05-01",
+          },
+        ],
+        interviews: [
+          {
+            id: "i",
+            caseId: "c1",
+            date: "2026-05-01",
+            answers: undefined as never,
+            templateId: "t",
+            updatedAt: "x",
+          },
+        ],
+      })
+    ).not.toThrow();
+  });
+
   it("KIND_LABELS covers every produced kind", () => {
     const items = buildWorkspace({
       reportDrafts: [{ id: "r", title: "x", updatedAt: "2026-01-01T00:00:00Z" }],

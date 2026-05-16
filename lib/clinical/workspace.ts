@@ -85,9 +85,10 @@ export interface WorkspaceInput {
 }
 
 function isFormulationDraft(f: {
-  sections: Record<string, string>;
+  sections?: Record<string, string>;
 }): boolean {
-  const entries = Object.values(f.sections);
+  const sections = f.sections ?? {};
+  const entries = Object.values(sections);
   if (entries.length === 0) return true;
   // If at least one section is non-empty but others are still empty, it's a draft.
   const filled = entries.filter((v) => v && v.trim()).length;
@@ -95,11 +96,13 @@ function isFormulationDraft(f: {
 }
 
 function isSessionNoteIncomplete(s: {
-  plannedGoals: string[];
-  completedGoals: string[];
+  plannedGoals?: string[];
+  completedGoals?: string[];
 }): boolean {
-  if (s.plannedGoals.length === 0) return false;
-  return s.completedGoals.length < s.plannedGoals.length;
+  const planned = s.plannedGoals ?? [];
+  const completed = s.completedGoals ?? [];
+  if (planned.length === 0) return false;
+  return completed.length < planned.length;
 }
 
 export function buildWorkspace(input: WorkspaceInput): WorkItem[] {
@@ -117,6 +120,7 @@ export function buildWorkspace(input: WorkspaceInput): WorkItem[] {
   }
 
   for (const f of input.formulations ?? []) {
+    if (!f || typeof f !== "object") continue;
     if (!isFormulationDraft(f)) continue;
     out.push({
       id: `fr-${f.id}`,
@@ -167,12 +171,15 @@ export function buildWorkspace(input: WorkspaceInput): WorkItem[] {
   }
 
   for (const n of input.sessionNoteDrafts ?? []) {
+    if (!n || typeof n !== "object") continue;
     if (!isSessionNoteIncomplete(n)) continue;
+    const planned = n.plannedGoals ?? [];
+    const completed = n.completedGoals ?? [];
     out.push({
       id: `sn-${n.id}`,
       kind: "session-note-draft",
       title: `Session note · ${n.date}`,
-      subtitle: `${n.completedGoals.length}/${n.plannedGoals.length} goals checked`,
+      subtitle: `${completed.length}/${planned.length} goals checked`,
       caseId: n.caseId,
       href: `/planner/notes/${n.id}`,
       updatedAt: n.updatedAt,
@@ -180,8 +187,10 @@ export function buildWorkspace(input: WorkspaceInput): WorkItem[] {
   }
 
   for (const i of input.interviews ?? []) {
-    const answeredCount = Object.values(i.answers).filter(
-      (v) => v && v.trim()
+    if (!i || typeof i !== "object") continue;
+    const answers = (i.answers && typeof i.answers === "object") ? i.answers : {};
+    const answeredCount = Object.values(answers).filter(
+      (v): v is string => typeof v === "string" && v.trim().length > 0
     ).length;
     if (answeredCount === 0) continue;
     out.push({

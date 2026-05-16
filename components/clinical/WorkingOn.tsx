@@ -47,6 +47,12 @@ interface ThematicExcerpt {
   transcriptId: string;
 }
 
+// Safe array reader — returns [] when the stored value is not an array.
+function arr<T>(key: string): T[] {
+  const value = loadFromStorage<unknown>(key, []);
+  return Array.isArray(value) ? (value as T[]) : [];
+}
+
 const KIND_COLOURS: Record<string, string> = {
   "report-draft": "#8A6E5D",
   "formulation-draft": "#6B7AA0",
@@ -63,79 +69,87 @@ export function WorkingOn() {
   const [items, setItems] = useState<WorkItem[]>([]);
 
   useEffect(() => {
-    const reportDrafts = loadFromStorage<ReportDraft[]>(
-      "psych-report-drafts-v1",
-      []
-    );
-    const sessionNoteDrafts = loadFromStorage<SessionNoteDraft[]>(
-      "psych-session-notes-v1",
-      []
-    );
-    const interviews = loadFromStorage<SavedInterview[]>(
-      "psych-clinical-interviews-v1",
-      []
-    );
-    const thematicProject = loadFromStorage<{ excerpts: ThematicExcerpt[] }>(
-      "psych-thematic-v1",
-      { excerpts: [] }
-    );
-    const administrations = loadFromStorage<AssessmentAdministration[]>(
-      ASSESSMENT_ADMINISTRATIONS_STORAGE_KEY,
-      []
-    );
+    // Each load is wrapped because old / malformed localStorage entries
+    // would otherwise crash the entire dashboard.
+    try {
+      const reportDrafts = arr<ReportDraft>("psych-report-drafts-v1");
+      const sessionNoteDrafts = arr<SessionNoteDraft>("psych-session-notes-v1");
+      const interviews = arr<SavedInterview>("psych-clinical-interviews-v1");
+      const thematicProject = loadFromStorage<{ excerpts?: ThematicExcerpt[] }>(
+        "psych-thematic-v1",
+        { excerpts: [] }
+      );
+      const administrations = arr<AssessmentAdministration>(
+        ASSESSMENT_ADMINISTRATIONS_STORAGE_KEY
+      );
 
-    const incompleteAssessments = administrations
-      .filter((a) => a.score.incomplete)
-      .map((a) => ({
-        id: a.id,
-        assessmentId: a.assessmentId,
-        caseId: a.caseId,
-        date: a.date,
-        missing: a.score.missing,
-        updatedAt: a.updatedAt,
-      }));
+      const incompleteAssessments = administrations
+        .filter((a) => a && a.score && a.score.incomplete)
+        .map((a) => ({
+          id: a.id,
+          assessmentId: a.assessmentId,
+          caseId: a.caseId,
+          date: a.date,
+          missing: a.score?.missing ?? 0,
+          updatedAt: a.updatedAt,
+        }));
 
-    const work = buildWorkspace({
-      reportDrafts: reportDrafts.map((r) => ({
-        id: r.id,
-        title: r.title,
-        caseId: r.caseId,
-        updatedAt: r.updatedAt,
-      })),
-      formulations: formulations.map((f) => ({
-        id: f.id,
-        caseId: f.caseId,
-        title: f.title,
-        sections: f.sections,
-        updatedAt: f.updatedAt,
-      })),
-      supervisionNotes: supervisionNotes.map((s) => ({
-        id: s.id,
-        caseId: s.caseId,
-        date: s.date,
-        actionPlan: s.actionPlan,
-        mainTopics: s.mainTopics,
-      })),
-      thematicExcerpts: thematicProject.excerpts,
-      incompleteAssessments,
-      sessionNoteDrafts: sessionNoteDrafts.map((s) => ({
-        id: s.id,
-        caseId: s.caseId,
-        date: s.date,
-        plannedGoals: s.plannedGoals,
-        completedGoals: s.completedGoals,
-        updatedAt: s.updatedAt,
-      })),
-      interviews: interviews.map((i) => ({
-        id: i.id,
-        caseId: i.caseId,
-        date: i.date,
-        answers: i.answers,
-        templateId: i.templateId,
-        updatedAt: i.updatedAt,
-      })),
-    });
-    setItems(work);
+      const work = buildWorkspace({
+        reportDrafts: reportDrafts
+          .filter((r) => r && r.id)
+          .map((r) => ({
+            id: r.id,
+            title: r.title,
+            caseId: r.caseId,
+            updatedAt: r.updatedAt,
+          })),
+        formulations: (formulations ?? []).map((f) => ({
+          id: f.id,
+          caseId: f.caseId,
+          title: f.title,
+          sections: f.sections,
+          updatedAt: f.updatedAt,
+        })),
+        supervisionNotes: (supervisionNotes ?? []).map((s) => ({
+          id: s.id,
+          caseId: s.caseId,
+          date: s.date,
+          actionPlan: s.actionPlan,
+          mainTopics: s.mainTopics,
+        })),
+        thematicExcerpts: (thematicProject.excerpts ?? []).filter(
+          (e) => e && Array.isArray(e.codeIds)
+        ),
+        incompleteAssessments,
+        sessionNoteDrafts: sessionNoteDrafts
+          .filter((s) => s && s.id)
+          .map((s) => ({
+            id: s.id,
+            caseId: s.caseId,
+            date: s.date,
+            plannedGoals: Array.isArray(s.plannedGoals) ? s.plannedGoals : [],
+            completedGoals: Array.isArray(s.completedGoals)
+              ? s.completedGoals
+              : [],
+            updatedAt: s.updatedAt,
+          })),
+        interviews: interviews
+          .filter((i) => i && i.id)
+          .map((i) => ({
+            id: i.id,
+            caseId: i.caseId,
+            date: i.date,
+            answers: (i.answers && typeof i.answers === "object") ? i.answers : {},
+            templateId: i.templateId,
+            updatedAt: i.updatedAt,
+          })),
+      });
+      setItems(work);
+    } catch (e) {
+      // Never let this widget take the dashboard down.
+      console.warn("WorkingOn: skipped due to malformed local data", e);
+      setItems([]);
+    }
   }, [formulations, supervisionNotes]);
 
   const caseCodeOf = useMemo(() => {
