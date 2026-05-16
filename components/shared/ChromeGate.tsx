@@ -10,6 +10,7 @@ import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { CommandPalette } from "@/components/shared/CommandPalette";
 import { QuickAddButton } from "@/components/shared/QuickAddButton";
+import { WorkspaceModeShell } from "@/components/shared/WorkspaceModeShell";
 
 function isImmersiveRoute(pathname: string | null): boolean {
   if (!pathname) return false;
@@ -32,9 +33,10 @@ export function ChromeGate({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  // Therapist workspace — original layout chrome.
+  // Therapist workspace — original layout chrome, wrapped so workspace
+  // mode classes can collapse the sidebar / dim the chrome on demand.
   return (
-    <>
+    <WorkspaceModeShell>
       <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 flex flex-col lg:ml-60 min-h-screen">
@@ -47,6 +49,6 @@ export function ChromeGate({ children }: { children: React.ReactNode }) {
       </div>
       <CommandPalette />
       <QuickAddButton />
-    </>
+    </WorkspaceModeShell>
   );
 }

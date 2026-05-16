@@ -33,6 +33,9 @@ import {
   Stethoscope,
   CalendarRange,
   StickyNote,
+  AlertCircle,
+  Quote,
+  PenLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/contexts/AppContext";
@@ -44,6 +47,7 @@ const navGroups = [
       { href: "/therapist", label: "Dashboard", icon: LayoutDashboard },
       { href: "/calendar", label: "Calendar", icon: CalendarRange },
       { href: "/quick-notes", label: "Quick notes", icon: StickyNote },
+      { href: "/open-loops", label: "Open loops", icon: AlertCircle },
       { href: "/cases", label: "Cases", icon: FolderOpen },
       { href: "/checkins", label: "Check-ins", icon: ClipboardCheck },
       { href: "/goals", label: "Goals", icon: Target },
@@ -81,6 +85,8 @@ const navGroups = [
       { href: "/transcripts", label: "Transcripts", icon: ScrollText },
       { href: "/research", label: "Research", icon: FlaskConical },
       { href: "/thesis", label: "Thesis Studio", icon: GraduationCap },
+      { href: "/thesis/writer", label: "Thesis writer ✦", icon: PenLine },
+      { href: "/research/quotes", label: "Quote bank ✦", icon: Quote },
     ],
   },
   {

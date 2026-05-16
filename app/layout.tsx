@@ -7,6 +7,7 @@ import { ClinicalProvider } from "@/contexts/ClinicalContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ClientPortalProvider } from "@/contexts/ClientPortalContext";
 import { PsyGraphProvider } from "@/contexts/PsyGraphContext";
+import { WorkspaceModeProvider } from "@/contexts/WorkspaceModeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ChromeGate } from "@/components/shared/ChromeGate";
@@ -53,6 +54,7 @@ export default function RootLayout({
             <ClinicalProvider>
             <ClientPortalProvider>
             <PsyGraphProvider>
+            <WorkspaceModeProvider>
             <ToastProvider>
               <AccessibilityShell>
                 <RequireAuth>
@@ -61,6 +63,7 @@ export default function RootLayout({
                 <PWARegister />
               </AccessibilityShell>
             </ToastProvider>
+            </WorkspaceModeProvider>
             </PsyGraphProvider>
             </ClientPortalProvider>
             </ClinicalProvider>

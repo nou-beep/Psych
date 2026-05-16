@@ -94,6 +94,100 @@ the pre-existing lint errors are cleaned up.
 
 ---
 
+## Living workspace — Case Desktop, modes, cross-app cohesion
+
+This pass focused on **depth + cohesion** rather than new tabs. Every
+system below surfaces or consumes data from systems already in place.
+
+### Case Desktop (Desktop ✦ tab on each case)
+
+Rearrangeable, named-preset workspace per case. 7 built-in presets
+(Session Prep, Assessment Review, Timeline Focus, Research View,
+Thesis Coding, Report Writing, Supervision Review). Add / remove / pin
+/ resize (`sm` / `md` / `lg`) / reorder panels freely. Layouts persist
+per case under `psych-desk-layouts-v1`. 18 panel kinds covering every
+existing module. Pure logic in `lib/desk/layouts.ts`.
+
+### Workspace modes (header dropdown)
+
+Flip between **Default / Session / Writing / Research / Review /
+Supervision**. Each mode is a small set of CSS classes the chrome
+honors (collapsed sidebar in Writing, denser layout in Research,
+quieter chrome in Session). Each mode advertises a `suggestedPresetId`
+so the Case Desktop knows what to open. Persists under
+`psych-workspace-mode-v1`. Logic in `lib/desk/modes.ts`.
+
+### Desk objects (data layer)
+
+`lib/desk/objects.ts` — model for pinned quotes, sticky reminders,
+open notebooks, active reports, transcript fragments, "read later"
+articles, supervision reminders, unfinished formulations, highlighted
+excerpts. Each has 2D position, z-index, colour, optional case
+scoping, and a `linkRef` to a real artefact. Free-drag canvas UI is a
+follow-up.
+
+### Quote / excerpt bank (`/research/quotes`)
+
+Central shared store transcripts, thesis, reports, and case desktops
+read from. Quote carries body, speaker, source
+(`transcript`/`session`/`literature`/`manual`), reference, themes,
+emotional tags, colour, `favourite`, `reportSafe`. Filter by case /
+theme / favourites; `quotesByAnyTheme` powers "what quotes support
+theme X?". `fromTranscriptSnippet` promotes a highlighted transcript
+excerpt into a quote. Logic in `lib/research/quote-bank.ts`.
+
+### Thesis Writer (`/thesis/writer`)
+
+Proper academic writing environment, 8 chapters
+(introduction → appendices). Outline sidebar with per-section word
+counts, draft badges, unresolved-marker counts. Editor surface uses a
+paper-card aesthetic with serif typography and a margin notes column.
+
+- **Autosave** (debounced 400ms) to `psych-thesis-document-v1`.
+- **Unresolved markers** — `[needs citation]`, `[tk]`, `[todo]`,
+  `[fact-check]`, `[unresolved]` are counted per section and surfaced
+  in the outline.
+- **Draft snapshots** — freeze a deep copy of the document with a
+  label; restore or delete from the side panel.
+
+Logic in `lib/research/thesis-writer.ts`.
+
+### Open Loops (`/open-loops`)
+
+Cross-app tracker of unresolved work. Aggregates from every existing
+module — unfinished report drafts, partially-filled formulations,
+supervision notes with action plans but missing topics, transcripts
+with uncoded excerpts, hypotheses still `exploring`, recurring
+threads, quick notes tagged `revisit`/`follow-up`/`open`. Each loop
+has a 1–5 weight; the board sorts heaviest first then longest open.
+
+The same `OpenLoopsBoard` component can be embedded on a case detail
+filtered by case id. Logic in `lib/research/open-loops.ts`.
+
+### Literature desk (data layer)
+
+`lib/research/literature.ts` — reading-list shape (status, summary,
+themes, in-paper excerpts, `pinnedReading`, linked thesis chapters).
+UI surface is a follow-up.
+
+### Cohesion model
+
+A transcript excerpt → becomes a Quote bank entry → can be referenced
+by a thesis chapter (`linkedQuoteIds` on chapter sections) → which
+may raise `[needs citation]` markers visible in the outline → and is
+summarised in Open Loops if left unresolved → and shows up in the
+Case Desktop's "Quote fragments" panel. All five surfaces read from
+the same data, persisted under the same keys.
+
+### Tests
+
+This pass adds 66 new unit tests across `desk-layouts` (10),
+`desk-modes` (5), `desk-objects` (6), `research-quote-bank` (15),
+`research-open-loops` (11), `research-thesis-writer` (12),
+`research-literature` (7).
+
+---
+
 ## Interactive psychological architecture
 
 A unified graph data model makes every psychological "thing" addressable

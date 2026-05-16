@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sparkles, Search, Command, X } from "lucide-react";
 import { useApp } from "@/contexts/AppContext";
+import { WorkspaceModeMenu } from "@/components/shared/WorkspaceModeMenu";
 
 const pageTitles: Record<string, string> = {
   "/therapist": "Dashboard",
@@ -41,6 +42,9 @@ const pageTitles: Record<string, string> = {
   "/clinical/body-map": "Body map",
   "/clinical/thought-web": "Thought web",
   "/clinical/threads": "Threads",
+  "/open-loops": "Open loops",
+  "/research/quotes": "Quote bank",
+  "/thesis/writer": "Thesis writer",
 };
 
 export function Header() {
@@ -248,6 +252,8 @@ export function Header() {
       >
         <Command size={12} />
       </button>
+
+      <WorkspaceModeMenu />
     </header>
   );
 }

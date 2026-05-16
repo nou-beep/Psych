@@ -14,6 +14,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { CaseTimeline } from "@/components/shared/CaseTimeline";
 import { CaseClientAssign } from "@/components/shared/CaseClientAssign";
 import { CaseClinicalSnapshot } from "@/components/clinical/CaseClinicalSnapshot";
+import { CaseDesktop } from "@/components/clinical/CaseDesktop";
 import { mockAssessments } from "@/lib/mock-data";
 
 interface PageProps {
@@ -164,6 +165,7 @@ export default function CaseDetailPage({ params }: PageProps) {
       <Tabs defaultValue="overview">
         <TabsList className="mb-2 flex-wrap">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="desktop">Desktop ✦</TabsTrigger>
           <TabsTrigger value="snapshot">Clinical snapshot ✦</TabsTrigger>
           <TabsTrigger value="timeline">Timeline ✦</TabsTrigger>
           <TabsTrigger value="sessions">Sessions</TabsTrigger>
@@ -219,6 +221,11 @@ export default function CaseDetailPage({ params }: PageProps) {
               <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>{caseData.latestSummary}</p>
             </SectionCard>
           </div>
+        </TabsContent>
+
+        {/* CASE DESKTOP */}
+        <TabsContent value="desktop">
+          <CaseDesktop caseId={caseData.id} />
         </TabsContent>
 
         {/* CLINICAL SNAPSHOT */}

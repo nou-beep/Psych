@@ -1124,3 +1124,30 @@ body {
     rgba(0, 0, 0, 0) 100%
   );
 }
+
+/* ── Workspace modes ───────────────────────────────────────── */
+
+.workspace-quiet .orb,
+.workspace-quiet .decorative,
+.workspace-quiet .animate-sparkle {
+  opacity: 0.3;
+}
+
+.workspace-dense main {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+@media (min-width: 1024px) {
+  .workspace-collapse-sidebar aside.no-print {
+    width: 56px !important;
+  }
+  .workspace-collapse-sidebar aside.no-print nav .sm-label,
+  .workspace-collapse-sidebar aside.no-print span,
+  .workspace-collapse-sidebar aside.no-print p {
+    display: none !important;
+  }
+  .workspace-collapse-sidebar .lg\:ml-60 {
+    margin-left: 56px !important;
+  }
+}
