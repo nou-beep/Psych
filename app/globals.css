@@ -539,3 +539,267 @@ body {
 .a11y-sensory-safe .hero-gradient {
   background: var(--psych-bg) !important;
 }
+
+/* ============================================================
+   CLIENT PORTAL — themes, ambient particles, immersive layout
+   ============================================================ */
+
+[data-client-theme] {
+  --cp-bg-from: #FFF1F5;
+  --cp-bg-to: #F5E8F5;
+  --cp-text: #2A1F3D;
+  --cp-muted: #5C5374;
+  --cp-card: #FFFFFF;
+  --cp-card-soft: rgba(255, 255, 255, 0.65);
+  --cp-border: rgba(120, 90, 140, 0.18);
+  --cp-accent: #C77DAA;
+  --cp-glow: rgba(199, 125, 170, 0.35);
+}
+
+[data-client-theme="moonlight"] {
+  --cp-bg-from: #1E1E2E;
+  --cp-bg-to: #2A2440;
+  --cp-text: #F0EAF8;
+  --cp-muted: #B8AFD0;
+  --cp-card: rgba(40, 32, 56, 0.7);
+  --cp-card-soft: rgba(40, 32, 56, 0.55);
+  --cp-border: rgba(200, 180, 230, 0.18);
+  --cp-accent: #C4A7E0;
+  --cp-glow: rgba(196, 167, 224, 0.45);
+}
+
+[data-client-theme="rose-calm"] {
+  --cp-bg-from: #FFE8EE;
+  --cp-bg-to: #F8D8E5;
+  --cp-text: #2A1F3D;
+  --cp-muted: #6B4C66;
+  --cp-card: rgba(255, 255, 255, 0.85);
+  --cp-card-soft: rgba(255, 255, 255, 0.55);
+  --cp-border: rgba(180, 100, 140, 0.16);
+  --cp-accent: #D67B9E;
+  --cp-glow: rgba(214, 123, 158, 0.32);
+}
+
+[data-client-theme="ocean-quiet"] {
+  --cp-bg-from: #D8E8F0;
+  --cp-bg-to: #B8D0E3;
+  --cp-text: #1E2D3F;
+  --cp-muted: #4A6580;
+  --cp-card: rgba(255, 255, 255, 0.78);
+  --cp-card-soft: rgba(255, 255, 255, 0.5);
+  --cp-border: rgba(80, 110, 150, 0.18);
+  --cp-accent: #5C8DB8;
+  --cp-glow: rgba(92, 141, 184, 0.32);
+}
+
+[data-client-theme="lavender-rest"] {
+  --cp-bg-from: #EDE5F5;
+  --cp-bg-to: #D8CCE8;
+  --cp-text: #2A2240;
+  --cp-muted: #5C507A;
+  --cp-card: rgba(255, 255, 255, 0.8);
+  --cp-card-soft: rgba(255, 255, 255, 0.55);
+  --cp-border: rgba(140, 120, 180, 0.2);
+  --cp-accent: #9882C0;
+  --cp-glow: rgba(152, 130, 192, 0.35);
+}
+
+[data-client-theme="golden-hour"] {
+  --cp-bg-from: #FBE8D3;
+  --cp-bg-to: #F0CFA4;
+  --cp-text: #3D2A1A;
+  --cp-muted: #7A5A40;
+  --cp-card: rgba(255, 255, 255, 0.82);
+  --cp-card-soft: rgba(255, 255, 255, 0.5);
+  --cp-border: rgba(180, 130, 80, 0.2);
+  --cp-accent: #C68C58;
+  --cp-glow: rgba(198, 140, 88, 0.32);
+}
+
+[data-client-theme="cloud-room"] {
+  --cp-bg-from: #F5F5FA;
+  --cp-bg-to: #E8E8F0;
+  --cp-text: #2A2A40;
+  --cp-muted: #6A6A82;
+  --cp-card: rgba(255, 255, 255, 0.92);
+  --cp-card-soft: rgba(255, 255, 255, 0.6);
+  --cp-border: rgba(120, 120, 150, 0.18);
+  --cp-accent: #8B8FB5;
+  --cp-glow: rgba(139, 143, 181, 0.3);
+}
+
+/* Client portal shell layout */
+.cp-shell {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--cp-bg-from), var(--cp-bg-to));
+  color: var(--cp-text);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.cp-content {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem 1rem 6rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .cp-content {
+    padding: 2.5rem 2rem 6rem;
+  }
+}
+
+.cp-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--cp-text);
+}
+
+.cp-microcopy {
+  color: var(--cp-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.cp-card {
+  background: var(--cp-card);
+  border: 1px solid var(--cp-border);
+  border-radius: 1.5rem;
+  padding: 1.25rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px var(--cp-glow);
+}
+
+.cp-card-soft {
+  background: var(--cp-card-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 1.25rem;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Ambient particle layer */
+.cp-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.cp-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.4;
+  animation: cp-drift 22s ease-in-out infinite;
+}
+
+.cp-orb-1 { width: 320px; height: 320px; top: -80px; left: -60px; background: var(--cp-accent); animation-delay: 0s; }
+.cp-orb-2 { width: 260px; height: 260px; bottom: 10%; right: -40px; background: var(--cp-glow); animation-delay: 4s; }
+.cp-orb-3 { width: 180px; height: 180px; top: 40%; left: 20%; background: var(--cp-accent); opacity: 0.25; animation-delay: 8s; }
+
+@keyframes cp-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, 20px) scale(1.05); }
+  66% { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+@keyframes cp-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cp-fade-in { animation: cp-fade-in 0.7s ease-out both; }
+
+/* Weather particle styles */
+.cp-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cp-weather-foggy { background: linear-gradient(135deg, var(--cp-bg-from), rgba(255,255,255,0.7)); }
+.cp-weather-stormy { background: linear-gradient(135deg, #B0B7C8, #8A93A8); }
+.cp-weather-underwater { background: linear-gradient(135deg, #B5D3E0, #8AB5CD); }
+.cp-weather-floating { background: linear-gradient(135deg, #EAE3F0, #D8E0F0); }
+.cp-weather-numb { background: linear-gradient(135deg, #E8E8E8, #D0D0D0); }
+.cp-weather-heavy { background: linear-gradient(135deg, #C8BCD0, #A89AB8); }
+.cp-weather-loud { background: linear-gradient(135deg, #F5C8C8, #E8A0A0); }
+.cp-weather-open { background: linear-gradient(135deg, var(--cp-bg-from), var(--cp-bg-to)); }
+
+/* Low-energy mode strips animations and decoration */
+.cp-low-energy .cp-orb,
+.cp-low-energy .cp-particle {
+  animation: none !important;
+  opacity: 0.15;
+}
+.cp-low-energy .cp-fade-in {
+  animation: none !important;
+}
+
+/* Crisis mode = bigger touch, no orbs, no animation */
+.cp-crisis .cp-orb { display: none; }
+.cp-crisis .cp-content { max-width: 600px; }
+.cp-crisis * { animation: none !important; transition: none !important; }
+.cp-crisis button { min-height: 56px; font-size: 1.05rem; }
+
+/* Nav pill */
+.cp-nav {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.4rem;
+  border-radius: 999px;
+  background: var(--cp-card);
+  border: 1px solid var(--cp-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 50;
+  box-shadow: 0 8px 24px var(--cp-glow);
+}
+
+.cp-nav-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  color: var(--cp-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.cp-nav-item[data-active="true"] {
+  background: var(--cp-accent);
+  color: white;
+}
+
+/* Crisis button */
+.cp-crisis-btn {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 60;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  background: var(--cp-card-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text);
+  font-size: 0.8rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Hide cp- styles when printing therapist documents */
+@media print {
+  .cp-ambient, .cp-nav, .cp-crisis-btn { display: none !important; }
+}

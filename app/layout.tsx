@@ -5,12 +5,9 @@ import { AppProvider } from "@/contexts/AppContext";
 import { ThesisProvider } from "@/contexts/ThesisContext";
 import { ClinicalProvider } from "@/contexts/ClinicalContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { ClientPortalProvider } from "@/contexts/ClientPortalContext";
 import { ToastProvider } from "@/components/ui/Toast";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Header } from "@/components/layout/Header";
-import { MobileNav } from "@/components/layout/MobileNav";
-import { CommandPalette } from "@/components/shared/CommandPalette";
-import { QuickAddButton } from "@/components/shared/QuickAddButton";
+import { ChromeGate } from "@/components/shared/ChromeGate";
 import { PWARegister } from "@/components/shared/PWARegister";
 import { AccessibilityShell } from "@/components/shared/AccessibilityShell";
 
@@ -50,23 +47,14 @@ export default function RootLayout({
           <AppProvider>
             <ThesisProvider>
             <ClinicalProvider>
+            <ClientPortalProvider>
             <ToastProvider>
               <AccessibilityShell>
-                <div className="flex min-h-screen">
-                  <Sidebar />
-                  <div className="flex-1 flex flex-col lg:ml-60 min-h-screen">
-                    <Header />
-                    <main className="flex-1 px-4 py-6 md:px-6 lg:px-8 pb-28 lg:pb-10">
-                      {children}
-                    </main>
-                  </div>
-                  <MobileNav />
-                </div>
-                <CommandPalette />
-                <QuickAddButton />
+                <ChromeGate>{children}</ChromeGate>
                 <PWARegister />
               </AccessibilityShell>
             </ToastProvider>
+            </ClientPortalProvider>
             </ClinicalProvider>
             </ThesisProvider>
           </AppProvider>

@@ -94,6 +94,67 @@ the pre-existing lint errors are cleaned up.
 
 ---
 
+## Two portals
+
+Psych now ships as **two parallel experiences** that share the same data
+layer but feel completely different:
+
+- **Therapist / Clinician workspace** — at `/` and all existing routes.
+  Structured, documentation-focused.
+- **Client portal** — at `/client/*`. Emotionally safe, soft, immersive.
+  Its own ambient layout (no sidebar/header), its own themes, its own
+  navigation.
+
+A split-entry welcome page at `/welcome` lets users pick on first visit.
+The preference is stored in `localStorage`; either portal can switch from
+its own settings page. `components/shared/ChromeGate` swaps layout chrome
+based on the current route — no rewrite required to the therapist UI.
+
+### Client portal highlights
+
+| Feature | Where |
+|---|---|
+| Emotional Weather (13 states, suggestion-aware) | `lib/client/emotional-weather.ts` + home + weather chips everywhere |
+| Soft, multi-mode check-ins (expressive / minimal / silent / low-energy) | `/client/checkin` |
+| "I can't explain it" visual canvas | `/client/express` |
+| Therapeutic card decks (10 decks, draw / shuffle / favourite) | `/client/cards`, `lib/client/therapy-cards.ts` |
+| Grounding space (breathing visual + rotating prompts) | `/client/grounding` |
+| Interactive workbooks (slider, body map, thought cards, free write, before/after) | `/client/workbooks`, `lib/client/workbooks.ts` |
+| Guided therapy journeys (8 paths) | `/client/journeys`, `lib/client/journeys.ts` |
+| Comfort objects (quotes, reminders, memories, colors) | `/client/comfort` |
+| Safe people | `/client/safe-people` |
+| Voice reflections | `/client/audio` |
+| Crisis Mode overlay (large buttons, no animation, simplified UI) | floating "I'm overwhelmed" button anywhere in the portal |
+| Aftercare overlay (soft landing after journeys / workbooks / check-ins) | auto-shows after intense flows |
+| Low-energy mode (simpler UI, no motion, larger touches) | `/client/settings` |
+| 6 ambient themes (Rose Calm, Moonlight, Ocean Quiet, Lavender Rest, Golden Hour, Cloud Room) | `/client/settings` |
+| Therapy memory (gentle observations from saved activity) | `lib/client/memory.ts` |
+| Therapist → Client assignments | Case detail "Client portal ✦" tab → `/client` "From your therapist" section |
+
+### Therapist ↔ Client connection
+
+The therapist case page has a **Client portal ✦** tab where the clinician
+can assign a workbook, journey, therapeutic card, or supportive note to
+the client. Assignments are stored in `localStorage` under
+`psych-client-assignments-v1` so the client portal sees them immediately
+on the next visit. No real backend; this models the shape of a future
+sync layer.
+
+### Client portal architecture
+
+- `contexts/ClientPortalContext.tsx` — owns weather, theme, low-energy
+  mode, crisis/aftercare flags, check-ins, comfort objects, safe people,
+  expression canvases, journey progress, favourite cards, voice notes.
+  Persists every collection to `localStorage`.
+- `components/client/ClientShell.tsx` — the layout wrapper every
+  `/client/*` page uses. Renders ambient orbs, bottom nav pill, floating
+  crisis button, and the Aftercare/Crisis overlays.
+- `lib/client/*.ts` — pure data and logic libraries (weather, cards,
+  journeys, workbooks, memory, assignments, portal preference). All
+  covered by unit tests.
+
+---
+
 ## V2 Modules
 
 The second major upgrade adds several modules that extend the existing

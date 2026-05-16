@@ -25,6 +25,7 @@ import {
   Zap,
   ShieldCheck,
   Database,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/contexts/AppContext";
@@ -72,6 +73,7 @@ const navGroups = [
   {
     label: "System",
     items: [
+      { href: "/client", label: "Client portal ✦", icon: Heart },
       { href: "/backup", label: "Backup & Export", icon: Database },
       { href: "/settings", label: "Settings", icon: Settings },
     ],

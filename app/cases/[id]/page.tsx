@@ -12,6 +12,7 @@ import { useApp } from "@/contexts/AppContext";
 import { useToast } from "@/components/ui/Toast";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { CaseTimeline } from "@/components/shared/CaseTimeline";
+import { CaseClientAssign } from "@/components/shared/CaseClientAssign";
 import { mockAssessments } from "@/lib/mock-data";
 
 interface PageProps {
@@ -171,6 +172,7 @@ export default function CaseDetailPage({ params }: PageProps) {
           <TabsTrigger value="assessments">Assessments</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="supervision">Supervision</TabsTrigger>
+          <TabsTrigger value="client">Client portal ✦</TabsTrigger>
           <TabsTrigger value="attachments">Files {files.length > 0 && `(${files.length})`}</TabsTrigger>
         </TabsList>
 
@@ -542,6 +544,11 @@ export default function CaseDetailPage({ params }: PageProps) {
               </div>
             </SectionCard>
           )}
+        </TabsContent>
+
+        {/* CLIENT PORTAL — assign workbooks / cards / notes */}
+        <TabsContent value="client">
+          <CaseClientAssign caseId={caseData.id} caseCode={caseData.code} />
         </TabsContent>
 
         {/* FILES */}
