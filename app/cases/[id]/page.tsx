@@ -11,6 +11,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useApp } from "@/contexts/AppContext";
 import { useToast } from "@/components/ui/Toast";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { CaseTimeline } from "@/components/shared/CaseTimeline";
 import { mockAssessments } from "@/lib/mock-data";
 
 interface PageProps {
@@ -161,6 +162,7 @@ export default function CaseDetailPage({ params }: PageProps) {
       <Tabs defaultValue="overview">
         <TabsList className="mb-2 flex-wrap">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline ✦</TabsTrigger>
           <TabsTrigger value="sessions">Sessions</TabsTrigger>
           <TabsTrigger value="checkins">Daily Check-ins</TabsTrigger>
           <TabsTrigger value="weekly">Weekly Reviews</TabsTrigger>
@@ -213,6 +215,11 @@ export default function CaseDetailPage({ params }: PageProps) {
               <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>{caseData.latestSummary}</p>
             </SectionCard>
           </div>
+        </TabsContent>
+
+        {/* TIMELINE */}
+        <TabsContent value="timeline">
+          <CaseTimeline caseId={caseData.id} />
         </TabsContent>
 
         {/* SESSIONS */}

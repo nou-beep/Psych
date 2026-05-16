@@ -1,7 +1,7 @@
 // Reports hub — lists all available report types.
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { FileText, Printer } from "lucide-react";
+import { FileText, Printer, Sparkles } from "lucide-react";
 
 const reports = [
   {
@@ -63,6 +63,55 @@ export default function ReportsPage() {
         title="Reports"
         subtitle="Generate and print clinical reports for cases, supervision, and university submission"
       />
+
+      {/* Smart Report Builder — pulls real data from check-ins, reviews,
+          formulations, supervision, and more. */}
+      <Link href="/reports/builder" className="block group mb-4">
+        <div
+          className="rounded-2xl border p-5 transition-all hover:shadow-md hover:scale-[1.01] cursor-pointer"
+          style={{
+            background:
+              "linear-gradient(135deg, var(--psych-gradient-from), var(--psych-gradient-to))",
+            borderColor: "var(--psych-border)",
+          }}
+        >
+          <div className="flex items-start gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: "white" }}
+            >
+              <Sparkles size={18} style={{ color: "var(--psych-primary)" }} />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h3
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--psych-text)" }}
+                >
+                  Smart Report Builder ✦
+                </h3>
+                <span
+                  className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                  style={{
+                    backgroundColor: "white",
+                    color: "var(--psych-accent)",
+                  }}
+                >
+                  V2
+                </span>
+              </div>
+              <p
+                className="text-xs leading-relaxed"
+                style={{ color: "var(--psych-text)" }}
+              >
+                Pick a case, a date range, and the sections you want. Psych
+                pulls real data from check-ins, reviews, formulations, and
+                supervision into an editable draft with source indicators.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Link>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {reports.map((report) => (

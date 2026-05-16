@@ -1,0 +1,27 @@
+{
+  "name": "Psych — Clinical Psychology Workspace",
+  "short_name": "Psych",
+  "description": "A vibrant, whimsical, and professional workspace for psychology students, interns, therapists, researchers, and supervisors.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#F9A8D4",
+  "background_color": "#FFF7F4",
+  "lang": "en",
+  "categories": ["productivity", "medical", "education"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

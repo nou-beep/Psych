@@ -1,20 +1,40 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { AppProvider } from "@/contexts/AppContext";
 import { ThesisProvider } from "@/contexts/ThesisContext";
 import { ClinicalProvider } from "@/contexts/ClinicalContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { CommandPalette } from "@/components/shared/CommandPalette";
 import { QuickAddButton } from "@/components/shared/QuickAddButton";
+import { PWARegister } from "@/components/shared/PWARegister";
+import { AccessibilityShell } from "@/components/shared/AccessibilityShell";
 
 export const metadata: Metadata = {
   title: "Psych — Clinical Psychology Workspace",
   description:
     "A vibrant, whimsical workspace for psychology students, interns, therapists, researchers, and supervisors.",
+  manifest: "/manifest.json",
+  applicationName: "Psych",
+  appleWebApp: {
+    capable: true,
+    title: "Psych",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#F9A8D4",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -26,26 +46,31 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider>
+          <SettingsProvider>
           <AppProvider>
             <ThesisProvider>
             <ClinicalProvider>
             <ToastProvider>
-              <div className="flex min-h-screen">
-                <Sidebar />
-                <div className="flex-1 flex flex-col lg:ml-60 min-h-screen">
-                  <Header />
-                  <main className="flex-1 px-4 py-6 md:px-6 lg:px-8 pb-28 lg:pb-10">
-                    {children}
-                  </main>
+              <AccessibilityShell>
+                <div className="flex min-h-screen">
+                  <Sidebar />
+                  <div className="flex-1 flex flex-col lg:ml-60 min-h-screen">
+                    <Header />
+                    <main className="flex-1 px-4 py-6 md:px-6 lg:px-8 pb-28 lg:pb-10">
+                      {children}
+                    </main>
+                  </div>
+                  <MobileNav />
                 </div>
-                <MobileNav />
-              </div>
-              <CommandPalette />
-              <QuickAddButton />
+                <CommandPalette />
+                <QuickAddButton />
+                <PWARegister />
+              </AccessibilityShell>
             </ToastProvider>
             </ClinicalProvider>
             </ThesisProvider>
           </AppProvider>
+          </SettingsProvider>
         </ThemeProvider>
       </body>
     </html>

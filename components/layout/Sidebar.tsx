@@ -24,6 +24,7 @@ import {
   Mic,
   Zap,
   ShieldCheck,
+  Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/contexts/AppContext";
@@ -71,6 +72,7 @@ const navGroups = [
   {
     label: "System",
     items: [
+      { href: "/backup", label: "Backup & Export", icon: Database },
       { href: "/settings", label: "Settings", icon: Settings },
     ],
   },

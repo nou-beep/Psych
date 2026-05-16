@@ -1,11 +1,20 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useClinical } from "@/contexts/ClinicalContext";
 import { useApp } from "@/contexts/AppContext";
 import { useToast } from "@/components/ui/Toast";
 import { FORMULATION_MODELS, type FormulationCanvas, type FormulationModel } from "@/lib/clinical-data";
-import { Network, Plus, Trash2, Printer, Edit3, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Network, Plus, Trash2, Printer, Edit3, ChevronDown, ChevronUp, Camera,
+} from "lucide-react";
+import { loadFromStorage, saveToStorage } from "@/lib/store";
+import {
+  FORMULATION_SNAPSHOTS_STORAGE_KEY,
+  createSnapshot,
+  snapshotsForCanvas,
+  type FormulationSnapshot,
+} from "@/lib/formulation-snapshots";
 
 const MODEL_KEYS = Object.keys(FORMULATION_MODELS) as FormulationModel[];
 
@@ -20,6 +29,24 @@ export default function FormulationPage() {
   const [newTitle, setNewTitle] = useState("New Formulation");
   const [editId, setEditId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [snapshots, setSnapshots] = useState<FormulationSnapshot[]>([]);
+
+  useEffect(() => {
+    setSnapshots(
+      loadFromStorage<FormulationSnapshot[]>(
+        FORMULATION_SNAPSHOTS_STORAGE_KEY,
+        []
+      )
+    );
+  }, []);
+
+  function takeSnapshot(f: FormulationCanvas) {
+    const snap = createSnapshot(f);
+    const next = [snap, ...snapshots];
+    setSnapshots(next);
+    saveToStorage(FORMULATION_SNAPSHOTS_STORAGE_KEY, next);
+    toast("Snapshot saved ✦", "success");
+  }
 
   const activeCases = cases.filter((c) => !c.isArchived);
 
@@ -172,6 +199,12 @@ export default function FormulationPage() {
                         : { borderColor: "var(--psych-border)", color: "var(--psych-muted)" }}>
                       <Edit3 size={11} /> {isEditing ? "Done" : "Edit"}
                     </button>
+                    <button onClick={(e) => { e.stopPropagation(); takeSnapshot(f); }}
+                      className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg border"
+                      style={{ borderColor: "var(--psych-border)", color: "var(--psych-muted)" }}
+                      title="Save a point-in-time copy of this formulation">
+                      <Camera size={11} /> Snapshot
+                    </button>
                     <button onClick={(e) => { e.stopPropagation(); handleDelete(f.id); }}
                       className="p-1.5 rounded-lg" style={{ color: "var(--psych-muted)" }}><Trash2 size={13} /></button>
                     {isExpanded ? <ChevronUp size={14} style={{ color: "var(--psych-muted)" }} /> : <ChevronDown size={14} style={{ color: "var(--psych-muted)" }} />}
@@ -209,6 +242,48 @@ export default function FormulationPage() {
                         );
                       })}
                     </div>
+
+                    {/* Snapshots */}
+                    {(() => {
+                      const snaps = snapshotsForCanvas(snapshots, f.id);
+                      if (snaps.length === 0) return null;
+                      return (
+                        <div
+                          className="mt-4 pt-3 border-t"
+                          style={{ borderColor: "var(--psych-border)" }}
+                        >
+                          <p
+                            className="text-[10px] font-semibold uppercase tracking-wider mb-2"
+                            style={{ color: "var(--psych-muted)" }}
+                          >
+                            Snapshots ({snaps.length})
+                          </p>
+                          <div className="space-y-1">
+                            {snaps.map((s) => (
+                              <div
+                                key={s.id}
+                                className="flex items-center gap-2 text-xs"
+                                style={{ color: "var(--psych-muted)" }}
+                              >
+                                <Camera size={11} />
+                                <span className="font-mono">
+                                  {s.createdAt.split("T")[0]}
+                                </span>
+                                <span className="flex-1 truncate">
+                                  {s.title}
+                                </span>
+                                <span>
+                                  {Object.values(s.sections).filter(
+                                    (v) => v && v.trim()
+                                  ).length}{" "}
+                                  sections
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
               </div>

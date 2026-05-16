@@ -1,13 +1,21 @@
 "use client";
 import { useState, useMemo } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useClinical } from "@/contexts/ClinicalContext";
 import { useApp } from "@/contexts/AppContext";
 import { useToast } from "@/components/ui/Toast";
 import { ATMOSPHERE_TAGS, type SessionPlan } from "@/lib/clinical-data";
+import { convertPlanToNote } from "@/lib/session-convert";
+import {
+  loadSessionNotes,
+  saveSessionNotes,
+  upsertSessionNote,
+} from "@/lib/session-notes-store";
 import {
   CalendarDays, Plus, Trash2, ChevronDown, ChevronUp, CheckSquare,
-  ArrowRight, Clock, Search, Printer,
+  ArrowRight, Clock, Search, Printer, FileEdit,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +60,7 @@ function TagInput({ value, onChange, placeholder }: { value: string[]; onChange:
 }
 
 export default function PlannerPage() {
+  const router = useRouter();
   const { plans, addPlan, updatePlan, deletePlan } = useClinical();
   const { cases } = useApp();
   const { toast } = useToast();
@@ -117,6 +126,22 @@ export default function PlannerPage() {
     setExpandedId(p.id);
   }
 
+  function convertToSessionNoteDraft(p: SessionPlan) {
+    try {
+      const draft = convertPlanToNote(p);
+      const existing = loadSessionNotes();
+      saveSessionNotes(upsertSessionNote(existing, draft));
+      if (p.status !== "completed") {
+        updatePlan(p.id, { status: "completed" });
+      }
+      toast("Session note draft created", "success");
+      router.push(`/planner/notes/${draft.id}`);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Could not convert";
+      toast(msg, "warning");
+    }
+  }
+
   const activeCases = cases.filter((c) => !c.isArchived);
 
   const statusColors: Record<string, string> = {
@@ -133,6 +158,10 @@ export default function PlannerPage() {
         subtitle={`${plans.length} session plan${plans.length !== 1 ? "s" : ""} · prepare, then reflect`}
         actions={
           <div className="flex gap-2">
+            <Link href="/planner/notes" className="no-print flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-xl border"
+              style={{ borderColor: "var(--psych-border)", color: "var(--psych-muted)" }}>
+              <FileEdit size={14} /> Session Notes
+            </Link>
             <button onClick={() => window.print()} className="no-print btn-ghost flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-xl border"
               style={{ borderColor: "var(--psych-border)", color: "var(--psych-muted)" }}>
               <Printer size={14} /> Print
@@ -332,6 +361,12 @@ export default function PlannerPage() {
                         <ArrowRight size={11} /> Complete
                       </button>
                     )}
+                    <button onClick={(e) => { e.stopPropagation(); convertToSessionNoteDraft(p); }}
+                      className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg border"
+                      style={{ borderColor: "var(--psych-primary)", color: "var(--psych-primary)" }}
+                      title="Convert this plan into an editable session note draft">
+                      <FileEdit size={11} /> To Note
+                    </button>
                     <button onClick={(e) => { e.stopPropagation(); startEdit(p); }}
                       className="p-1.5 rounded-lg text-xs" style={{ color: "var(--psych-muted)" }}>Edit</button>
                     <button onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }}

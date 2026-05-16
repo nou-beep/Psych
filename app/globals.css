@@ -480,3 +480,62 @@ body {
 .hero-gradient {
   background: linear-gradient(135deg, var(--psych-gradient-from), var(--psych-gradient-to));
 }
+
+/* ── Accessibility & Sensory Safe Mode ──────────────────────── */
+
+.a11y-reduced-motion *,
+.a11y-reduced-motion *::before,
+.a11y-reduced-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+.a11y-muted-colors {
+  filter: saturate(0.75);
+}
+
+.a11y-larger-text {
+  font-size: 1.0625rem;
+}
+.a11y-larger-text h1 { font-size: 1.85rem; }
+.a11y-larger-text h2 { font-size: 1.45rem; }
+.a11y-larger-text h3 { font-size: 1.2rem; }
+.a11y-larger-text .text-xs { font-size: 0.85rem; }
+.a11y-larger-text .text-sm { font-size: 1rem; }
+
+.a11y-high-contrast {
+  --psych-text: #0F172A;
+  --psych-muted: #1F2937;
+  --psych-border: #0F172A;
+}
+
+.a11y-low-stim .orb,
+.a11y-low-stim .decorative,
+.a11y-no-sparkles .animate-sparkle {
+  display: none !important;
+}
+
+.a11y-low-stim *,
+.a11y-low-stim *::before,
+.a11y-low-stim *::after {
+  animation: none !important;
+}
+
+.a11y-simplified .lg\\:ml-60 {
+  margin-left: 0 !important;
+}
+
+.a11y-soft-contrast {
+  filter: contrast(0.92);
+}
+
+.a11y-focus-outlines :focus-visible {
+  outline: 2px solid var(--psych-primary, #EC4899);
+  outline-offset: 2px;
+}
+
+.a11y-sensory-safe .hero-gradient {
+  background: var(--psych-bg) !important;
+}

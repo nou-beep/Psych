@@ -1,6 +1,7 @@
 "use client";
 // Settings page — theme, print settings, report preferences, and user info.
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionCard } from "@/components/shared/SectionCard";
@@ -9,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Download, Smartphone } from "lucide-react";
+import { useSettings } from "@/contexts/SettingsContext";
+import type { AccessibilitySettings } from "@/lib/accessibility";
 
 const SETTINGS_KEY = "psych-settings";
 
@@ -33,9 +36,27 @@ const defaultSettings: AppSettings = {
   printMargins: "normal",
 };
 
+const A11Y_LABELS: Array<{ key: keyof AccessibilitySettings; label: string; help?: string }> = [
+  { key: "reducedMotion", label: "Reduced motion", help: "Disable most animations and transitions." },
+  { key: "mutedColors", label: "Muted colors", help: "Lower the overall color saturation." },
+  { key: "largerText", label: "Larger text" },
+  { key: "highContrast", label: "High contrast" },
+  { key: "softerContrast", label: "Softer contrast" },
+  { key: "lowStimulation", label: "Low stimulation", help: "Hide decorative orbs and sparkles." },
+  { key: "disableSparkles", label: "Disable sparkles" },
+  { key: "simplifiedLayout", label: "Simplified layout", help: "Hide the sidebar margin for a flatter view." },
+  { key: "focusOutlines", label: "Visible focus outlines", help: "Help with keyboard navigation." },
+];
+
 export default function SettingsPage() {
   const [settings, setSettings] = useState<AppSettings>(defaultSettings);
   const [saved, setSaved] = useState(false);
+  const {
+    accessibility,
+    updateAccessibility,
+    toggleSensorySafe,
+    resetAccessibility,
+  } = useSettings();
 
   useEffect(() => {
     const stored = localStorage.getItem(SETTINGS_KEY);
@@ -168,6 +189,113 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+        </SectionCard>
+
+        {/* Accessibility */}
+        <SectionCard
+          title="Accessibility & Sensory Safe Mode"
+          description="Make the workspace gentler on your senses and easier to navigate"
+        >
+          <div className="space-y-4">
+            <label
+              className="flex items-start gap-3 p-3 rounded-xl border cursor-pointer"
+              style={{
+                borderColor: accessibility.sensorySafeMode
+                  ? "var(--psych-primary)"
+                  : "var(--psych-border)",
+                backgroundColor: accessibility.sensorySafeMode
+                  ? "var(--psych-primary-light)"
+                  : "var(--psych-bg)",
+              }}
+            >
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={accessibility.sensorySafeMode}
+                onChange={(e) => toggleSensorySafe(e.target.checked)}
+              />
+              <div>
+                <p className="text-sm font-medium" style={{ color: "var(--psych-text)" }}>
+                  Sensory Safe Mode ✦
+                </p>
+                <p className="text-xs" style={{ color: "var(--psych-muted)" }}>
+                  Reduces animations, softens contrast, mutes colors, hides
+                  sparkles. Individual toggles below remain available.
+                </p>
+              </div>
+            </label>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {A11Y_LABELS.map(({ key, label, help }) => (
+                <label
+                  key={key}
+                  className="flex items-start gap-2 p-2 rounded-lg cursor-pointer"
+                  style={{ color: "var(--psych-text)" }}
+                >
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={accessibility[key]}
+                    onChange={(e) =>
+                      updateAccessibility({ [key]: e.target.checked })
+                    }
+                  />
+                  <div className="text-sm">
+                    <div>{label}</div>
+                    {help && (
+                      <div className="text-xs" style={{ color: "var(--psych-muted)" }}>
+                        {help}
+                      </div>
+                    )}
+                  </div>
+                </label>
+              ))}
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button variant="ghost" size="sm" onClick={resetAccessibility}>
+                Reset accessibility
+              </Button>
+            </div>
+          </div>
+        </SectionCard>
+
+        {/* Install PWA */}
+        <SectionCard
+          title="Install Psych"
+          description="Use Psych as an app on your iPad, phone, or desktop"
+        >
+          <div className="flex items-start gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: "var(--psych-primary-light)" }}
+            >
+              <Smartphone size={18} style={{ color: "var(--psych-primary)" }} />
+            </div>
+            <div className="space-y-2 text-sm">
+              <p style={{ color: "var(--psych-text)" }}>
+                Psych can be installed as a standalone app. Use your browser&rsquo;s
+                <strong> Install </strong>(or <strong>Add to Home Screen</strong>) option from the
+                share menu.
+              </p>
+              <p className="text-xs" style={{ color: "var(--psych-muted)" }}>
+                Your data is stored locally on the device. Use Backup &amp;
+                Export to move it between devices.
+              </p>
+            </div>
+          </div>
+        </SectionCard>
+
+        {/* Backup link */}
+        <SectionCard
+          title="Backup & Export"
+          description="Export, import, or reset your local Psych data"
+        >
+          <Link href="/backup">
+            <Button variant="secondary" size="md">
+              <Download size={14} /> Open Backup &amp; Export
+            </Button>
+          </Link>
         </SectionCard>
 
         {/* Data note */}

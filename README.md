@@ -94,6 +94,85 @@ the pre-existing lint errors are cleaned up.
 
 ---
 
+## V2 Modules
+
+The second major upgrade adds several modules that extend the existing
+architecture. Each one is built around a pure-logic library in `lib/`
+plus a thin UI layer — every library has dedicated tests.
+
+### Smart Report Builder ✦
+`/reports/builder` — pick a case, a date range, and the sections you want.
+Psych assembles a draft from your saved data with **source indicators**
+on every section (so you can see which check-ins, reviews, or
+formulations the content was pulled from). Drafts are editable,
+reorderable, duplicatable, savable, and printable. Logic lives in
+`lib/report-assembly.ts`.
+
+### Session Planner → Session Note flow
+From the planner, the **To Note** button converts a plan into an
+editable session note draft at `/planner/notes/[id]`. Planned goals
+become checkboxes, planned interventions seed the interventions list,
+and supervisor instructions / risk reminders carry over as flags.
+Logic lives in `lib/session-convert.ts`; the draft list is at
+`/planner/notes`.
+
+### Clinical Formulation snapshots
+The Formulation page now has a **Snapshot** button on every canvas that
+saves a point-in-time copy. Snapshots are listed inline and can be
+diffed to see how a formulation evolves. Logic lives in
+`lib/formulation-snapshots.ts`.
+
+### Terminology dictionary additions
+Adds the **Grounding** term so the dictionary now covers all 11
+starter terms requested (anxiety, depression, depersonalization,
+derealization, dissociation, emotional regulation, avoidance,
+rumination, trauma, attachment, grounding) — each in English, French,
+and Arabic.
+
+### Thesis scoring & stats utilities
+`lib/scoring.ts` adds **PHQ-9 and GAD-7 scoring with severity bands**,
+**descriptive statistics** (mean/median/SD/min/max/range), **pairwise
+Pearson correlation matrices**, **frequency tables**, **CSV parse and
+emit**, and **data-quality checks** (duplicate IDs, missing fields,
+impossible values). The existing Thesis Studio page continues to use
+its own helpers; the new library is ready to wire into a dedicated
+stats view.
+
+### Case Timeline V2
+The case detail page has a new **Timeline** tab that pulls events from
+check-ins, weekly/monthly reviews, session plans, sessions,
+assessments, supervision, reflections, interventions, transcripts,
+audio notes, goals, reports, and ethics events. Events are grouped by
+month, filterable by type and search query, and milestone events
+(achieved goals, monthly reviews, high-effectiveness interventions)
+are visually highlighted. Logic lives in `lib/case-timeline.ts`.
+
+### Backup & Export
+`/backup` — export your full local dataset or a single case as JSON,
+import a backup with preview-before-apply validation, or reset
+everything with a typed confirmation phrase. Logic lives in
+`lib/backup.ts` (`buildFullBackup`, `buildSingleCaseBackup`,
+`validateBackup`, `previewBackup`, `isResetConfirmed`). Imports merge
+into existing data by upserting on `id`.
+
+### PWA / offline mode
+`public/manifest.json` declares Psych as an installable PWA (soft-pink
+theme, standalone display, app icons). A minimal service worker
+(`public/sw.js`) registers in production only and falls back to
+`/offline` when a route is unreachable. The Settings page has an
+**Install Psych** card that explains how to add to home screen.
+
+### Accessibility & Sensory Safe Mode
+The Settings page exposes a full accessibility panel: reduced motion,
+muted colors, larger text, high/soft contrast, low stimulation, no
+sparkles, simplified layout, visible focus outlines. **Sensory Safe
+Mode** is a single-toggle preset that turns several of these on at
+once. Preferences persist in `localStorage`. Logic and class-name
+derivation live in `lib/accessibility.ts`; CSS in `app/globals.css`
+under the `.a11y-*` selectors.
+
+---
+
 ## Deploying to Vercel
 
 1. Push this folder to a GitHub repository named **Psych**
