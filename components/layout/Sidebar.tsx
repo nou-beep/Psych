@@ -26,6 +26,7 @@ import {
   ShieldCheck,
   Database,
   Heart,
+  Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/contexts/AppContext";
@@ -43,6 +44,7 @@ const navGroups = [
   {
     label: "Clinical",
     items: [
+      { href: "/clinical", label: "Clinical tools ✦", icon: Stethoscope },
       { href: "/reflect", label: "Reflections", icon: BookOpen },
       { href: "/planner", label: "Session Planner", icon: CalendarDays },
       { href: "/interventions", label: "Interventions", icon: Zap },

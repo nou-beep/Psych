@@ -94,6 +94,60 @@ the pre-existing lint errors are cleaned up.
 
 ---
 
+## Clinical-scientific toolkit
+
+A new clinical hub at `/clinical` brings together evidence-informed
+clinical workflows. All scoring and structured data lives in pure-logic
+libraries (`lib/clinical/*`) with unit tests. The hub is also linked
+from the sidebar as **Clinical tools ✦**.
+
+| Route | Module |
+|---|---|
+| `/clinical` | Hub linking every tool below |
+| `/assessments/library` | Standardised assessment engine — PHQ-9, GAD-7, DASS-21 fully scoreable; BDI-II, STAI-Y2, CDS-29, DES-II, PCL-5, AQ-50, RAADS-R as placeholder shells. Live preview with severity bands, missing-item detection, item-9 risk flags, longitudinal table |
+| `/clinical/interview` | 5 structured interview templates (general intake, follow-up, anxiety-focused, dissociation-focused, neurodevelopmental). Comparable across sessions |
+| `/clinical/mse` | Mental Status Examination — 16 domains with descriptor chips, free-text observations, formal report narrative builder, cross-session comparison |
+| `/clinical/longitudinal` | Symptom evolution charts with intervention / session overlays and period-vs-period comparison (improved / stable / worsened) |
+| `/clinical/hypothesis` | Structured clinical reasoning — evidence for/against, status (exploring / supported / unsupported / needs further assessment / discussed in supervision), confidence, differentials. Explicitly **not** diagnosis automation |
+| `/clinical/interventions` | Evidence-informed intervention library across CBT, ACT, DBT, exposure, grounding, trauma stabilization, sensory regulation, and more. Indications, contraindications, evidence-level labels, linked workbooks |
+| `/clinical/disorders` | DSM-5-TR / ICD-11 navigation layer. **No copyrighted criterion text** — placeholder code fields, associated features, differentials, specifiers, cultural considerations, and links to assessments / interventions / workbooks in this app |
+| `/clinical/psychoeducation` | Soft handouts across 4 reading levels (clinician, adolescent-friendly, parent guidance, minimalist academic) |
+| `/clinical/phrases` | Trilingual (EN/FR/AR) phrase library with category filters and copy-to-clipboard |
+| `/clinical/search` | Cross-domain search across cases, sessions, check-ins, weekly/monthly reviews, assessments, interventions, workbooks, terminology, transcripts, reflections, supervision, hypotheses, MSE entries, thesis notes, and disorders |
+
+### Pure-logic libraries
+
+- `lib/clinical/assessments.ts` — instrument definitions, scoring (with severity bands, subscale handling, missing-item detection, risk-item flags), administration shape, longitudinal helpers
+- `lib/clinical/longitudinal.ts` — score-series builders, period summaries, period comparison, intervention/session overlay markers, cross-domain symptom series
+- `lib/clinical/mse.ts` — 16-domain MSE shape, descriptor chips, report-narrative builder, cross-session diff
+- `lib/clinical/hypothesis.ts` — hypothesis CRUD, evidence add/remove, status transitions, evidence-balance descriptor
+- `lib/clinical/interventions-library.ts` — modality-organised catalogue with searches and filters
+- `lib/clinical/disorders.ts` — DSM/ICD navigation layer with linked-material references
+- `lib/clinical/psychoeducation.ts` — handout catalogue across 4 reading levels
+- `lib/clinical/interview.ts` — 5 interview templates + cross-template diff helpers
+- `lib/clinical/clinical-search.ts` — cross-domain search engine with ranking, snippet generation, kind-grouping
+- `lib/clinical/thematic.ts` — codes / themes / excerpts shape and frequency analysis for qualitative work
+- `lib/clinical/phrases.ts` — trilingual phrase catalogue with category and language helpers
+
+### Test coverage
+
+The clinical layer adds 82 new unit tests covering:
+- PHQ-9 / GAD-7 / DASS-21 scoring (severity bands, subscale handling, missing-item detection, risk flags)
+- Longitudinal series construction, period comparison, overlay marker building
+- MSE narrative generation and cross-session diffing
+- Hypothesis evidence operations and status transitions
+- Intervention library filters
+- Disorder reference (including a regression-guard test against accidental DSM verbatim copy)
+- Psychoeducation variants
+- Interview templates and cross-template diffs
+- Clinical search ranking, kind filtering, grouping, snippet building
+- Thematic codes / themes / excerpts / frequency / quote extraction
+- Trilingual phrase library helpers
+
+288 tests total, all passing.
+
+---
+
 ## Two portals
 
 Psych now ships as **two parallel experiences** that share the same data
