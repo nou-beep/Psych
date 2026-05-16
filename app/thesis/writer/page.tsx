@@ -34,6 +34,28 @@ import {
   type ThesisDocument,
   type ThesisSnapshot,
 } from "@/lib/research/thesis-writer";
+import {
+  METHODOLOGY_SECTIONS,
+  REAL_CHAPTER_OUTLINE,
+  REAL_SEED_ACCEPTED_KEY,
+  THESIS_FR_TITLE,
+} from "@/lib/thesis/real-seed";
+
+// Map the 10 real French chapter outline entries onto the writer's
+// existing 8-chapter structure so the user can seed editable French
+// sections without losing prior work.
+const REAL_TO_WRITER_CHAPTER: Record<string, ChapterId> = {
+  "intro-generale": "introduction",
+  "ch1-depersonnalisation": "literature",
+  "ch2-anxiete": "literature",
+  "ch3-depression": "literature",
+  "ch4-liens": "literature",
+  "ch5-methodo": "methodology",
+  "ch6-resultats": "results",
+  "ch7-discussion": "discussion",
+  "conclusion-generale": "conclusion",
+  "bibliographie": "references",
+};
 
 export default function ThesisWriterPage() {
   const [doc, setDoc] = useState<ThesisDocument | null>(null);
@@ -142,6 +164,39 @@ export default function ThesisWriterPage() {
     persistSnapshots(snapshots.filter((s) => s.id !== id));
   }
 
+  function seedFromRealOutline() {
+    if (!doc) return;
+    if (
+      !confirm(
+        "Pré-remplir la structure avec les 10 chapitres réels (Introduction générale → Bibliographie) ? Le contenu existant est conservé, des sections françaises sont ajoutées."
+      )
+    ) {
+      return;
+    }
+    let next: ThesisDocument = { ...doc, title: THESIS_FR_TITLE };
+    for (const real of REAL_CHAPTER_OUTLINE) {
+      const target = REAL_TO_WRITER_CHAPTER[real.id];
+      if (!target) continue;
+      next = addSection(next, target, real.label);
+      // For the methodology chapter, also seed the 10 sub-sections.
+      if (real.id === "ch5-methodo") {
+        for (const s of METHODOLOGY_SECTIONS) {
+          next = addSection(next, target, `Méthodologie — ${s}`);
+        }
+      }
+    }
+    setDoc(next);
+    saveToStorage(REAL_SEED_ACCEPTED_KEY, true);
+    setRealSeedAccepted(true);
+  }
+
+  const [realSeedAccepted, setRealSeedAccepted] = useState(false);
+  useEffect(() => {
+    setRealSeedAccepted(
+      loadFromStorage<boolean>(REAL_SEED_ACCEPTED_KEY, false)
+    );
+  }, [doc?.id]);
+
   const outlineEntries = useMemo(
     () => (doc ? outline(doc) : []),
     [doc]
@@ -199,6 +254,40 @@ export default function ThesisWriterPage() {
           </div>
         }
       />
+
+      {!realSeedAccepted && (
+        <div
+          className="rounded-xl border p-3 mb-3 flex items-start gap-3"
+          style={{
+            background: "var(--psych-primary-light)",
+            borderColor: "var(--psych-border)",
+          }}
+        >
+          <div className="flex-1 text-xs" style={{ color: "var(--psych-text)" }}>
+            <div className="font-semibold mb-0.5">
+              Structure réelle disponible
+            </div>
+            <div style={{ color: "var(--psych-muted)" }}>
+              Pré-remplir avec les 10 chapitres français (Mrini, 2025-2026) et
+              les 10 sections de méthodologie. Le titre du document sera mis à
+              jour. Le contenu existant n&apos;est pas écrasé.
+            </div>
+          </div>
+          <Button size="sm" onClick={seedFromRealOutline}>
+            Pré-remplir
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              saveToStorage(REAL_SEED_ACCEPTED_KEY, true);
+              setRealSeedAccepted(true);
+            }}
+          >
+            Ignorer
+          </Button>
+        </div>
+      )}
 
       {showSnapshotInput && (
         <div

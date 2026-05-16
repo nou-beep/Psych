@@ -42,9 +42,14 @@ const pageTitles: Record<string, string> = {
   "/clinical/body-map": "Body map",
   "/clinical/thought-web": "Thought web",
   "/clinical/threads": "Threads",
+  "/clinical/worksheets": "Worksheet library",
+  "/clinical/templates": "Modèles cliniques",
   "/open-loops": "Open loops",
   "/research/quotes": "Quote bank",
+  "/research/literature": "Literature desk",
   "/thesis/writer": "Thesis writer",
+  "/thesis/dashboard": "Thesis dashboard",
+  "/thesis/import": "Import participant data",
 };
 
 export function Header() {
