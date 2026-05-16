@@ -1,7 +1,9 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { loadFromStorage, saveToStorage } from "@/lib/store";
 import {
   LogOut,
   LayoutDashboard,
@@ -29,6 +31,8 @@ import {
   Database,
   Heart,
   Stethoscope,
+  CalendarRange,
+  StickyNote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/contexts/AppContext";
@@ -38,6 +42,8 @@ const navGroups = [
     label: "Workspace",
     items: [
       { href: "/therapist", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/calendar", label: "Calendar", icon: CalendarRange },
+      { href: "/quick-notes", label: "Quick notes", icon: StickyNote },
       { href: "/cases", label: "Cases", icon: FolderOpen },
       { href: "/checkins", label: "Check-ins", icon: ClipboardCheck },
       { href: "/goals", label: "Goals", icon: Target },
@@ -84,11 +90,30 @@ const navGroups = [
   },
 ];
 
+const SIDEBAR_GROUPS_STORAGE_KEY = "psych-sidebar-groups-v1";
+
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { activeCases, goals } = useApp();
   const { session, signOut } = useAuth();
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setOpenGroups(
+      loadFromStorage<Record<string, boolean>>(SIDEBAR_GROUPS_STORAGE_KEY, {})
+    );
+    setReady(true);
+  }, []);
+
+  function toggleGroup(label: string) {
+    setOpenGroups((prev) => {
+      const next = { ...prev, [label]: prev[label] === false };
+      if (ready) saveToStorage(SIDEBAR_GROUPS_STORAGE_KEY, next);
+      return next;
+    });
+  }
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -174,14 +199,36 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-2 overflow-y-auto space-y-4">
-        {navGroups.map((group) => (
+        {navGroups.map((group) => {
+          const open = openGroups[group.label] !== false;
+          return (
           <div key={group.label}>
-            <p
-              className="px-3 mb-1 text-[9px] font-semibold uppercase tracking-widest"
-              style={{ color: "var(--psych-muted)", opacity: 0.6 }}
+            <button
+              onClick={() => toggleGroup(group.label)}
+              className="flex items-center gap-1 w-full px-3 mb-1 text-[9px] font-semibold uppercase tracking-widest text-left"
+              style={{ color: "var(--psych-muted)", opacity: 0.7 }}
+              aria-expanded={open}
             >
+              <svg
+                width="9"
+                height="9"
+                viewBox="0 0 12 12"
+                className="sidebar-group-caret"
+                data-open={open}
+                style={{ flexShrink: 0 }}
+              >
+                <path
+                  d="M3 4l3 4 3-4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               {group.label}
-            </p>
+            </button>
+            {open && (
             <div className="space-y-0.5">
               {group.items.map(({ href, label, icon: Icon }) => {
                 const active = isActive(href);
@@ -241,8 +288,10 @@ export function Sidebar() {
                 );
               })}
             </div>
+            )}
           </div>
-        ))}
+          );
+        })}
       </nav>
 
       {/* Footer — session + sign out */}

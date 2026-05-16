@@ -94,6 +94,50 @@ the pre-existing lint errors are cleaned up.
 
 ---
 
+## Visual identity & workflow intelligence
+
+Psych is designed to read as a working psychologist's environment, not a
+SaaS dashboard. The visual language combines clinical structure with a
+subtle hand-marked annotation feel:
+
+- **Annotation classes** in `app/globals.css` — `.annot-underline`,
+  `.annot-highlight`, `.annot-circle`, `.annot-margin-note`,
+  `.annot-tag`, `.annot-pin`, `.annot-strikethrough`. Intended for
+  transcripts, formulations, case notes, supervision.
+- **Sticky-note + paper-card variants** — `.sticky-note` (with
+  `[data-rotate="1..4"]` for slight tilt and `.sticky-pin`), `.paper-card`
+  (with `data-state="draft"` dashed border), `.stacked-papers` for
+  layered drafts.
+- **Section colour tokens** via `data-section` on a wrapper element —
+  `assessments`, `reports`, `thesis`, `supervision`, `risk`, `research`,
+  `interventions`, `calendar`, `client`. Each exposes
+  `--section-accent`, `--section-tint`, `--section-line`. Pages
+  identify themselves to the rest of the styling via this attribute.
+- **`alive-hover`** — a single hover class that gives every card a
+  small lift + accent-coloured border, without animation noise.
+
+### New workflow surfaces
+
+| Route | What it is |
+|---|---|
+| `/calendar` | Clinical calendar with day / week / month views, recurring sessions (weekly / bi-weekly / monthly with optional end date), 9 colour-coded categories (session, supervision, assessment-due, report-due, follow-up, workbook-review, intake, research, other), overdue widget, and load metrics (today / this week / pending tasks / overdue). |
+| `/quick-notes` | Clinician thinking space. Sticky-note style cards with 5 colours, pin / unpin, tag chips, case linking, full-text search. Pinned notes float to the top of the board. |
+| `Case detail → Clinical snapshot ✦` tab | New per-case panel combining: **Last session at a glance**, **Therapy phase** (with full transition history and "days in current phase" indicator), **Therapy needs profile** (12 categories — emotional validation, structure, grounding, psychoeducation, emotional regulation, behavioral activation, relational safety, cognitive restructuring, executive functioning, sensory accommodations, routine support, distress tolerance — with priority, current-focus flag, progress, linked interventions/workbooks), and **Session objectives** (pre-session prep that carries unresolved themes forward across sessions). |
+| `Dashboard → Currently working on` widget | Surfaces work-in-progress across modules — unfinished report drafts, formulation drafts (partially filled), supervision notes with action plans but missing topics, uncoded transcript excerpts, incomplete assessments (any missing items), session-note drafts with unchecked goals, draft interviews. Ranked most-recently-touched first. |
+| Sidebar | Groups are now **collapsible**, persisted in `localStorage`, with a subtle caret. Adds **Calendar** and **Quick notes** to the Workspace group. Independent vertical scroll. |
+
+### Pure-logic libraries (with tests; +47 new this pass)
+
+- `lib/clinical/calendar.ts` — event model, weekly/biweekly/monthly recurrence expansion clamped by `recurrenceUntil`, day/week/month boundaries, overdue detection, dashboard load metrics
+- `lib/clinical/therapy-needs.ts` — 12-category needs catalogue with curated intervention/workbook/psychoeducation suggestions per category
+- `lib/clinical/case-phase.ts` — 7-phase model (intake → assessment → stabilization → active treatment → maintenance → discharge prep → follow-up) with transition history and days-in-phase
+- `lib/clinical/session-objectives.ts` — pre-session prep shape with `carryForward()` that brings follow-up, unresolved themes, and supervision reminders into the next session
+- `lib/clinical/quick-notes.ts` — sticky-note CRUD, pin ordering, full-text search, case scoping
+- `lib/clinical/last-session.ts` — pure derivation of "last session at a glance" from sessions + plans + check-ins
+- `lib/clinical/workspace.ts` — cross-module work-in-progress aggregator
+
+---
+
 ## Dual-portal architecture
 
 Psych is split into two distinct ecosystems that share the same local

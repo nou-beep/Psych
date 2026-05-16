@@ -18,6 +18,7 @@ import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useApp } from "@/contexts/AppContext";
+import { WorkingOn } from "@/components/clinical/WorkingOn";
 
 const today = new Date();
 const displayDate = today.toLocaleDateString("en-US", {
@@ -167,6 +168,9 @@ export default function DashboardPage() {
           ))}
         </div>
       </SectionCard>
+
+      {/* Currently working on */}
+      <WorkingOn />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent cases */}

@@ -807,3 +807,273 @@ body {
 @media print {
   .cp-ambient, .cp-nav, .cp-crisis-btn { display: none !important; }
 }
+
+/* ============================================================
+   VISUAL IDENTITY — annotation language, paper feel, sections
+   Subtle scribble-style highlights that read "active workspace".
+   ============================================================ */
+
+/* Section accent tokens — applied via data-section on a wrapper element.
+   Each section gets a distinct muted palette to aid cognition without
+   being garish. */
+[data-section="assessments"]   { --section-accent: #6B7AA0; --section-tint: rgba(107, 122, 160, 0.10); --section-line: rgba(107, 122, 160, 0.32); }
+[data-section="reports"]       { --section-accent: #8A6E5D; --section-tint: rgba(138, 110, 93, 0.10);  --section-line: rgba(138, 110, 93, 0.32); }
+[data-section="thesis"]        { --section-accent: #A4756A; --section-tint: rgba(164, 117, 106, 0.10); --section-line: rgba(164, 117, 106, 0.30); }
+[data-section="supervision"]   { --section-accent: #8B4A66; --section-tint: rgba(139, 74, 102, 0.10);  --section-line: rgba(139, 74, 102, 0.30); }
+[data-section="risk"]          { --section-accent: #9B4D3A; --section-tint: rgba(155, 77, 58, 0.10);   --section-line: rgba(155, 77, 58, 0.30); }
+[data-section="research"]      { --section-accent: #7E7A6E; --section-tint: rgba(126, 122, 110, 0.10); --section-line: rgba(126, 122, 110, 0.30); }
+[data-section="interventions"] { --section-accent: #B07A4F; --section-tint: rgba(176, 122, 79, 0.10);  --section-line: rgba(176, 122, 79, 0.30); }
+[data-section="calendar"]      { --section-accent: #6E8A7B; --section-tint: rgba(110, 138, 123, 0.10); --section-line: rgba(110, 138, 123, 0.30); }
+[data-section="client"]        { --section-accent: #9882C0; --section-tint: rgba(152, 130, 192, 0.10); --section-line: rgba(152, 130, 192, 0.30); }
+
+/* Section header — small chip with section name + accent line */
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--section-accent, var(--psych-muted));
+}
+.section-eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 1px;
+  background: var(--section-accent, var(--psych-muted));
+}
+
+/* Annotation language — used inline in transcripts / case notes /
+   thesis. Subtle ink-like underlines, soft circled fragments, margin
+   notes. Designed to read like a clinician's marked-up document. */
+
+.annot-underline {
+  background-image: linear-gradient(
+    to right,
+    var(--section-line, rgba(180,90,140,0.35)) 0%,
+    var(--section-line, rgba(180,90,140,0.35)) 100%
+  );
+  background-repeat: no-repeat;
+  background-position: 0 88%;
+  background-size: 100% 3px;
+  padding-bottom: 1px;
+}
+
+.annot-highlight {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    var(--section-tint, rgba(255, 220, 200, 0.65)) 6%,
+    var(--section-tint, rgba(255, 220, 200, 0.65)) 94%,
+    transparent 100%
+  );
+  padding: 0 4px;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.annot-circle {
+  position: relative;
+  display: inline-block;
+  padding: 0 2px;
+}
+.annot-circle::before {
+  content: "";
+  position: absolute;
+  inset: -4px -6px;
+  border: 1.5px solid var(--section-accent, var(--psych-accent));
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.annot-strikethrough {
+  position: relative;
+  color: var(--psych-muted);
+}
+.annot-strikethrough::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 55%;
+  height: 1.5px;
+  background: var(--section-accent, currentColor);
+  opacity: 0.55;
+  transform: rotate(-1.5deg);
+}
+
+.annot-margin-note {
+  position: relative;
+  padding-left: 12px;
+  font-style: italic;
+  color: var(--psych-muted);
+  font-size: 0.85em;
+  border-left: 2px solid var(--section-accent, var(--psych-border));
+  background: linear-gradient(
+    to right,
+    var(--section-tint, transparent),
+    transparent 40%
+  );
+}
+
+.annot-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--section-tint, var(--psych-primary-light));
+  color: var(--section-accent, var(--psych-accent));
+  border: 1px solid var(--section-line, var(--psych-border));
+}
+
+.annot-pin::before {
+  content: "✦";
+  margin-right: 4px;
+  color: var(--section-accent, var(--psych-accent));
+}
+
+/* Sticky-note style cards — quick-note thinking surface.
+   NOT skeuomorphic; modern muted paper feel. */
+.sticky-note {
+  position: relative;
+  background:
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--section-tint) 60%, white) 0%,
+      color-mix(in srgb, var(--section-tint) 30%, white) 100%
+    );
+  border: 1px solid var(--section-line, var(--psych-border));
+  border-radius: 6px;
+  padding: 12px 14px;
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.04),
+    0 6px 18px rgba(80, 50, 90, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.sticky-note:hover {
+  transform: translateY(-1px) rotate(-0.2deg);
+  box-shadow:
+    0 2px 0 rgba(0,0,0,0.04),
+    0 10px 24px rgba(80, 50, 90, 0.10);
+}
+.sticky-note[data-rotate="1"]  { transform: rotate(-0.4deg); }
+.sticky-note[data-rotate="2"]  { transform: rotate( 0.5deg); }
+.sticky-note[data-rotate="3"]  { transform: rotate(-0.8deg); }
+.sticky-note[data-rotate="4"]  { transform: rotate( 0.3deg); }
+.sticky-note .sticky-pin {
+  position: absolute;
+  top: -6px;
+  left: 12px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 35% 35%,
+    color-mix(in srgb, var(--section-accent) 90%, white) 0%,
+    var(--section-accent, var(--psych-accent)) 60%
+  );
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.1),
+    0 2px 6px rgba(0,0,0,0.18);
+}
+
+/* Paper card — slightly off-white, faint grain. For "active drafts" */
+.paper-card {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 23px,
+      rgba(0, 0, 0, 0.025) 24px
+    ),
+    var(--psych-card);
+  border: 1px solid var(--psych-border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.025), 0 8px 28px rgba(0,0,0,0.04);
+}
+
+.paper-card[data-state="draft"] {
+  border-style: dashed;
+}
+
+/* Stacked-papers feel — used when several layered drafts coexist */
+.stacked-papers {
+  position: relative;
+}
+.stacked-papers::before,
+.stacked-papers::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--psych-border);
+  border-radius: 10px;
+  background: var(--psych-card);
+  z-index: -1;
+}
+.stacked-papers::before { transform: translate(4px, 4px) rotate(0.6deg); opacity: 0.55; }
+.stacked-papers::after  { transform: translate(8px, 8px) rotate(-0.4deg); opacity: 0.3; }
+
+/* Editorial column — used in transcript/thesis to add margin notes */
+.editorial-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 1024px) {
+  .editorial-layout {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 1.5rem;
+  }
+}
+.editorial-margin {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+}
+
+/* Quiet hover — used on hoverable cards to feel "alive" without bling */
+.alive-hover {
+  transition: transform 0.18s ease, box-shadow 0.22s ease, border-color 0.18s ease;
+}
+.alive-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  border-color: var(--section-accent, var(--psych-primary));
+}
+
+/* Phase indicator pill */
+.phase-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--section-tint, var(--psych-primary-light));
+  color: var(--section-accent, var(--psych-accent));
+  border: 1px solid var(--section-line, var(--psych-border));
+}
+
+/* Collapsible sidebar group caret */
+.sidebar-group-caret {
+  transition: transform 0.18s ease;
+}
+.sidebar-group-caret[data-open="false"] {
+  transform: rotate(-90deg);
+}
+
+@media print {
+  .annot-circle::before,
+  .sticky-note .sticky-pin {
+    display: none !important;
+  }
+}
