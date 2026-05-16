@@ -15,6 +15,8 @@ import {
   BookOpen,
   Compass,
   Mail,
+  Heart,
+  Sparkles,
   Settings as SettingsIcon,
   LogOut,
 } from "lucide-react";
@@ -25,6 +27,8 @@ import { CrisisOverlay } from "@/components/client/CrisisOverlay";
 
 const NAV_ITEMS = [
   { href: "/client", label: "Home", icon: Home },
+  { href: "/client/body", label: "Body map", icon: Heart },
+  { href: "/client/threads", label: "Threads", icon: Sparkles },
   { href: "/client/workbooks", label: "Workbooks", icon: Library },
   { href: "/client/reflections", label: "Reflections", icon: Notebook },
   { href: "/client/assessments", label: "Assessments", icon: ClipboardList },

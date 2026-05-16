@@ -16,8 +16,10 @@ import {
   CalendarClock,
 } from "lucide-react";
 import { ClientShell } from "@/components/client/ClientShell";
+import { SessionRecapVisual } from "@/components/psy/SessionRecapVisual";
 import { useClientPortal } from "@/contexts/ClientPortalContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApp } from "@/contexts/AppContext";
 import { loadFromStorage } from "@/lib/store";
 import {
   loadAssignments,
@@ -43,6 +45,7 @@ import {
 
 export default function ClientHomePage() {
   const { session } = useAuth();
+  const { cases } = useApp();
   const { setLowEnergyMode, lowEnergyMode } = useClientPortal();
 
   const [assignments, setAssignments] = useState<ClientAssignment[]>([]);
@@ -161,6 +164,27 @@ export default function ClientHomePage() {
           </div>
         )}
       </section>
+
+      {/* Visual session recap — gentle summary */}
+      {(() => {
+        const recapCase = cases.find((c) => !c.isArchived);
+        if (!recapCase) return null;
+        return (
+          <section className="cp-card cp-fade-in" style={{ marginBottom: "1.25rem" }}>
+            <h2
+              style={{
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                margin: "0 0 0.6rem",
+                color: "var(--cp-text)",
+              }}
+            >
+              Last session
+            </h2>
+            <SessionRecapVisual caseId={recapCase.id} view="client" />
+          </section>
+        );
+      })()}
 
       {/* From your therapist */}
       {unreadAssignments.length > 0 && (

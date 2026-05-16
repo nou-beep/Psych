@@ -49,6 +49,7 @@ import {
   type SessionObjectiveSet,
 } from "@/lib/clinical/session-objectives";
 import { buildLastSessionSummary } from "@/lib/clinical/last-session";
+import { SessionRecapVisual } from "@/components/psy/SessionRecapVisual";
 
 interface Props {
   caseId: string;
@@ -165,6 +166,9 @@ export function CaseClinicalSnapshot({ caseId }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* Visual session recap — themes + tone + interventions */}
+      <SessionRecapVisual caseId={caseId} view="therapist" />
+
       {/* Last session at a glance */}
       <SectionCard
         title="Last session at a glance"

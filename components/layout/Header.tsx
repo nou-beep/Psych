@@ -38,6 +38,9 @@ const pageTitles: Record<string, string> = {
   "/clinical/psychoeducation": "Psychoeducation",
   "/clinical/phrases": "Phrase library",
   "/clinical/search": "Clinical search",
+  "/clinical/body-map": "Body map",
+  "/clinical/thought-web": "Thought web",
+  "/clinical/threads": "Threads",
 };
 
 export function Header() {

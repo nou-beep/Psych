@@ -53,6 +53,9 @@ const navGroups = [
     label: "Clinical",
     items: [
       { href: "/clinical", label: "Clinical tools ✦", icon: Stethoscope },
+      { href: "/clinical/body-map", label: "Body map", icon: Heart },
+      { href: "/clinical/thought-web", label: "Thought web", icon: Network },
+      { href: "/clinical/threads", label: "Threads", icon: Sparkles },
       { href: "/reflect", label: "Reflections", icon: BookOpen },
       { href: "/planner", label: "Session Planner", icon: CalendarDays },
       { href: "/interventions", label: "Interventions", icon: Zap },

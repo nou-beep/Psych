@@ -94,6 +94,85 @@ the pre-existing lint errors are cleaned up.
 
 ---
 
+## Interactive psychological architecture
+
+A unified graph data model makes every psychological "thing" addressable
+from both portals. The therapist and the client work with the **same
+data**, viewed and edited from different perspectives.
+
+### The unified model
+
+- `lib/psy/nodes.ts` — every body sensation, thought, emotion,
+  situation, memory, behavior, person, defense, distortion, role,
+  thread, conflict, and reference (session / intervention / assessment)
+  is a typed `PsyNode` with `caseId`, `label`, `notes`, `tags`,
+  optional `intensity`, optional `meta` (e.g. body region, canvas
+  position), and dual-portal authorship metadata.
+- `lib/psy/links.ts` — typed `PsyLink` between two nodes. Link types:
+  `causes`, `follows`, `related-to`, `contradicts`, `recurs-with`,
+  `defends-against`, `expresses`. Each carries a 1–5 strength used for
+  line thickness on the canvas.
+- `contexts/PsyGraphContext` — single store for both portals,
+  persisted in `localStorage`. Deleting a node prunes orphan links.
+
+This means the body map, thought web, threads explorer, and session
+recap all read from the **same** case-level network — no duplicated
+state.
+
+### Body map system
+
+- `lib/psy/body-regions.ts` — 19-region anatomical taxonomy with SVG
+  coordinates and curated common sensations per region.
+- `components/psy/BodyMap.tsx` — SVG silhouette, clickable regions,
+  intensity heatmap (fill opacity), per-region count badges.
+- `/client/body` — client entry surface.
+- `/clinical/body-map` — therapist heatmap viewer with per-region
+  drilldown, author chips (client vs clinician), and a clinician-only
+  annotation field.
+
+### Thought web
+
+- `components/psy/ThoughtWeb.tsx` — draggable SVG node graph with
+  pointer-event interactions, ghost-line preview while linking,
+  arrowhead markers for `causes`, dashed strokes for `contradicts`.
+- `/clinical/thought-web` — therapist editor. Add nodes of any kind,
+  drag to reposition (positions persist in `node.meta.x/y`), click to
+  start a typed link, click a link to delete it.
+
+### Threads explorer
+
+- `lib/psy/threads.ts` — pure tag-frequency analysis with recurrence
+  thresholds, kind breakdown, last-seen date, common-thread catalogue.
+- `/clinical/threads` — therapist view with kind-breakdown bars.
+- `/client/threads` — gentle client view of recurring themes.
+
+### Session recap visuals
+
+- `lib/psy/session-recap.ts` — pure derivation from session data +
+  session-day nodes. Detects emotional tone (heavy / open / mixed /
+  neutral), splits into a full therapist view and a simplified
+  client-facing subset.
+- `components/psy/SessionRecapVisual.tsx` — renders either view.
+  Mounted on the case detail **Clinical snapshot ✦** tab (therapist)
+  and on the client portal home (client).
+
+### Other systems addressable today
+
+The unified model means defenses, distortions, relational roles,
+internal conflicts (`linkType: "contradicts"`), memory networks, and
+attachment diagrams are **already creatable** via the thought web —
+they're just node kinds + link types. Dedicated standalone surfaces
+for each are scoped as follow-up UI work; the data layer is in place
+and tested.
+
+### Tests
+
+The psychological architecture adds 40 new unit tests across
+`psy-nodes` (11), `psy-links` (6), `psy-threads` (6), and
+`psy-session-recap` (6).
+
+---
+
 ## Navigation & sidebar architecture
 
 ### Sidebar (desktop)

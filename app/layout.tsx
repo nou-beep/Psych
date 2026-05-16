@@ -6,6 +6,7 @@ import { ThesisProvider } from "@/contexts/ThesisContext";
 import { ClinicalProvider } from "@/contexts/ClinicalContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ClientPortalProvider } from "@/contexts/ClientPortalContext";
+import { PsyGraphProvider } from "@/contexts/PsyGraphContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ChromeGate } from "@/components/shared/ChromeGate";
@@ -51,6 +52,7 @@ export default function RootLayout({
             <ThesisProvider>
             <ClinicalProvider>
             <ClientPortalProvider>
+            <PsyGraphProvider>
             <ToastProvider>
               <AccessibilityShell>
                 <RequireAuth>
@@ -59,6 +61,7 @@ export default function RootLayout({
                 <PWARegister />
               </AccessibilityShell>
             </ToastProvider>
+            </PsyGraphProvider>
             </ClientPortalProvider>
             </ClinicalProvider>
             </ThesisProvider>
