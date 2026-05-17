@@ -1,390 +1,680 @@
 "use client";
 import Link from "next/link";
+import { useMemo } from "react";
 import {
   FolderOpen,
   ClipboardCheck,
-  Brain,
-  FileText,
-  Grid3X3,
-  Plus,
-  AlertCircle,
-  Sparkles,
   Target,
   ScrollText,
   CheckCircle,
+  AlertCircle,
+  Quote as QuoteIcon,
+  PenLine,
+  Sparkles as SparklesIcon,
 } from "lucide-react";
-import { StatCard } from "@/components/shared/StatCard";
-import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
-import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useApp } from "@/contexts/AppContext";
 import { WorkingOn } from "@/components/clinical/WorkingOn";
-import { CalendarDashboardWidgets } from "@/components/clinical/CalendarDashboardWidgets";
-import { QuickAccessRail } from "@/components/clinical/QuickAccessRail";
 import { RecentTrails } from "@/components/shared/RecentTrails";
+import {
+  PaperStack,
+  WorkspaceHeader,
+  DeskPanel,
+  PinnedNote,
+  AnnotationLabel,
+  MaterialCard,
+  CurrentWorkRail,
+  type CurrentWorkItem,
+} from "@/components/desk";
 
 const today = new Date();
-const displayDate = today.toLocaleDateString("en-US", {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+const dateLine = today
+  .toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+  .toLowerCase();
 
-const quickActions = [
-  { label: "New Case", icon: FolderOpen, href: "/cases?action=new", color: "var(--psych-primary)" },
-  { label: "Check-in", icon: ClipboardCheck, href: "/checkins?action=new", color: "#3B82F6" },
-  { label: "New Goal", icon: Target, href: "/goals?action=new", color: "#10B981" },
-  { label: "Transcript", icon: ScrollText, href: "/transcripts?action=new", color: "#F59E0B" },
-  { label: "Print Grid", icon: Grid3X3, href: "/grids", color: "#8B5CF6" },
-  { label: "Report", icon: FileText, href: "/reports", color: "#EC4899" },
-];
+const GREET_HOUR = today.getHours();
+const greeting =
+  GREET_HOUR < 12
+    ? "good morning"
+    : GREET_HOUR < 17
+    ? "good afternoon"
+    : "good evening";
+
+const CASE_TONES = ["berry", "plum", "mauve", "lav"] as const;
 
 export default function DashboardPage() {
   const { cases, checkIns, goals, transcripts, assessments } = useApp();
 
-  const activeCases = cases.filter((c) => !c.isArchived && c.status === "Active");
-  const needsReview = cases.filter((c) => !c.isArchived && c.status === "Needs Review");
+  const activeCases = useMemo(
+    () => cases.filter((c) => !c.isArchived && c.status === "Active"),
+    [cases]
+  );
+  const needsReview = useMemo(
+    () => cases.filter((c) => !c.isArchived && c.status === "Needs Review"),
+    [cases]
+  );
   const todayStr = today.toISOString().split("T")[0];
-  const todayCheckIns = checkIns.filter((c) => c.date === todayStr && !c.isArchived);
-  const activeGoals = goals.filter((g) => !g.isArchived && g.status === "in-progress");
-  const achievedGoals = goals.filter((g) => !g.isArchived && g.status === "achieved");
-  const recentCases = cases.filter((c) => !c.isArchived).slice(0, 3);
-  const pendingAssessments = assessments.filter((a) => a.scoreStatus === "Not started").length;
+  const todayCheckIns = checkIns.filter(
+    (c) => c.date === todayStr && !c.isArchived
+  );
+  const activeGoals = goals.filter(
+    (g) => !g.isArchived && g.status === "in-progress"
+  );
+  const recentCases = cases.filter((c) => !c.isArchived).slice(0, 4);
+  const pendingAssessments = assessments.filter(
+    (a) => a.scoreStatus === "Not started"
+  ).length;
 
-  const avgProgress =
-    activeGoals.length > 0
-      ? Math.round(activeGoals.reduce((s, g) => s + g.progress, 0) / activeGoals.length)
-      : 0;
+  // Recent activity timeline derived from check-ins / achieved goals.
+  const activity = useMemo(() => {
+    return [
+      ...checkIns
+        .filter((c) => !c.isArchived)
+        .slice(0, 4)
+        .map((c) => ({
+          icon: <ClipboardCheck size={11} />,
+          text: `check-in · case ${c.caseId}`,
+          date: c.date,
+        })),
+      ...goals
+        .filter((g) => !g.isArchived && g.status === "achieved")
+        .slice(0, 2)
+        .map((g) => ({
+          icon: <CheckCircle size={11} />,
+          text: `goal achieved · ${g.title}`,
+          date: g.updatedAt.split("T")[0],
+        })),
+      ...transcripts
+        .filter((t) => !t.isArchived)
+        .slice(0, 2)
+        .map((t) => ({
+          icon: <ScrollText size={11} />,
+          text: `transcript · ${t.title}`,
+          date: t.createdAt.split("T")[0],
+        })),
+    ]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 6);
+  }, [checkIns, goals, transcripts]);
 
-  const greetingHour = today.getHours();
-  const greeting =
-    greetingHour < 12 ? "Good morning" : greetingHour < 17 ? "Good afternoon" : "Good evening";
+  // "On the desk" list — pinned material rail.
+  const pinned: CurrentWorkItem[] = useMemo(() => {
+    const items: CurrentWorkItem[] = [];
+    const lastTranscript = transcripts.find((t) => !t.isArchived);
+    if (lastTranscript) {
+      items.push({
+        id: `transcript-${lastTranscript.id}`,
+        glyph: <ScrollText size={12} />,
+        label: lastTranscript.title,
+        sub: "transcript · recently coded",
+        href: "/transcripts",
+        tone: "berry",
+      });
+    }
+    items.push({
+      id: "quotes",
+      glyph: <QuoteIcon size={12} />,
+      label: "Quote bank",
+      sub: "extract a line and tag it",
+      href: "/research/quotes",
+      tone: "plum",
+    });
+    items.push({
+      id: "thinking",
+      glyph: <SparklesIcon size={12} />,
+      label: "Thinking",
+      sub: "loose pieces on the wall",
+      href: "/thinking",
+      tone: "lav",
+    });
+    items.push({
+      id: "thesis",
+      glyph: <PenLine size={12} />,
+      label: "Thesis writer · ch.4",
+      sub: "last touched recently",
+      href: "/thesis/writer",
+      tone: "mauve",
+    });
+    return items;
+  }, [transcripts]);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
+    <PaperStack>
+      <WorkspaceHeader
+        sectionMark={`${dateLine} · ${activeCases.length} active`}
+        title={`${greeting},`}
+        titleItalic="welcome back."
+        subtitle={`${activeCases.length} active cases · ${activeGoals.length} goals in progress${
+          needsReview.length > 0
+            ? ` · ${needsReview.length} need review`
+            : ""
+        }.`}
+        actions={
+          <>
+            <div style={{ display: "flex", gap: 6 }}>
+              <Link href="/cases?action=new">
+                <span className="desk-chip berry">+ new case</span>
+              </Link>
+              <Link href="/checkins?action=new">
+                <span className="desk-chip plum">+ check-in</span>
+              </Link>
+              <Link href="/inbox">
+                <span className="desk-chip">⌘ capture</span>
+              </Link>
+            </div>
+            <AnnotationLabel tone="plum">
+              ↳ today is steady. start with M.K., end light.
+            </AnnotationLabel>
+          </>
+        }
+      />
 
-      {/* Hero */}
+      {/* Main 3-column grid — exact layout mirrors the design spec. */}
       <div
-        className="relative rounded-3xl p-6 md:p-8 overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--psych-gradient-from), var(--psych-gradient-to))",
-          border: "1px solid var(--psych-border)",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 300px) minmax(0, 1fr) minmax(0, 320px)",
+          gap: 16,
+          alignItems: "start",
         }}
       >
-        {/* Decorative orbs */}
-        <div className="orb orb-primary decorative" style={{ width: 180, height: 180, top: -40, right: -40 }} />
-        <div className="orb orb-accent decorative" style={{ width: 100, height: 100, bottom: -20, right: 120 }} />
+        {/* LEFT COLUMN — agenda */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <DeskPanel
+            title="today / agenda"
+            meta={`${todayCheckIns.length} check-ins`}
+          >
+            <WorkingOn />
+          </DeskPanel>
 
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles size={14} className="animate-sparkle" style={{ color: "var(--psych-primary)" }} />
-            <span className="text-xs font-medium" style={{ color: "var(--psych-primary)" }}>
-              {displayDate}
-            </span>
-          </div>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--psych-text)" }}>
-            {greeting} ✦
-          </h1>
-          <p className="text-sm" style={{ color: "var(--psych-muted)" }}>
-            {activeCases.length} active cases · {activeGoals.length} goals in progress
-            {needsReview.length > 0 && ` · ${needsReview.length} need review`}
-          </p>
-        </div>
-      </div>
-
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          {
-            label: "Active Cases",
-            value: activeCases.length,
-            icon: <FolderOpen size={16} />,
-            color: "var(--psych-primary)",
-            sub: `${needsReview.length} need review`,
-          },
-          {
-            label: "Today's Check-ins",
-            value: todayCheckIns.length,
-            icon: <ClipboardCheck size={16} />,
-            color: "#3B82F6",
-            sub: "logged today",
-          },
-          {
-            label: "Goals In Progress",
-            value: activeGoals.length,
-            icon: <Target size={16} />,
-            color: "#10B981",
-            sub: `${achievedGoals.length} achieved`,
-          },
-          {
-            label: "Assessments Pending",
-            value: pendingAssessments,
-            icon: <Brain size={16} />,
-            color: "#F59E0B",
-            sub: "not started",
-          },
-        ].map((s, i) => (
-          <StatCard
-            key={s.label}
-            label={s.label}
-            value={String(s.value)}
-            icon={s.icon}
-            color={s.color}
-            subtext={s.sub}
-            delay={i * 50}
-          />
-        ))}
-      </div>
-
-      {/* Quick actions */}
-      <SectionCard title="Quick Actions" className="animate-fade-up delay-2">
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-          {quickActions.map((action) => (
-            <Link key={action.href} href={action.href}>
-              <div
-                className="flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all hover:scale-105 cursor-pointer text-center"
+          <DeskPanel title="recent activity" controls={false}>
+            {activity.length === 0 ? (
+              <p
                 style={{
-                  backgroundColor: "var(--psych-bg)",
-                  borderColor: "var(--psych-border)",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = action.color;
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "var(--psych-primary-light)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--psych-border)";
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "var(--psych-bg)";
+                  fontSize: 12,
+                  fontStyle: "italic",
+                  color: "var(--ink-faded)",
                 }}
               >
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: action.color + "20" }}
-                >
-                  <action.icon size={16} style={{ color: action.color }} />
-                </div>
-                <span className="text-[11px] font-medium leading-tight" style={{ color: "var(--psych-text)" }}>
-                  {action.label}
-                </span>
-              </div>
-            </Link>
-          ))}
+                Nothing yet — start by creating a case.
+              </p>
+            ) : (
+              <ul
+                style={{ listStyle: "none", padding: 0, margin: 0 }}
+              >
+                {activity.map((a, i) => (
+                  <li
+                    key={i}
+                    style={{
+                      display: "flex",
+                      gap: 8,
+                      alignItems: "flex-start",
+                      padding: "6px 0",
+                      borderBottom:
+                        i < activity.length - 1
+                          ? "1px dotted var(--border-light)"
+                          : "none",
+                    }}
+                  >
+                    <span
+                      className="desk-mono"
+                      style={{
+                        fontSize: 9,
+                        color: "var(--rose-dust)",
+                        letterSpacing: "0.08em",
+                        width: 56,
+                        flexShrink: 0,
+                        paddingTop: 3,
+                      }}
+                    >
+                      {a.date}
+                    </span>
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: 12.5,
+                        color: "var(--ink-soft)",
+                      }}
+                    >
+                      <span style={{ color: "var(--mauve)", marginRight: 6 }}>
+                        {a.icon}
+                      </span>
+                      {a.text}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </DeskPanel>
+
+          <DeskPanel title="alerts" meta={`${needsReview.length}`}>
+            {needsReview.length === 0 ? (
+              <p
+                style={{
+                  fontSize: 12,
+                  fontStyle: "italic",
+                  color: "var(--ink-faded)",
+                }}
+              >
+                Nothing flagged. Quiet desk.
+              </p>
+            ) : (
+              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {needsReview.map((c, i) => (
+                  <li
+                    key={c.id}
+                    style={{
+                      display: "flex",
+                      gap: 8,
+                      alignItems: "flex-start",
+                      padding: "6px 0",
+                      borderBottom:
+                        i < needsReview.length - 1
+                          ? "1px dotted var(--border-light)"
+                          : "none",
+                    }}
+                  >
+                    <AlertCircle size={11} style={{ color: "var(--berry)" }} />
+                    <Link
+                      href={`/cases/${c.id}`}
+                      style={{
+                        fontSize: 12.5,
+                        color: "var(--ink-soft)",
+                        textDecoration: "none",
+                      }}
+                    >
+                      <span className="desk-serif" style={{ fontStyle: "italic" }}>
+                        {c.code}
+                      </span>{" "}
+                      — {c.shortNote.slice(0, 60)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </DeskPanel>
         </div>
-      </SectionCard>
 
-      {/* Calendar widgets */}
-      <CalendarDashboardWidgets />
-
-      {/* Quick access rail */}
-      <QuickAccessRail />
-
-      {/* Currently working on */}
-      <WorkingOn />
-
-      {/* Recent trails — continuity across sessions */}
-      <RecentTrails />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent cases */}
-        <div className="lg:col-span-2 animate-fade-up delay-3">
-          <SectionCard
-            title="Recent Cases"
-            action={
-              <Link href="/cases">
-                <Button variant="ghost" size="sm">View all</Button>
-              </Link>
+        {/* CENTER COLUMN — active cases + recent trails */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <DeskPanel
+            title="active cases"
+            meta={`${activeCases.length} open · ${needsReview.length} review`}
+            headerExtra={
+              <span style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
+                <Link
+                  href="/cases"
+                  className="desk-mono"
+                  style={{
+                    fontSize: 9.5,
+                    color: "var(--plum-mid)",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    borderBottom: "1px solid var(--plum-mid)",
+                    textDecoration: "none",
+                  }}
+                >
+                  all
+                </Link>
+                <Link
+                  href="/cases?filter=this-week"
+                  className="desk-mono"
+                  style={{
+                    fontSize: 9.5,
+                    color: "var(--ink-faded)",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    textDecoration: "none",
+                  }}
+                >
+                  week
+                </Link>
+              </span>
             }
           >
             {recentCases.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-sm" style={{ color: "var(--psych-muted)" }}>No cases yet</p>
+              <div style={{ textAlign: "center", padding: "20px 0" }}>
+                <p
+                  className="desk-serif"
+                  style={{
+                    fontStyle: "italic",
+                    color: "var(--ink-faded)",
+                    fontSize: 13,
+                  }}
+                >
+                  No cases yet.
+                </p>
                 <Link href="/cases?action=new">
                   <Button size="sm" className="mt-3">
-                    <Plus size={13} /> Create First Case
+                    Create first case
                   </Button>
                 </Link>
               </div>
             ) : (
-              <div className="space-y-2">
-                {recentCases.map((c) => (
-                  <Link key={c.id} href={`/cases/${c.id}`}>
-                    <div
-                      className="flex items-center gap-3 p-3 rounded-xl border transition-all hover:scale-[1.01] cursor-pointer"
-                      style={{
-                        backgroundColor: "var(--psych-bg)",
-                        borderColor: "var(--psych-border)",
-                      }}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 12,
+                }}
+              >
+                {recentCases.map((c, i) => {
+                  const tone = CASE_TONES[i % CASE_TONES.length];
+                  const isFeatured = i === 0;
+                  return (
+                    <MaterialCard
+                      key={c.id}
+                      tone={tone}
+                      highlight={isFeatured}
+                      href={`/cases/${c.id}`}
+                      title={c.code}
+                      meta={`${c.status}${
+                        c.tags && c.tags.length > 0
+                          ? ` · ${c.tags.slice(0, 2).join(" · ")}`
+                          : ""
+                      }`}
+                      rightSlot={
+                        <span className={`desk-chip ${tone}`}>
+                          {c.type ? c.type.slice(0, 14) : "case"}
+                        </span>
+                      }
                     >
                       <div
-                        className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                        style={{ background: "linear-gradient(135deg, var(--psych-primary), var(--psych-accent))" }}
-                      >
-                        {c.code.slice(0, 1)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium font-mono" style={{ color: "var(--psych-text)" }}>
-                          {c.code}
-                        </p>
-                        <p className="text-xs truncate" style={{ color: "var(--psych-muted)" }}>
-                          {c.shortNote}
-                        </p>
-                      </div>
-                      <span
-                        className="text-[10px] px-2 py-0.5 rounded-full flex-shrink-0"
+                        className="desk-serif"
                         style={{
-                          backgroundColor:
-                            c.status === "Active"
-                              ? "#D1FAE5"
-                              : c.status === "Needs Review"
-                              ? "#FEE2E2"
-                              : "var(--psych-primary-light)",
-                          color:
-                            c.status === "Active"
-                              ? "#065F46"
-                              : c.status === "Needs Review"
-                              ? "#991B1B"
-                              : "var(--psych-primary)",
+                          fontSize: 13,
+                          fontStyle: "italic",
+                          color: "var(--ink-soft)",
+                          marginTop: 8,
+                          lineHeight: 1.45,
                         }}
                       >
-                        {c.status}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+                        {c.shortNote || (
+                          <span style={{ color: "var(--ink-ghost)" }}>
+                            no notes yet — open to begin.
+                          </span>
+                        )}
+                      </div>
+                      {c.alerts && c.alerts.length > 0 && (
+                        <div
+                          style={{
+                            marginTop: 10,
+                            padding: "7px 9px",
+                            background: "rgba(212,144,158,0.07)",
+                            borderLeft: "2px solid var(--rose-dust)",
+                            fontSize: 11.5,
+                            color: "var(--ink-faded)",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          {c.alerts[0]}
+                        </div>
+                      )}
+                    </MaterialCard>
+                  );
+                })}
               </div>
             )}
-          </SectionCard>
+          </DeskPanel>
+
+          <DeskPanel
+            title="recent trails"
+            meta="continue where you left off"
+            controls={false}
+          >
+            <RecentTrails />
+          </DeskPanel>
+
+          <DeskPanel
+            title="quick stats"
+            meta="today"
+            controls={false}
+          >
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 1fr",
+                gap: 12,
+              }}
+            >
+              {[
+                {
+                  l: "active",
+                  v: activeCases.length,
+                  sub: `${needsReview.length} review`,
+                },
+                {
+                  l: "check-ins",
+                  v: todayCheckIns.length,
+                  sub: "logged today",
+                },
+                {
+                  l: "goals",
+                  v: activeGoals.length,
+                  sub: "in progress",
+                },
+                {
+                  l: "assessments",
+                  v: pendingAssessments,
+                  sub: "pending",
+                },
+              ].map((s) => (
+                <div key={s.l}>
+                  <div
+                    className="desk-serif"
+                    style={{
+                      fontSize: 24,
+                      color: "var(--plum)",
+                      fontWeight: 700,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {s.v}
+                  </div>
+                  <div
+                    className="desk-mono"
+                    style={{
+                      fontSize: 9,
+                      color: "var(--rose-dust)",
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      marginTop: 4,
+                    }}
+                  >
+                    {s.l}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 10.5,
+                      color: "var(--ink-faded)",
+                      marginTop: 1,
+                    }}
+                  >
+                    {s.sub}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DeskPanel>
         </div>
 
-        {/* Goals snapshot */}
-        <div className="animate-fade-up delay-4">
-          <SectionCard
-            title="Goals"
-            action={
-              <Link href="/goals">
-                <Button variant="ghost" size="sm">View all</Button>
+        {/* RIGHT COLUMN — thesis + pinned + goals */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <DeskPanel title="thesis · ch.4" meta="draft" tone="plum">
+            <div
+              className="desk-serif"
+              style={{
+                fontStyle: "italic",
+                fontSize: 17,
+                color: "var(--rose-pale)",
+                lineHeight: 1.3,
+              }}
+            >
+              When the body holds
+              <br />
+              what words will not.
+            </div>
+            <div
+              className="desk-mono"
+              style={{
+                fontSize: 9,
+                color: "rgba(234,197,204,0.55)",
+                letterSpacing: "0.14em",
+                marginTop: 6,
+                textTransform: "uppercase",
+              }}
+            >
+              last touched recently
+            </div>
+            <div
+              style={{
+                marginTop: 12,
+                padding: 10,
+                background: "rgba(255,255,255,0.05)",
+                borderLeft: "2px solid var(--rose-dust)",
+              }}
+            >
+              <Link
+                href="/thesis/writer"
+                className="desk-hand"
+                style={{
+                  color: "var(--rose-pale)",
+                  fontSize: 15,
+                  lineHeight: 1.4,
+                  textDecoration: "none",
+                }}
+              >
+                pick up where you stopped. it&rsquo;s still there.
               </Link>
-            }
+            </div>
+          </DeskPanel>
+
+          <DeskPanel
+            title="pinned / on the desk"
+            meta={`${pinned.length}`}
+            controls={false}
+          >
+            <CurrentWorkRail items={pinned} />
+          </DeskPanel>
+
+          <DeskPanel
+            title="goals · progress"
+            meta={`${activeGoals.length}`}
+            controls={false}
           >
             {activeGoals.length === 0 ? (
-              <div className="text-center py-6">
-                <Target size={24} className="mx-auto mb-2" style={{ color: "var(--psych-muted)" }} />
-                <p className="text-xs" style={{ color: "var(--psych-muted)" }}>No active goals</p>
-                <Link href="/goals?action=new">
-                  <Button size="sm" className="mt-3">
-                    <Plus size={13} /> Add Goal
-                  </Button>
-                </Link>
+              <div style={{ textAlign: "center", padding: "12px 0" }}>
+                <Target
+                  size={20}
+                  style={{ color: "var(--ink-faded)", margin: "0 auto" }}
+                />
+                <p
+                  className="desk-serif"
+                  style={{
+                    fontStyle: "italic",
+                    color: "var(--ink-faded)",
+                    fontSize: 12,
+                    marginTop: 4,
+                  }}
+                >
+                  No active goals.
+                </p>
               </div>
             ) : (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs mb-2">
-                  <span style={{ color: "var(--psych-muted)" }}>Avg. progress</span>
-                  <span className="font-medium" style={{ color: "var(--psych-primary)" }}>{avgProgress}%</span>
-                </div>
-                <ProgressBar value={avgProgress} size="md" />
-                <div className="space-y-2.5 mt-3">
-                  {activeGoals.slice(0, 4).map((g) => (
-                    <div key={g.id} className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs truncate flex-1" style={{ color: "var(--psych-text)" }}>
-                          {g.title}
-                        </p>
-                        <span className="text-[10px] ml-2 flex-shrink-0" style={{ color: "var(--psych-muted)" }}>
-                          {g.progress}%
-                        </span>
-                      </div>
-                      <ProgressBar value={g.progress} size="xs" />
+              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {activeGoals.slice(0, 5).map((g, i) => (
+                  <li
+                    key={g.id}
+                    style={{
+                      padding: "6px 0",
+                      borderBottom:
+                        i < Math.min(activeGoals.length, 5) - 1
+                          ? "1px dotted var(--border-light)"
+                          : "none",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 8,
+                      }}
+                    >
+                      <span
+                        className="desk-serif"
+                        style={{
+                          fontSize: 13,
+                          fontStyle: "italic",
+                          color: "var(--plum-mid)",
+                          flex: 1,
+                          minWidth: 0,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {g.title}
+                      </span>
+                      <span
+                        className="desk-mono"
+                        style={{
+                          fontSize: 9,
+                          color: "var(--ink-faded)",
+                          letterSpacing: "0.08em",
+                        }}
+                      >
+                        {g.progress}%
+                      </span>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <div className="desk-bar" style={{ marginTop: 4, height: 3 }}>
+                      <i style={{ width: `${g.progress}%` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
             )}
-          </SectionCard>
+          </DeskPanel>
         </div>
       </div>
 
-      {/* Alerts */}
-      {(needsReview.length > 0 || cases.filter((c) => c.alerts && c.alerts.length > 0 && !c.isArchived).length > 0) && (
-        <SectionCard className="animate-fade-up delay-5">
-          <div className="flex items-start gap-3">
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: "#FEE2E2" }}
-            >
-              <AlertCircle size={16} style={{ color: "#DC2626" }} />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium mb-2" style={{ color: "var(--psych-text)" }}>
-                Alerts
-              </p>
-              <div className="space-y-1">
-                {needsReview.map((c) => (
-                  <Link key={c.id} href={`/cases/${c.id}`}>
-                    <p className="text-xs hover:underline" style={{ color: "#DC2626" }}>
-                      ✦ {c.code} — needs review
-                    </p>
-                  </Link>
-                ))}
-                {cases
-                  .filter((c) => c.alerts && c.alerts.length > 0 && !c.isArchived)
-                  .map((c) =>
-                    c.alerts!.map((alert, i) => (
-                      <p key={i} className="text-xs" style={{ color: "var(--psych-muted)" }}>
-                        · {c.code}: {alert}
-                      </p>
-                    ))
-                  )}
-              </div>
-            </div>
-          </div>
-        </SectionCard>
-      )}
+      {/* Floating stickies — the "lived-in" energy. Only one per side. */}
+      <PinnedNote
+        tone="y"
+        rot={-3}
+        pin
+        author="to self"
+        style={{ top: 56, left: "calc(300px + 24px)", width: 180, zIndex: 60 }}
+      >
+        keep mornings light.<br />
+        review check-ins{" "}
+        <span className="squiggle">after</span> the first session, not before.
+      </PinnedNote>
 
-      {/* Recent activity */}
-      <SectionCard title="Recent Activity" className="animate-fade-up delay-5">
-        <div className="space-y-2">
-          {[
-            ...checkIns.filter((c) => !c.isArchived).slice(0, 2).map((c) => ({
-              icon: <ClipboardCheck size={12} />,
-              text: `Check-in logged for case ${c.caseId}`,
-              date: c.date,
-              color: "#3B82F6",
-            })),
-            ...goals.filter((g) => !g.isArchived && g.status === "achieved").slice(0, 1).map((g) => ({
-              icon: <CheckCircle size={12} />,
-              text: `Goal achieved: ${g.title}`,
-              date: g.updatedAt.split("T")[0],
-              color: "#10B981",
-            })),
-            ...transcripts.filter((t) => !t.isArchived).slice(0, 1).map((t) => ({
-              icon: <ScrollText size={12} />,
-              text: `Transcript: ${t.title}`,
-              date: t.createdAt.split("T")[0],
-              color: "#F59E0B",
-            })),
-          ]
-            .sort((a, b) => b.date.localeCompare(a.date))
-            .slice(0, 5)
-            .map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-xs py-1">
-                <div
-                  className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: item.color + "20", color: item.color }}
-                >
-                  {item.icon}
-                </div>
-                <span className="flex-1" style={{ color: "var(--psych-text)" }}>{item.text}</span>
-                <span style={{ color: "var(--psych-muted)" }}>{item.date}</span>
-              </div>
-            ))}
-          {checkIns.length === 0 && goals.length === 0 && (
-            <p className="text-xs text-center py-4" style={{ color: "var(--psych-muted)" }}>
-              No activity yet — start by creating a case ✦
-            </p>
-          )}
+      <PinnedNote
+        tone="p"
+        rot={2.2}
+        author="last night"
+        style={{ bottom: 80, right: 360, width: 180, zIndex: 60 }}
+      >
+        if two clients share a pattern this week —{" "}
+        <em>write it down before you forget.</em>
+      </PinnedNote>
+
+      {/* Fallback CTA when truly empty — only render when there are no cases yet. */}
+      {cases.length === 0 && (
+        <div style={{ marginTop: 18, textAlign: "center" }}>
+          <Link href="/cases?action=new">
+            <Button size="md">
+              <FolderOpen size={14} /> Create your first case
+            </Button>
+          </Link>
         </div>
-      </SectionCard>
-    </div>
+      )}
+    </PaperStack>
   );
 }

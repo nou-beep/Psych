@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, AlertCircle, Tag, Target, Plus, Trash2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Badge, getStatusVariant } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -17,22 +16,14 @@ import { CaseClientAssign } from "@/components/shared/CaseClientAssign";
 import { CaseClinicalSnapshot } from "@/components/clinical/CaseClinicalSnapshot";
 import { CaseDesktop } from "@/components/clinical/CaseDesktop";
 import { mockAssessments } from "@/lib/mock-data";
+import {
+  PaperStack,
+  PinnedNote,
+  AnnotationLabel,
+} from "@/components/desk";
 
 interface PageProps {
   params: { id: string };
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: "var(--psych-muted)" }}>
-        {label}
-      </span>
-      <span className="text-sm" style={{ color: "var(--psych-text)" }}>
-        {value}
-      </span>
-    </div>
-  );
 }
 
 const priorityColor: Record<string, string> = {
@@ -86,82 +77,202 @@ export default function CaseDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="max-w-5xl mx-auto animate-fade-in">
-      <Link href="/cases">
-        <Button variant="ghost" size="sm" className="mb-4">
-          <ArrowLeft size={14} />
-          Back to Cases
-        </Button>
+    <PaperStack>
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+      <Link href="/cases" style={{ textDecoration: "none" }}>
+        <span
+          className="desk-mono"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 10,
+            color: "var(--ink-faded)",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            marginBottom: 14,
+          }}
+        >
+          <ArrowLeft size={11} /> back to cases
+        </span>
       </Link>
 
-      {/* Case header */}
+      {/* Case header — editorial style */}
       <div
-        className="rounded-2xl border p-5 mb-6"
         style={{
-          backgroundColor: "var(--psych-card)",
-          borderColor: "var(--psych-border)",
-          boxShadow: "var(--psych-shadow)",
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          padding: "4px 0 14px",
+          borderBottom: "1px solid var(--border-mid)",
+          marginBottom: 16,
+          gap: 24,
+          flexWrap: "wrap",
         }}
       >
-        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span
-              className="font-mono text-sm font-bold px-3 py-1 rounded-lg"
-              style={{ backgroundColor: "var(--psych-primary-light)", color: "var(--psych-primary)" }}
-            >
-              {caseData.code}
-            </span>
-            <Badge>{caseData.type}</Badge>
-            <Badge variant={getStatusVariant(caseData.status)}>{caseData.status}</Badge>
-            {caseData.isArchived && <Badge variant="secondary">Archived</Badge>}
+        <div style={{ flex: 1, minWidth: 280 }}>
+          <div className="section-mark" style={{ marginBottom: 4 }}>
+            case · {caseData.code} · {caseData.type} · {caseData.status.toLowerCase()}
           </div>
-          <div className="flex gap-2">
+          <h1
+            style={{
+              fontFamily: "var(--serif)",
+              fontSize: 32,
+              color: "var(--plum)",
+              fontWeight: 700,
+              letterSpacing: "-0.01em",
+              lineHeight: 1.05,
+              margin: 0,
+            }}
+          >
+            {caseData.code}
+            <span
+              style={{
+                fontStyle: "italic",
+                fontWeight: 400,
+                color: "var(--ink-faded)",
+                fontSize: 18,
+                marginLeft: 12,
+              }}
+            >
+              {caseData.age} · {caseData.gender}
+            </span>
+          </h1>
+          {caseData.presentingConcerns && (
+            <p
+              className="desk-serif"
+              style={{
+                fontStyle: "italic",
+                fontSize: 14.5,
+                color: "var(--plum-mid)",
+                marginTop: 8,
+                maxWidth: 760,
+                lineHeight: 1.5,
+              }}
+            >
+              presenting ·{" "}
+              <span className="hl">{caseData.presentingConcerns}</span>
+            </p>
+          )}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: 8,
+          }}
+        >
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <span
+              className={`desk-badge ${
+                caseData.status === "Active"
+                  ? "active"
+                  : caseData.status === "Needs Review"
+                  ? "review"
+                  : "hold"
+              }`}
+            >
+              {caseData.status.toLowerCase()}
+            </span>
+            <span className="desk-chip berry">{caseData.type}</span>
+            {caseData.isArchived && (
+              <span className="desk-chip">archived</span>
+            )}
+          </div>
+          <div className="desk-mono" style={{ fontSize: 9.5, color: "var(--ink-faded)", letterSpacing: "0.1em" }}>
+            LAST CHECK-IN · {caseData.lastCheckIn.toUpperCase()}
+          </div>
+          <AnnotationLabel tone="plum">
+            ↳ next report due {caseData.nextReportDue}
+          </AnnotationLabel>
+          <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
             <Link href="/reports/daily">
-              <Button variant="secondary" size="sm">Generate Report</Button>
+              <Button variant="secondary" size="sm">Generate report</Button>
             </Link>
             <Link href="/grids">
-              <Button variant="outline" size="sm">Print Grid</Button>
+              <Button variant="outline" size="sm">Print grid</Button>
             </Link>
           </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          <InfoRow label="Age" value={`${caseData.age} years`} />
-          <InfoRow label="Gender" value={caseData.gender} />
-          <InfoRow label="Start Date" value={caseData.startDate} />
-          <InfoRow label="Last Check-in" value={caseData.lastCheckIn} />
-          <InfoRow label="Next Report" value={caseData.nextReportDue} />
-          <InfoRow label="Supervisor" value={caseData.supervisor} />
-          <div className="col-span-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: "var(--psych-muted)" }}>Institution</span>
-            <p className="text-sm mt-0.5" style={{ color: "var(--psych-text)" }}>{caseData.institution}</p>
+      {/* Tag + meta strip */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 16,
+          marginBottom: 18,
+          padding: "10px 14px",
+          background: "var(--paper-warm)",
+          border: "1px solid var(--border-light)",
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ flex: 1, minWidth: 240 }}>
+          <div className="section-mark" style={{ marginBottom: 6 }}>
+            context · supervisor · institution
           </div>
+          <p style={{ fontSize: 12.5, color: "var(--ink-soft)", lineHeight: 1.5 }}>
+            <span style={{ fontStyle: "italic" }}>{caseData.context}</span>
+            {caseData.supervisor && (
+              <>
+                {" "}— supervised by <span className="desk-serif" style={{ fontStyle: "italic", color: "var(--plum-mid)" }}>{caseData.supervisor}</span>
+              </>
+            )}
+            {caseData.institution && (
+              <>
+                {" "}· {caseData.institution}
+              </>
+            )}
+          </p>
         </div>
-
-        <div className="flex flex-wrap gap-1">
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap", alignItems: "flex-start" }}>
           {caseData.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-[10px] px-2 py-0.5 rounded-full border flex items-center gap-1"
-              style={{ borderColor: "var(--psych-border)", color: "var(--psych-muted)" }}
-            >
-              <Tag size={8} />
-              {tag}
+            <span key={tag} className="desk-chip">
+              <Tag size={8} /> {tag}
             </span>
           ))}
         </div>
-
-        {caseData.alerts && caseData.alerts.length > 0 && (
-          <div className="mt-4 px-4 py-3 rounded-xl flex items-start gap-2" style={{ backgroundColor: "#FEF9C3" }}>
-            <AlertCircle size={14} style={{ color: "#92400E", flexShrink: 0, marginTop: 2 }} />
-            <div className="space-y-1">
-              {caseData.alerts.map((alert, i) => (
-                <p key={i} className="text-xs" style={{ color: "#92400E" }}>{alert}</p>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
+
+      {caseData.alerts && caseData.alerts.length > 0 && (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: "10px 14px",
+            background: "rgba(212,144,158,0.10)",
+            borderLeft: "2px solid var(--berry)",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 10,
+          }}
+        >
+          <AlertCircle
+            size={13}
+            style={{ color: "var(--berry)", flexShrink: 0, marginTop: 2 }}
+          />
+          <div style={{ flex: 1 }}>
+            {caseData.alerts.map((alert, i) => (
+              <p
+                key={i}
+                className="desk-serif"
+                style={{
+                  fontStyle: "italic",
+                  fontSize: 13,
+                  color: "var(--plum)",
+                  lineHeight: 1.4,
+                  marginBottom: i < caseData.alerts!.length - 1 ? 4 : 0,
+                }}
+              >
+                {alert}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <Tabs defaultValue="overview">
@@ -637,6 +748,35 @@ export default function CaseDetailPage({ params }: PageProps) {
         }}
         onCancel={() => setDeleteFileId(null)}
       />
-    </div>
+
+      {/* Floating stickies — pre-session prep / supervisor reminder */}
+      {!caseData.isArchived && (
+        <>
+          <PinnedNote
+            tone="y"
+            rot={-2.5}
+            pin
+            author="prep"
+            style={{ top: 140, right: 24, width: 170, zIndex: 60 }}
+          >
+            before {caseData.code} arrives —<br />
+            <span className="squiggle">re-read</span> the last summary,
+            then close it.
+          </PinnedNote>
+
+          {caseData.alerts && caseData.alerts.length > 0 && (
+            <PinnedNote
+              tone="p"
+              rot={1.4}
+              author="flagged"
+              style={{ bottom: 80, left: 24, width: 160, zIndex: 60 }}
+            >
+              alert is open. read it before you start.
+            </PinnedNote>
+          )}
+        </>
+      )}
+      </div>
+    </PaperStack>
   );
 }
