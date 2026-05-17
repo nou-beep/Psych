@@ -2,16 +2,20 @@
 import { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sparkles, Search, Command, X } from "lucide-react";
-import { ThemeSelector } from "@/components/shared/ThemeSelector";
 import { useApp } from "@/contexts/AppContext";
+import { WorkspaceModeMenu } from "@/components/shared/WorkspaceModeMenu";
 
 const pageTitles: Record<string, string> = {
-  "/": "Dashboard",
+  "/therapist": "Dashboard",
+  "/calendar": "Clinical calendar",
+  "/quick-notes": "Quick notes",
   "/cases": "Cases",
   "/checkins": "Check-ins",
   "/assessments": "Assessments",
+  "/assessments/library": "Assessment library",
   "/grids": "Grids",
   "/reports": "Reports",
+  "/reports/builder": "Smart report builder",
   "/reports/daily": "Daily Report",
   "/reports/weekly": "Weekly Report",
   "/reports/monthly": "Monthly Report",
@@ -23,7 +27,35 @@ const pageTitles: Record<string, string> = {
   "/research": "Research",
   "/goals": "Goals",
   "/transcripts": "Transcripts",
+  "/backup": "Backup & Export",
   "/settings": "Settings",
+  "/clinical": "Clinical tools",
+  "/clinical/interview": "Clinical interview",
+  "/clinical/mse": "Mental Status Exam",
+  "/clinical/longitudinal": "Longitudinal tracking",
+  "/clinical/hypothesis": "Hypothesis workspace",
+  "/clinical/interventions": "Intervention library",
+  "/clinical/disorders": "Disorder reference",
+  "/clinical/psychoeducation": "Psychoeducation",
+  "/clinical/phrases": "Phrase library",
+  "/clinical/search": "Clinical search",
+  "/clinical/body-map": "Body map",
+  "/clinical/thought-web": "Thought web",
+  "/clinical/threads": "Threads",
+  "/clinical/worksheets": "Worksheet library",
+  "/clinical/templates": "Modèles cliniques",
+  "/open-loops": "Open loops",
+  "/research/quotes": "Quote bank",
+  "/research/literature": "Literature desk",
+  "/research/articles": "Article library",
+  "/research/apa": "APA reference builder",
+  "/research/audio-sync": "Audio + transcript sync",
+  "/thesis/exports": "Thesis export packs",
+  "/inbox": "Inbox",
+  "/prep": "Session prep",
+  "/thesis/writer": "Thesis writer",
+  "/thesis/dashboard": "Thesis dashboard",
+  "/thesis/import": "Import participant data",
 };
 
 export function Header() {
@@ -232,7 +264,7 @@ export function Header() {
         <Command size={12} />
       </button>
 
-      <ThemeSelector compact />
+      <WorkspaceModeMenu />
     </header>
   );
 }

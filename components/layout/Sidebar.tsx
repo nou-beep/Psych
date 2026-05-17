@@ -1,7 +1,11 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { loadFromStorage, saveToStorage } from "@/lib/store";
 import {
+  LogOut,
   LayoutDashboard,
   FolderOpen,
   ClipboardCheck,
@@ -24,6 +28,14 @@ import {
   Mic,
   Zap,
   ShieldCheck,
+  Database,
+  Heart,
+  Stethoscope,
+  CalendarRange,
+  StickyNote,
+  AlertCircle,
+  Quote,
+  PenLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/contexts/AppContext";
@@ -32,7 +44,12 @@ const navGroups = [
   {
     label: "Workspace",
     items: [
-      { href: "/", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/therapist", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/calendar", label: "Calendar", icon: CalendarRange },
+      { href: "/quick-notes", label: "Quick notes", icon: StickyNote },
+      { href: "/inbox", label: "Inbox ✦", icon: AlertCircle },
+      { href: "/open-loops", label: "Open loops", icon: AlertCircle },
+      { href: "/prep", label: "Session prep ✦", icon: ClipboardCheck },
       { href: "/cases", label: "Cases", icon: FolderOpen },
       { href: "/checkins", label: "Check-ins", icon: ClipboardCheck },
       { href: "/goals", label: "Goals", icon: Target },
@@ -41,6 +58,12 @@ const navGroups = [
   {
     label: "Clinical",
     items: [
+      { href: "/clinical", label: "Clinical tools ✦", icon: Stethoscope },
+      { href: "/clinical/body-map", label: "Body map", icon: Heart },
+      { href: "/clinical/thought-web", label: "Thought web", icon: Network },
+      { href: "/clinical/threads", label: "Threads", icon: Sparkles },
+      { href: "/clinical/worksheets", label: "Worksheet library", icon: ClipboardCheck },
+      { href: "/clinical/templates", label: "Note templates (FR)", icon: FileText },
       { href: "/reflect", label: "Reflections", icon: BookOpen },
       { href: "/planner", label: "Session Planner", icon: CalendarDays },
       { href: "/interventions", label: "Interventions", icon: Zap },
@@ -66,22 +89,55 @@ const navGroups = [
       { href: "/transcripts", label: "Transcripts", icon: ScrollText },
       { href: "/research", label: "Research", icon: FlaskConical },
       { href: "/thesis", label: "Thesis Studio", icon: GraduationCap },
+      { href: "/thesis/dashboard", label: "Thesis dashboard", icon: LayoutDashboard },
+      { href: "/thesis/import", label: "Import data (CSV)", icon: Database },
+      { href: "/thesis/writer", label: "Thesis writer ✦", icon: PenLine },
+      { href: "/research/quotes", label: "Quote bank ✦", icon: Quote },
+      { href: "/research/literature", label: "Literature desk", icon: BookMarked },
+      { href: "/research/articles", label: "Article library (PDF)", icon: BookOpen },
+      { href: "/research/apa", label: "APA reference builder", icon: Languages },
+      { href: "/research/audio-sync", label: "Audio + transcript", icon: Mic },
+      { href: "/thesis/exports", label: "Export packs", icon: FileText },
     ],
   },
   {
     label: "System",
     items: [
+      { href: "/client", label: "Client portal ✦", icon: Heart },
+      { href: "/backup", label: "Backup & Export", icon: Database },
       { href: "/settings", label: "Settings", icon: Settings },
     ],
   },
 ];
 
+const SIDEBAR_GROUPS_STORAGE_KEY = "psych-sidebar-groups-v1";
+
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { activeCases, goals } = useApp();
+  const { session, signOut } = useAuth();
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setOpenGroups(
+      loadFromStorage<Record<string, boolean>>(SIDEBAR_GROUPS_STORAGE_KEY, {})
+    );
+    setReady(true);
+  }, []);
+
+  function toggleGroup(label: string) {
+    setOpenGroups((prev) => {
+      const next = { ...prev, [label]: prev[label] === false };
+      if (ready) saveToStorage(SIDEBAR_GROUPS_STORAGE_KEY, next);
+      return next;
+    });
+  }
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
+    if (href === "/therapist") return pathname === "/therapist";
     return pathname.startsWith(href);
   }
 
@@ -92,7 +148,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="no-print hidden lg:flex flex-col w-60 min-h-screen fixed left-0 top-0 z-30 border-r overflow-hidden"
+      className="no-print hidden lg:flex flex-col w-60 h-screen fixed left-0 top-0 z-30 border-r overflow-hidden"
       style={{
         backgroundColor: "var(--psych-sidebar)",
         borderColor: "var(--psych-border)",
@@ -162,15 +218,38 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-2 overflow-y-auto space-y-4">
-        {navGroups.map((group) => (
+      <div className="sidebar-scroll-host flex-1 min-h-0">
+        <nav className="sidebar-scroll h-full px-3 py-2 overflow-y-auto space-y-4">
+          {navGroups.map((group) => {
+          const open = openGroups[group.label] !== false;
+          return (
           <div key={group.label}>
-            <p
-              className="px-3 mb-1 text-[9px] font-semibold uppercase tracking-widest"
-              style={{ color: "var(--psych-muted)", opacity: 0.6 }}
+            <button
+              onClick={() => toggleGroup(group.label)}
+              className="flex items-center gap-1 w-full px-3 mb-1 text-[9px] font-semibold uppercase tracking-widest text-left"
+              style={{ color: "var(--psych-muted)", opacity: 0.7 }}
+              aria-expanded={open}
             >
+              <svg
+                width="9"
+                height="9"
+                viewBox="0 0 12 12"
+                className="sidebar-group-caret"
+                data-open={open}
+                style={{ flexShrink: 0 }}
+              >
+                <path
+                  d="M3 4l3 4 3-4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               {group.label}
-            </p>
+            </button>
+            {open && (
             <div className="space-y-0.5">
               {group.items.map(({ href, label, icon: Icon }) => {
                 const active = isActive(href);
@@ -230,17 +309,50 @@ export function Sidebar() {
                 );
               })}
             </div>
+            )}
           </div>
-        ))}
-      </nav>
+          );
+        })}
+        </nav>
+      </div>
 
-      {/* Footer */}
+      {/* Footer — session + sign out */}
       <div
-        className="px-5 py-4 border-t text-xs relative"
+        className="px-4 py-3 border-t relative text-xs"
         style={{ borderColor: "var(--psych-border)", color: "var(--psych-muted)" }}
       >
-        <p className="font-medium" style={{ color: "var(--psych-text)" }}>Psych v2.0</p>
-        <p className="mt-0.5 opacity-60">Local mode · All data saved</p>
+        {session && (
+          <div className="mb-2 truncate" style={{ color: "var(--psych-text)" }}>
+            <span className="opacity-70">Signed in · </span>
+            <span className="font-medium">{session.email}</span>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              signOut();
+              router.push("/");
+            }}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg border"
+            style={{
+              borderColor: "var(--psych-border)",
+              color: "var(--psych-muted)",
+            }}
+            aria-label="Sign out"
+          >
+            <LogOut size={11} /> Sign out
+          </button>
+          <Link
+            href="/"
+            className="px-2 py-1 rounded-lg border"
+            style={{
+              borderColor: "var(--psych-border)",
+              color: "var(--psych-muted)",
+            }}
+          >
+            Switch portal
+          </Link>
+        </div>
       </div>
     </aside>
   );

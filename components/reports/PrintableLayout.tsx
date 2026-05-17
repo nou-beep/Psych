@@ -11,14 +11,13 @@ import { PrintButton } from "@/components/shared/PrintButton";
 
 interface PrintableLayoutProps {
   children: ReactNode;
-  title: string;
+  title?: string;
   backHref?: string;
   backLabel?: string;
 }
 
 export function PrintableLayout({
   children,
-  title,
   backHref = "/reports",
   backLabel = "Back to Reports",
 }: PrintableLayoutProps) {

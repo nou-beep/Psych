@@ -1,7 +1,5 @@
 // Clinical workspace — types, seed data, and utilities for all new features
 
-import { generateId, nowISO } from "@/lib/store";
-
 // ── Session atmosphere tags ───────────────────────────────────
 
 export const ATMOSPHERE_TAGS = [
@@ -205,7 +203,8 @@ export const WORKBOOK_FORMATS = [
 
 // ── Workbook template generator ───────────────────────────────
 
-export function generateWorkbookContent(category: string, format: string, ageGroup: string): WorkbookContent {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function generateWorkbookContent(category: string, _format: string, _ageGroup: string): WorkbookContent {
   const templates: Record<string, WorkbookContent> = {
     Anxiety: {
       subtitle: "Grounding Through Your Senses",
@@ -431,6 +430,18 @@ export const seedTerminology: ClinicalTerm[] = [
     reportPhrasing: "A trauma-informed approach was adopted given the client's reported history of…",
     tags: ["trauma", "ptsd", "core"],
     dsmReference: "DSM-5: 309.81 Post-Traumatic Stress Disorder",
+    isFavorite: false,
+  },
+  {
+    id: "t11", english: "Grounding", french: "Ancrage", arabic: "تأريض نفسي",
+    definition: "A set of present-focused techniques (sensory, cognitive, or physical) used to help a person reconnect with the here-and-now during distress, dissociation, or flashbacks.",
+    synonyms: ["present-moment awareness", "anchoring"],
+    relatedConcepts: ["dissociation", "trauma", "anxiety", "mindfulness", "depersonalization"],
+    clinicalNoteExample: "The client was introduced to a 5-4-3-2-1 grounding technique and reported reduced distress within two minutes.",
+    reportExample: "Sensory grounding strategies were practiced in-session and assigned for home use.",
+    reportPhrasing: "Grounding techniques were introduced as part of the intervention plan, including…",
+    tags: ["intervention", "trauma", "core"],
+    dsmReference: "Common technique across trauma, anxiety, and dissociative presentations",
     isFavorite: false,
   },
 ];

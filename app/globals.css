@@ -480,3 +480,674 @@ body {
 .hero-gradient {
   background: linear-gradient(135deg, var(--psych-gradient-from), var(--psych-gradient-to));
 }
+
+/* ── Accessibility & Sensory Safe Mode ──────────────────────── */
+
+.a11y-reduced-motion *,
+.a11y-reduced-motion *::before,
+.a11y-reduced-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+.a11y-muted-colors {
+  filter: saturate(0.75);
+}
+
+.a11y-larger-text {
+  font-size: 1.0625rem;
+}
+.a11y-larger-text h1 { font-size: 1.85rem; }
+.a11y-larger-text h2 { font-size: 1.45rem; }
+.a11y-larger-text h3 { font-size: 1.2rem; }
+.a11y-larger-text .text-xs { font-size: 0.85rem; }
+.a11y-larger-text .text-sm { font-size: 1rem; }
+
+.a11y-high-contrast {
+  --psych-text: #0F172A;
+  --psych-muted: #1F2937;
+  --psych-border: #0F172A;
+}
+
+.a11y-low-stim .orb,
+.a11y-low-stim .decorative,
+.a11y-no-sparkles .animate-sparkle {
+  display: none !important;
+}
+
+.a11y-low-stim *,
+.a11y-low-stim *::before,
+.a11y-low-stim *::after {
+  animation: none !important;
+}
+
+.a11y-simplified .lg\\:ml-60 {
+  margin-left: 0 !important;
+}
+
+.a11y-soft-contrast {
+  filter: contrast(0.92);
+}
+
+.a11y-focus-outlines :focus-visible {
+  outline: 2px solid var(--psych-primary, #EC4899);
+  outline-offset: 2px;
+}
+
+.a11y-sensory-safe .hero-gradient {
+  background: var(--psych-bg) !important;
+}
+
+/* ============================================================
+   CLIENT PORTAL — themes, ambient particles, immersive layout
+   ============================================================ */
+
+[data-client-theme] {
+  --cp-bg-from: #FFF1F5;
+  --cp-bg-to: #F5E8F5;
+  --cp-text: #2A1F3D;
+  --cp-muted: #5C5374;
+  --cp-card: #FFFFFF;
+  --cp-card-soft: rgba(255, 255, 255, 0.65);
+  --cp-border: rgba(120, 90, 140, 0.18);
+  --cp-accent: #C77DAA;
+  --cp-glow: rgba(199, 125, 170, 0.35);
+}
+
+[data-client-theme="moonlight"] {
+  --cp-bg-from: #1E1E2E;
+  --cp-bg-to: #2A2440;
+  --cp-text: #F0EAF8;
+  --cp-muted: #B8AFD0;
+  --cp-card: rgba(40, 32, 56, 0.7);
+  --cp-card-soft: rgba(40, 32, 56, 0.55);
+  --cp-border: rgba(200, 180, 230, 0.18);
+  --cp-accent: #C4A7E0;
+  --cp-glow: rgba(196, 167, 224, 0.45);
+}
+
+[data-client-theme="rose-calm"] {
+  --cp-bg-from: #FFE8EE;
+  --cp-bg-to: #F8D8E5;
+  --cp-text: #2A1F3D;
+  --cp-muted: #6B4C66;
+  --cp-card: rgba(255, 255, 255, 0.85);
+  --cp-card-soft: rgba(255, 255, 255, 0.55);
+  --cp-border: rgba(180, 100, 140, 0.16);
+  --cp-accent: #D67B9E;
+  --cp-glow: rgba(214, 123, 158, 0.32);
+}
+
+[data-client-theme="ocean-quiet"] {
+  --cp-bg-from: #D8E8F0;
+  --cp-bg-to: #B8D0E3;
+  --cp-text: #1E2D3F;
+  --cp-muted: #4A6580;
+  --cp-card: rgba(255, 255, 255, 0.78);
+  --cp-card-soft: rgba(255, 255, 255, 0.5);
+  --cp-border: rgba(80, 110, 150, 0.18);
+  --cp-accent: #5C8DB8;
+  --cp-glow: rgba(92, 141, 184, 0.32);
+}
+
+[data-client-theme="lavender-rest"] {
+  --cp-bg-from: #EDE5F5;
+  --cp-bg-to: #D8CCE8;
+  --cp-text: #2A2240;
+  --cp-muted: #5C507A;
+  --cp-card: rgba(255, 255, 255, 0.8);
+  --cp-card-soft: rgba(255, 255, 255, 0.55);
+  --cp-border: rgba(140, 120, 180, 0.2);
+  --cp-accent: #9882C0;
+  --cp-glow: rgba(152, 130, 192, 0.35);
+}
+
+[data-client-theme="golden-hour"] {
+  --cp-bg-from: #FBE8D3;
+  --cp-bg-to: #F0CFA4;
+  --cp-text: #3D2A1A;
+  --cp-muted: #7A5A40;
+  --cp-card: rgba(255, 255, 255, 0.82);
+  --cp-card-soft: rgba(255, 255, 255, 0.5);
+  --cp-border: rgba(180, 130, 80, 0.2);
+  --cp-accent: #C68C58;
+  --cp-glow: rgba(198, 140, 88, 0.32);
+}
+
+[data-client-theme="cloud-room"] {
+  --cp-bg-from: #F5F5FA;
+  --cp-bg-to: #E8E8F0;
+  --cp-text: #2A2A40;
+  --cp-muted: #6A6A82;
+  --cp-card: rgba(255, 255, 255, 0.92);
+  --cp-card-soft: rgba(255, 255, 255, 0.6);
+  --cp-border: rgba(120, 120, 150, 0.18);
+  --cp-accent: #8B8FB5;
+  --cp-glow: rgba(139, 143, 181, 0.3);
+}
+
+/* Client portal shell layout */
+.cp-shell {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--cp-bg-from), var(--cp-bg-to));
+  color: var(--cp-text);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.cp-content {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem 1rem 6rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .cp-content {
+    padding: 2.5rem 2rem 6rem;
+  }
+}
+
+.cp-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--cp-text);
+}
+
+.cp-microcopy {
+  color: var(--cp-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.cp-card {
+  background: var(--cp-card);
+  border: 1px solid var(--cp-border);
+  border-radius: 1.5rem;
+  padding: 1.25rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px var(--cp-glow);
+}
+
+.cp-card-soft {
+  background: var(--cp-card-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 1.25rem;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Ambient particle layer */
+.cp-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.cp-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.4;
+  animation: cp-drift 22s ease-in-out infinite;
+}
+
+.cp-orb-1 { width: 320px; height: 320px; top: -80px; left: -60px; background: var(--cp-accent); animation-delay: 0s; }
+.cp-orb-2 { width: 260px; height: 260px; bottom: 10%; right: -40px; background: var(--cp-glow); animation-delay: 4s; }
+.cp-orb-3 { width: 180px; height: 180px; top: 40%; left: 20%; background: var(--cp-accent); opacity: 0.25; animation-delay: 8s; }
+
+@keyframes cp-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, 20px) scale(1.05); }
+  66% { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+@keyframes cp-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cp-fade-in { animation: cp-fade-in 0.7s ease-out both; }
+
+/* Weather particle styles */
+.cp-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cp-weather-foggy { background: linear-gradient(135deg, var(--cp-bg-from), rgba(255,255,255,0.7)); }
+.cp-weather-stormy { background: linear-gradient(135deg, #B0B7C8, #8A93A8); }
+.cp-weather-underwater { background: linear-gradient(135deg, #B5D3E0, #8AB5CD); }
+.cp-weather-floating { background: linear-gradient(135deg, #EAE3F0, #D8E0F0); }
+.cp-weather-numb { background: linear-gradient(135deg, #E8E8E8, #D0D0D0); }
+.cp-weather-heavy { background: linear-gradient(135deg, #C8BCD0, #A89AB8); }
+.cp-weather-loud { background: linear-gradient(135deg, #F5C8C8, #E8A0A0); }
+.cp-weather-open { background: linear-gradient(135deg, var(--cp-bg-from), var(--cp-bg-to)); }
+
+/* Low-energy mode strips animations and decoration */
+.cp-low-energy .cp-orb,
+.cp-low-energy .cp-particle {
+  animation: none !important;
+  opacity: 0.15;
+}
+.cp-low-energy .cp-fade-in {
+  animation: none !important;
+}
+
+/* Crisis mode = bigger touch, no orbs, no animation */
+.cp-crisis .cp-orb { display: none; }
+.cp-crisis .cp-content { max-width: 600px; }
+.cp-crisis * { animation: none !important; transition: none !important; }
+.cp-crisis button { min-height: 56px; font-size: 1.05rem; }
+
+/* Nav pill */
+.cp-nav {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.4rem;
+  border-radius: 999px;
+  background: var(--cp-card);
+  border: 1px solid var(--cp-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 50;
+  box-shadow: 0 8px 24px var(--cp-glow);
+  max-width: calc(100% - 2rem);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.cp-nav::-webkit-scrollbar { display: none; }
+
+.cp-nav-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  color: var(--cp-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.cp-nav-item[data-active="true"] {
+  background: var(--cp-accent);
+  color: white;
+}
+
+/* Crisis button */
+.cp-crisis-btn {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 60;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  background: var(--cp-card-soft);
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text);
+  font-size: 0.8rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Hide cp- styles when printing therapist documents */
+@media print {
+  .cp-ambient, .cp-nav, .cp-crisis-btn { display: none !important; }
+}
+
+/* ============================================================
+   VISUAL IDENTITY — annotation language, paper feel, sections
+   Subtle scribble-style highlights that read "active workspace".
+   ============================================================ */
+
+/* Section accent tokens — applied via data-section on a wrapper element.
+   Each section gets a distinct muted palette to aid cognition without
+   being garish. */
+[data-section="assessments"]   { --section-accent: #6B7AA0; --section-tint: rgba(107, 122, 160, 0.10); --section-line: rgba(107, 122, 160, 0.32); }
+[data-section="reports"]       { --section-accent: #8A6E5D; --section-tint: rgba(138, 110, 93, 0.10);  --section-line: rgba(138, 110, 93, 0.32); }
+[data-section="thesis"]        { --section-accent: #A4756A; --section-tint: rgba(164, 117, 106, 0.10); --section-line: rgba(164, 117, 106, 0.30); }
+[data-section="supervision"]   { --section-accent: #8B4A66; --section-tint: rgba(139, 74, 102, 0.10);  --section-line: rgba(139, 74, 102, 0.30); }
+[data-section="risk"]          { --section-accent: #9B4D3A; --section-tint: rgba(155, 77, 58, 0.10);   --section-line: rgba(155, 77, 58, 0.30); }
+[data-section="research"]      { --section-accent: #7E7A6E; --section-tint: rgba(126, 122, 110, 0.10); --section-line: rgba(126, 122, 110, 0.30); }
+[data-section="interventions"] { --section-accent: #B07A4F; --section-tint: rgba(176, 122, 79, 0.10);  --section-line: rgba(176, 122, 79, 0.30); }
+[data-section="calendar"]      { --section-accent: #6E8A7B; --section-tint: rgba(110, 138, 123, 0.10); --section-line: rgba(110, 138, 123, 0.30); }
+[data-section="client"]        { --section-accent: #9882C0; --section-tint: rgba(152, 130, 192, 0.10); --section-line: rgba(152, 130, 192, 0.30); }
+
+/* Section header — small chip with section name + accent line */
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--section-accent, var(--psych-muted));
+}
+.section-eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 1px;
+  background: var(--section-accent, var(--psych-muted));
+}
+
+/* Annotation language — used inline in transcripts / case notes /
+   thesis. Subtle ink-like underlines, soft circled fragments, margin
+   notes. Designed to read like a clinician's marked-up document. */
+
+.annot-underline {
+  background-image: linear-gradient(
+    to right,
+    var(--section-line, rgba(180,90,140,0.35)) 0%,
+    var(--section-line, rgba(180,90,140,0.35)) 100%
+  );
+  background-repeat: no-repeat;
+  background-position: 0 88%;
+  background-size: 100% 3px;
+  padding-bottom: 1px;
+}
+
+.annot-highlight {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    var(--section-tint, rgba(255, 220, 200, 0.65)) 6%,
+    var(--section-tint, rgba(255, 220, 200, 0.65)) 94%,
+    transparent 100%
+  );
+  padding: 0 4px;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.annot-circle {
+  position: relative;
+  display: inline-block;
+  padding: 0 2px;
+}
+.annot-circle::before {
+  content: "";
+  position: absolute;
+  inset: -4px -6px;
+  border: 1.5px solid var(--section-accent, var(--psych-accent));
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.annot-strikethrough {
+  position: relative;
+  color: var(--psych-muted);
+}
+.annot-strikethrough::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 55%;
+  height: 1.5px;
+  background: var(--section-accent, currentColor);
+  opacity: 0.55;
+  transform: rotate(-1.5deg);
+}
+
+.annot-margin-note {
+  position: relative;
+  padding-left: 12px;
+  font-style: italic;
+  color: var(--psych-muted);
+  font-size: 0.85em;
+  border-left: 2px solid var(--section-accent, var(--psych-border));
+  background: linear-gradient(
+    to right,
+    var(--section-tint, transparent),
+    transparent 40%
+  );
+}
+
+.annot-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--section-tint, var(--psych-primary-light));
+  color: var(--section-accent, var(--psych-accent));
+  border: 1px solid var(--section-line, var(--psych-border));
+}
+
+.annot-pin::before {
+  content: "✦";
+  margin-right: 4px;
+  color: var(--section-accent, var(--psych-accent));
+}
+
+/* Sticky-note style cards — quick-note thinking surface.
+   NOT skeuomorphic; modern muted paper feel. */
+.sticky-note {
+  position: relative;
+  background:
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--section-tint) 60%, white) 0%,
+      color-mix(in srgb, var(--section-tint) 30%, white) 100%
+    );
+  border: 1px solid var(--section-line, var(--psych-border));
+  border-radius: 6px;
+  padding: 12px 14px;
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.04),
+    0 6px 18px rgba(80, 50, 90, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.sticky-note:hover {
+  transform: translateY(-1px) rotate(-0.2deg);
+  box-shadow:
+    0 2px 0 rgba(0,0,0,0.04),
+    0 10px 24px rgba(80, 50, 90, 0.10);
+}
+.sticky-note[data-rotate="1"]  { transform: rotate(-0.4deg); }
+.sticky-note[data-rotate="2"]  { transform: rotate( 0.5deg); }
+.sticky-note[data-rotate="3"]  { transform: rotate(-0.8deg); }
+.sticky-note[data-rotate="4"]  { transform: rotate( 0.3deg); }
+.sticky-note .sticky-pin {
+  position: absolute;
+  top: -6px;
+  left: 12px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 35% 35%,
+    color-mix(in srgb, var(--section-accent) 90%, white) 0%,
+    var(--section-accent, var(--psych-accent)) 60%
+  );
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.1),
+    0 2px 6px rgba(0,0,0,0.18);
+}
+
+/* Paper card — slightly off-white, faint grain. For "active drafts" */
+.paper-card {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 23px,
+      rgba(0, 0, 0, 0.025) 24px
+    ),
+    var(--psych-card);
+  border: 1px solid var(--psych-border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.025), 0 8px 28px rgba(0,0,0,0.04);
+}
+
+.paper-card[data-state="draft"] {
+  border-style: dashed;
+}
+
+/* Stacked-papers feel — used when several layered drafts coexist */
+.stacked-papers {
+  position: relative;
+}
+.stacked-papers::before,
+.stacked-papers::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--psych-border);
+  border-radius: 10px;
+  background: var(--psych-card);
+  z-index: -1;
+}
+.stacked-papers::before { transform: translate(4px, 4px) rotate(0.6deg); opacity: 0.55; }
+.stacked-papers::after  { transform: translate(8px, 8px) rotate(-0.4deg); opacity: 0.3; }
+
+/* Editorial column — used in transcript/thesis to add margin notes */
+.editorial-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 1024px) {
+  .editorial-layout {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 1.5rem;
+  }
+}
+.editorial-margin {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+}
+
+/* Quiet hover — used on hoverable cards to feel "alive" without bling */
+.alive-hover {
+  transition: transform 0.18s ease, box-shadow 0.22s ease, border-color 0.18s ease;
+}
+.alive-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  border-color: var(--section-accent, var(--psych-primary));
+}
+
+/* Phase indicator pill */
+.phase-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--section-tint, var(--psych-primary-light));
+  color: var(--section-accent, var(--psych-accent));
+  border: 1px solid var(--section-line, var(--psych-border));
+}
+
+/* Collapsible sidebar group caret */
+.sidebar-group-caret {
+  transition: transform 0.18s ease;
+}
+.sidebar-group-caret[data-open="false"] {
+  transform: rotate(-90deg);
+}
+
+@media print {
+  .annot-circle::before,
+  .sticky-note .sticky-pin {
+    display: none !important;
+  }
+}
+
+/* Sidebar — subtle scrollbar to indicate scrollable area without
+   intruding. Falls back to native scrollbar in unsupported browsers. */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--psych-border) transparent;
+}
+.sidebar-scroll::-webkit-scrollbar { width: 6px; }
+.sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--psych-border);
+  border-radius: 999px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--psych-muted);
+}
+
+/* Top + bottom scroll shadows so a clinician knows the nav continues. */
+.sidebar-scroll-host {
+  position: relative;
+}
+.sidebar-scroll-host::before,
+.sidebar-scroll-host::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18px;
+  pointer-events: none;
+  z-index: 1;
+}
+.sidebar-scroll-host::before {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--psych-sidebar) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+.sidebar-scroll-host::after {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--psych-sidebar) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* ── Workspace modes ───────────────────────────────────────── */
+
+.workspace-quiet .orb,
+.workspace-quiet .decorative,
+.workspace-quiet .animate-sparkle {
+  opacity: 0.3;
+}
+
+.workspace-dense main {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+@media (min-width: 1024px) {
+  .workspace-collapse-sidebar aside.no-print {
+    width: 56px !important;
+  }
+  .workspace-collapse-sidebar aside.no-print nav .sm-label,
+  .workspace-collapse-sidebar aside.no-print span,
+  .workspace-collapse-sidebar aside.no-print p {
+    display: none !important;
+  }
+  .workspace-collapse-sidebar .lg\:ml-60 {
+    margin-left: 56px !important;
+  }
+}

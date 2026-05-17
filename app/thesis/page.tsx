@@ -1,13 +1,12 @@
 "use client";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import {
-  GraduationCap, BarChart2, Users, ClipboardList, FlaskConical,
-  PieChart, FileText, Table, BookOpen, BookMarked, Plus, Trash2,
-  Edit3, ChevronDown, ChevronUp, Download, Printer, Copy, Check,
-  AlertTriangle, TrendingUp, Target, Search, X, RefreshCw,
+  GraduationCap, Users,
+  BookMarked, Plus, Trash2,
+  Edit3, Download, Printer, Copy, Check,
+  AlertTriangle, Search, X,
 } from "lucide-react";
-import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { StatCard } from "@/components/shared/StatCard";
 import { Button } from "@/components/ui/button";
@@ -155,8 +154,7 @@ export default function ThesisPage() {
   const [resultStyle, setResultStyle] = useState("academic-en");
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
-  // Design array editing
-  const [arrayEdit, setArrayEdit] = useState<Record<string, string>>({});
+  // Design array editing (legacy, kept for future use)
 
   // ── Stats computations ──────────────────────────────────────
   const stats = useMemo(() => {
@@ -296,7 +294,6 @@ export default function ThesisPage() {
 
   function designArrayField(key: keyof typeof design, label: string) {
     const items = design[key] as string[];
-    const editKey = String(key);
     return (
       <div>
         <Label>{label}</Label>
@@ -960,11 +957,6 @@ export default function ThesisPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(["Clinical", "Subclinical", "Control"] as const).map((g) => {
-                      const gp = participants.filter((p) => p.group === g);
-                      const ages = gp.map((p) => p.age).filter(Boolean);
-                      return null; // rendered below
-                    })}
                     <tr style={{ borderBottom: "1px solid var(--psych-border)" }}>
                       <td className="py-1.5 pr-6" style={{ color: "var(--psych-text)" }}>Age M (SD)</td>
                       {(["Clinical", "Subclinical", "Control"] as const).map((g) => {

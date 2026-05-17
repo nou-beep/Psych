@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, AlertCircle, Tag, Target, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, AlertCircle, Tag, Target, Plus, Trash2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge, getStatusVariant } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,10 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useApp } from "@/contexts/AppContext";
 import { useToast } from "@/components/ui/Toast";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { CaseTimeline } from "@/components/shared/CaseTimeline";
+import { CaseClientAssign } from "@/components/shared/CaseClientAssign";
+import { CaseClinicalSnapshot } from "@/components/clinical/CaseClinicalSnapshot";
+import { CaseDesktop } from "@/components/clinical/CaseDesktop";
 import { mockAssessments } from "@/lib/mock-data";
 
 interface PageProps {
@@ -36,13 +40,6 @@ const priorityColor: Record<string, string> = {
   low: "#6B7280",
 };
 
-const statusBg: Record<string, string> = {
-  "in-progress": "var(--psych-primary-light)",
-  completed: "#F0FDF4",
-  "not-started": "var(--psych-bg)",
-  paused: "#FEF9C3",
-};
-
 export default function CaseDetailPage({ params }: PageProps) {
   const { getCase, getCaseCheckIns, getCaseWeekly, getCaseMonthly, getCaseSessions, getCaseSupervision, getCaseGoals, getCaseFiles, cases, updateGoal, deleteGoal, removeFile } = useApp();
   const { toast } = useToast();
@@ -55,7 +52,7 @@ export default function CaseDetailPage({ params }: PageProps) {
     return (
       <div className="max-w-xl mx-auto pt-16 text-center">
         <p className="text-lg font-semibold mb-2" style={{ color: "var(--psych-text)" }}>Case not found</p>
-        <p className="text-sm mb-6" style={{ color: "var(--psych-muted)" }}>The case "{params.id}" does not exist.</p>
+        <p className="text-sm mb-6" style={{ color: "var(--psych-muted)" }}>The case &ldquo;{params.id}&rdquo; does not exist.</p>
         <Link href="/cases">
           <Button variant="secondary" size="sm">← Back to Cases</Button>
         </Link>
@@ -161,6 +158,9 @@ export default function CaseDetailPage({ params }: PageProps) {
       <Tabs defaultValue="overview">
         <TabsList className="mb-2 flex-wrap">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="desktop">Desktop ✦</TabsTrigger>
+          <TabsTrigger value="snapshot">Clinical snapshot ✦</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline ✦</TabsTrigger>
           <TabsTrigger value="sessions">Sessions</TabsTrigger>
           <TabsTrigger value="checkins">Daily Check-ins</TabsTrigger>
           <TabsTrigger value="weekly">Weekly Reviews</TabsTrigger>
@@ -169,6 +169,7 @@ export default function CaseDetailPage({ params }: PageProps) {
           <TabsTrigger value="assessments">Assessments</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="supervision">Supervision</TabsTrigger>
+          <TabsTrigger value="client">Client portal ✦</TabsTrigger>
           <TabsTrigger value="attachments">Files {files.length > 0 && `(${files.length})`}</TabsTrigger>
         </TabsList>
 
@@ -213,6 +214,21 @@ export default function CaseDetailPage({ params }: PageProps) {
               <p className="text-sm leading-relaxed" style={{ color: "var(--psych-text)" }}>{caseData.latestSummary}</p>
             </SectionCard>
           </div>
+        </TabsContent>
+
+        {/* CASE DESKTOP */}
+        <TabsContent value="desktop">
+          <CaseDesktop caseId={caseData.id} />
+        </TabsContent>
+
+        {/* CLINICAL SNAPSHOT */}
+        <TabsContent value="snapshot">
+          <CaseClinicalSnapshot caseId={caseData.id} />
+        </TabsContent>
+
+        {/* TIMELINE */}
+        <TabsContent value="timeline">
+          <CaseTimeline caseId={caseData.id} />
         </TabsContent>
 
         {/* SESSIONS */}
@@ -535,6 +551,11 @@ export default function CaseDetailPage({ params }: PageProps) {
               </div>
             </SectionCard>
           )}
+        </TabsContent>
+
+        {/* CLIENT PORTAL — assign workbooks / cards / notes */}
+        <TabsContent value="client">
+          <CaseClientAssign caseId={caseData.id} caseCode={caseData.code} />
         </TabsContent>
 
         {/* FILES */}

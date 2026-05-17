@@ -1,20 +1,41 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { AppProvider } from "@/contexts/AppContext";
 import { ThesisProvider } from "@/contexts/ThesisContext";
 import { ClinicalProvider } from "@/contexts/ClinicalContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
+import { ClientPortalProvider } from "@/contexts/ClientPortalContext";
+import { PsyGraphProvider } from "@/contexts/PsyGraphContext";
+import { WorkspaceModeProvider } from "@/contexts/WorkspaceModeContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastProvider } from "@/components/ui/Toast";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Header } from "@/components/layout/Header";
-import { MobileNav } from "@/components/layout/MobileNav";
-import { CommandPalette } from "@/components/shared/CommandPalette";
-import { QuickAddButton } from "@/components/shared/QuickAddButton";
+import { ChromeGate } from "@/components/shared/ChromeGate";
+import { RequireAuth } from "@/components/auth/RequireAuth";
+import { PWARegister } from "@/components/shared/PWARegister";
+import { AccessibilityShell } from "@/components/shared/AccessibilityShell";
 
 export const metadata: Metadata = {
   title: "Psych — Clinical Psychology Workspace",
   description:
     "A vibrant, whimsical workspace for psychology students, interns, therapists, researchers, and supervisors.",
+  manifest: "/manifest.json",
+  applicationName: "Psych",
+  appleWebApp: {
+    capable: true,
+    title: "Psych",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#F9A8D4",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -26,26 +47,30 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider>
+          <SettingsProvider>
+          <AuthProvider>
           <AppProvider>
             <ThesisProvider>
             <ClinicalProvider>
+            <ClientPortalProvider>
+            <PsyGraphProvider>
+            <WorkspaceModeProvider>
             <ToastProvider>
-              <div className="flex min-h-screen">
-                <Sidebar />
-                <div className="flex-1 flex flex-col lg:ml-60 min-h-screen">
-                  <Header />
-                  <main className="flex-1 px-4 py-6 md:px-6 lg:px-8 pb-28 lg:pb-10">
-                    {children}
-                  </main>
-                </div>
-                <MobileNav />
-              </div>
-              <CommandPalette />
-              <QuickAddButton />
+              <AccessibilityShell>
+                <RequireAuth>
+                  <ChromeGate>{children}</ChromeGate>
+                </RequireAuth>
+                <PWARegister />
+              </AccessibilityShell>
             </ToastProvider>
+            </WorkspaceModeProvider>
+            </PsyGraphProvider>
+            </ClientPortalProvider>
             </ClinicalProvider>
             </ThesisProvider>
           </AppProvider>
+          </AuthProvider>
+          </SettingsProvider>
         </ThemeProvider>
       </body>
     </html>
