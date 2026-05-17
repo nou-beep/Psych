@@ -17,7 +17,7 @@ import {
   StickyNote,
   X,
 } from "lucide-react";
-import { PaperStack, WorkspaceHeader } from "@/components/desk";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -150,17 +150,10 @@ export default function MaterialPage() {
   if (!fragments) return null;
 
   return (
-    <PaperStack>
-      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-      <WorkspaceHeader
-        size="md"
-        sectionMark={
-          stats
-            ? `material · ${stats.total} fragments · ${stats.pinned} pinned`
-            : "material"
-        }
+    <div className="max-w-6xl mx-auto animate-fade-in">
+      <PageHeader
         title="Material"
-        subtitle="Tout ce que tu as relevé, écrit, ou gardé — citations, captures, boucles, pensées, extraits. Un seul endroit pour fouiller."
+        subtitle="Tout ce que tu as relevé, écrit, ou gardé : citations, captures, boucles, pensées, extraits. Un seul endroit pour fouiller."
       />
 
       {/* Stats strip */}
@@ -462,8 +455,7 @@ export default function MaterialPage() {
           })}
         </ul>
       )}
-      </div>
-    </PaperStack>
+    </div>
   );
 }
 

@@ -11,7 +11,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { PaperStack, WorkspaceHeader } from "@/components/desk";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -233,31 +233,38 @@ export default function ThesisWriterPage() {
   }
 
   return (
-    <PaperStack warm>
-      <div
-        style={{ maxWidth: 1400, margin: "0 auto" }}
-        data-section="thesis"
-      >
-      <WorkspaceHeader
-        size="md"
-        sectionMark={`thesis writer · ${totalWordCount(doc)} words · autosaved`}
+    <div
+      className="max-w-7xl mx-auto animate-fade-in"
+      data-section="thesis"
+    >
+      <PageHeader
         title="Thesis writer"
         subtitle={
-          <Input
-            value={doc.title}
-            onChange={(e) => setDoc({ ...doc, title: e.target.value })}
-            className="text-base font-medium"
-            style={{ width: 360 }}
-          />
+          <>
+            <Input
+              value={doc.title}
+              onChange={(e) => setDoc({ ...doc, title: e.target.value })}
+              className="text-base font-medium"
+              style={{ width: 360 }}
+            />
+          </>
         }
-        actions={
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => setShowSnapshotInput((s) => !s)}
-          >
-            <Camera size={12} /> Snapshot
-          </Button>
+        action={
+          <div className="flex items-center gap-2">
+            <span
+              className="text-xs"
+              style={{ color: "var(--psych-muted)" }}
+            >
+              {totalWordCount(doc)} words · autosaved
+            </span>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setShowSnapshotInput((s) => !s)}
+            >
+              <Camera size={12} /> Snapshot
+            </Button>
+          </div>
         }
       />
 
@@ -613,7 +620,6 @@ export default function ThesisWriterPage() {
           </SectionCard>
         </div>
       </div>
-      </div>
-    </PaperStack>
+    </div>
   );
 }

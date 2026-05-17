@@ -13,7 +13,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { PaperStack, WorkspaceHeader } from "@/components/desk";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,31 +174,29 @@ export default function ThinkingPage() {
   if (!board) return null;
 
   return (
-    <PaperStack>
-      <div style={{ maxWidth: 1480, margin: "0 auto" }}>
-      <WorkspaceHeader
-        size="md"
-        sectionMark={
-          stats
-            ? `thinking · ${PHRASES.thoughtsCount(stats.total)} · ${stats.linkCount} link${stats.linkCount === 1 ? "" : "s"}`
-            : "thinking"
-        }
+    <div className="max-w-7xl mx-auto animate-fade-in">
+      <PageHeader
         title="Thinking"
-        subtitle="Une surface libre — déposer une pensée, la déplacer, la relier à une autre. Rien n'est encore un chapitre."
-        actions={
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => {
-              setPendingPosition({
-                x: 60 + Math.random() * 80,
-                y: 60 + Math.random() * 80,
-              });
-              setShowAdd(true);
-            }}
-          >
-            <Plus size={12} /> {PHRASES.dropThought}
-          </Button>
+        subtitle="Une surface libre. Déposer une pensée, la déplacer, la relier à une autre. Rien n'est encore un chapitre."
+        action={
+          <div className="flex items-center gap-2">
+            <span
+              className="text-xs"
+              style={{ color: "var(--psych-muted)" }}
+            >
+              {stats ? PHRASES.thoughtsCount(stats.total) : ""}
+            </span>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                setPendingPosition({ x: 60 + Math.random() * 80, y: 60 + Math.random() * 80 });
+                setShowAdd(true);
+              }}
+            >
+              <Plus size={12} /> {PHRASES.dropThought}
+            </Button>
+          </div>
         }
       />
 
@@ -490,8 +488,7 @@ export default function ThinkingPage() {
           }}
         />
       )}
-      </div>
-    </PaperStack>
+    </div>
   );
 }
 
