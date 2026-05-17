@@ -238,7 +238,9 @@
     0 0 0 2px rgba(107, 142, 90, 0.25);
 }
 
-@media (max-width: 1100px) {
+/* Hide floating stickies once the 3-col layout collapses — they
+   assume column landmarks that aren't there in the 1-col layout. */
+@media (max-width: 1179px) {
   .desk-scope .pinned-note { display: none; }
 }
 
@@ -478,6 +480,47 @@
   border-radius: 4px;
 }
 .desk-scope ::-webkit-scrollbar-thumb:hover { background: var(--mauve-light); }
+
+/* ===================================================================
+   Responsive 3-column desk grid. Collapses to 1 column below the
+   sidebar breakpoint so tablets in portrait stay usable.
+   =================================================================== */
+.desk-scope .desk-3col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 1180px) {
+  .desk-scope .desk-3col {
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr) minmax(0, 320px);
+  }
+}
+
+/* ===================================================================
+   PaperStack — root container for a desk-themed page. Bleeds out
+   of the chrome <main> padding so the paper background covers the
+   full visible area, then re-applies consistent internal padding.
+   The chrome adds: px-4 py-6 (mobile) → px-6 (md) → px-8 (lg) plus
+   pb-28 (mobile) / pb-10 (lg). We negate it.
+   =================================================================== */
+.desk-scope.paper-stack-root {
+  margin: -24px -16px -112px;
+  padding: 22px 18px 60px;
+  min-height: calc(100vh - 60px);
+}
+@media (min-width: 768px) {
+  .desk-scope.paper-stack-root {
+    margin: -24px -24px -112px;
+    padding: 22px 24px 60px;
+  }
+}
+@media (min-width: 1024px) {
+  .desk-scope.paper-stack-root {
+    margin: -24px -32px -40px;
+    padding: 24px 28px 60px;
+  }
+}
 
 /* Re-skin existing shared primitives inside the desk scope so the
    pages that haven't been swapped to desk-panel still look right. */
