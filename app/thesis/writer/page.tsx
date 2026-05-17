@@ -40,6 +40,8 @@ import {
   REAL_SEED_ACCEPTED_KEY,
   THESIS_FR_TITLE,
 } from "@/lib/thesis/real-seed";
+import { useRecordVisit } from "@/components/shared/useRecordVisit";
+import { chapterTraces } from "@/lib/workspace/human-traces";
 
 // Map the 10 real French chapter outline entries onto the writer's
 // existing 8-chapter structure so the user can seed editable French
@@ -93,6 +95,17 @@ export default function ThesisWriterPage() {
       setDoc(emptyDocument());
     }
   }, []);
+
+  // Record a visit and pin the active chapter as the resume hint so
+  // the dashboard can offer "continue where you left off".
+  useRecordVisit({
+    id: doc?.id ?? "",
+    kind: "thesis-chapter",
+    label: doc?.title ?? "Thesis",
+    href: "/thesis/writer",
+    resumeHint: doc ? CHAPTER_LABELS[activeChapter] : undefined,
+    disabled: !doc,
+  });
 
   // Autosave (debounced).
   useEffect(() => {
@@ -338,6 +351,17 @@ export default function ThesisWriterPage() {
           >
             {outlineEntries.map((entry) => {
               const isOpen = expanded[entry.chapterId];
+              const traces = chapterTraces({
+                wordCount: entry.wordCount,
+                sectionCount: entry.sections.length,
+                draftSectionCount: entry.sections.filter((s) => s.draft).length,
+                unresolvedMarkerCount: entry.sections.reduce(
+                  (a, s) => a + s.unresolvedMarkerCount,
+                  0
+                ),
+                linkedQuoteCount: 0,
+                linkedReferenceCount: 0,
+              });
               return (
                 <div key={entry.chapterId} className="mb-1">
                   <button
@@ -356,6 +380,33 @@ export default function ThesisWriterPage() {
                       <ChevronRight size={11} />
                     )}
                     <span className="flex-1">{entry.chapterLabel}</span>
+                    <span
+                      className="text-[10px] inline-flex items-center gap-0.5"
+                      title={`${traces.state} · ${traces.hint}`}
+                    >
+                      {[0, 1, 2, 3].map((i) => (
+                        <span
+                          key={i}
+                          aria-hidden="true"
+                          className="w-1 h-1 rounded-full"
+                          style={{
+                            backgroundColor:
+                              i <
+                              (traces.state === "near-complete"
+                                ? 4
+                                : traces.state === "in-revision"
+                                ? 3
+                                : traces.state === "drafted"
+                                ? 2
+                                : traces.state === "outlined"
+                                ? 1
+                                : 0)
+                                ? "var(--psych-primary)"
+                                : "var(--psych-border)",
+                          }}
+                        />
+                      ))}
+                    </span>
                     <span
                       className="text-[10px]"
                       style={{ color: "var(--psych-muted)" }}

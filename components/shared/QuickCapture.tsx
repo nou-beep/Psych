@@ -26,6 +26,7 @@ import {
   type CaptureKind,
   type CaptureNote,
 } from "@/lib/workspace/quick-capture";
+import { PHRASES } from "@/lib/workspace/microcopy";
 
 const COLOR_SWATCHES: Array<{
   value: CaptureColor;
@@ -95,7 +96,7 @@ export function QuickCapture() {
       ...(Array.isArray(list) ? list : []),
     ];
     saveToStorage(QUICK_CAPTURE_STORAGE_KEY, next);
-    toast("Capturé dans l'inbox.", "success");
+    toast(PHRASES.capturedToInbox, "success");
     setOpen(false);
   }
 

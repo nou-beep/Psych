@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useApp } from "@/contexts/AppContext";
+import { useRecordVisit } from "@/components/shared/useRecordVisit";
 import { useToast } from "@/components/ui/Toast";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { CaseTimeline } from "@/components/shared/CaseTimeline";
@@ -47,6 +48,14 @@ export default function CaseDetailPage({ params }: PageProps) {
   const [deleteFileId, setDeleteFileId] = useState<string | null>(null);
 
   const caseData = getCase(params.id) ?? cases.find((c) => c.id === params.id);
+
+  useRecordVisit({
+    id: params.id,
+    kind: "case",
+    label: caseData?.code ?? "Case",
+    href: `/cases/${params.id}`,
+    disabled: !caseData,
+  });
 
   if (!caseData) {
     return (
