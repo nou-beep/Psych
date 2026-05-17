@@ -1,7 +1,10 @@
 "use client";
-// Therapist body-map viewer — pick a case, see the heatmap of all
-// body-sensation nodes (client-authored + therapist annotations),
-// drill into a region to read the entries.
+// Somatic Experience System — the unified bodily-experience surface.
+//
+// Aggregates body sensations, sensory load, dissociation, numbness,
+// tension, fatigue. Each entry is a body-sensation node with a
+// somatic-kind tag (sensation:* / sensory:* / dissociation:* …) so
+// the same node store powers heatmaps and recurring-threads analysis.
 
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -20,6 +23,34 @@ import {
   type BodyRegionId,
 } from "@/lib/psy/body-regions";
 
+// Somatic kinds. Each maps to a tag prefix so existing
+// threads / search / coding still pick the entry up.
+type SomaticKind =
+  | "sensation"
+  | "sensory"
+  | "dissociation"
+  | "numbness"
+  | "tension"
+  | "fatigue";
+
+const SOMATIC_KIND_LABELS: Record<SomaticKind, string> = {
+  sensation: "Sensation",
+  sensory: "Sensory load",
+  dissociation: "Dissociation",
+  numbness: "Numbness",
+  tension: "Tension",
+  fatigue: "Fatigue",
+};
+
+const SOMATIC_KIND_COLORS: Record<SomaticKind, string> = {
+  sensation: "#9882C0",
+  sensory: "#3B82F6",
+  dissociation: "#8B4A66",
+  numbness: "#94A3B8",
+  tension: "#9F1239",
+  fatigue: "#B07A4F",
+};
+
 export default function ClinicalBodyMapPage() {
   const { cases } = useApp();
   const { nodes, addNode, deleteNode, updateNode } = usePsyGraph();
@@ -28,6 +59,7 @@ export default function ClinicalBodyMapPage() {
   const [caseId, setCaseId] = useState<string>(active[0]?.id ?? "");
   const [region, setRegion] = useState<BodyRegionId | null>(null);
   const [annotation, setAnnotation] = useState("");
+  const [somaticKind, setSomaticKind] = useState<SomaticKind>("sensation");
 
   const caseSensations = useMemo(
     () =>
@@ -59,7 +91,7 @@ export default function ClinicalBodyMapPage() {
     if (!caseId || !region || !annotation.trim()) return;
     addNode(caseId, "body-sensation", {
       label: annotation.trim(),
-      tags: ["clinician-observation"],
+      tags: ["clinician-observation", `somatic:${somaticKind}`],
       meta: {
         bodyRegion: region,
         authoredBy: "therapist",
@@ -73,8 +105,8 @@ export default function ClinicalBodyMapPage() {
   return (
     <div className="max-w-6xl mx-auto animate-fade-in" data-section="client">
       <PageHeader
-        title="Body map"
-        subtitle="Somatic patterns aggregated across the client's entries and any clinician annotations"
+        title="Somatic experience"
+        subtitle="Body map + sensory load + dissociation + numbness + tension + fatigue. All bodily experience in one heatmap."
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
@@ -147,6 +179,26 @@ export default function ClinicalBodyMapPage() {
                           ? "client"
                           : "clinician"}
                       </span>
+                      {(() => {
+                        const kindTag = n.tags.find((t) => t.startsWith("somatic:"));
+                        if (!kindTag) return null;
+                        const k = kindTag.slice("somatic:".length) as SomaticKind;
+                        const label = SOMATIC_KIND_LABELS[k];
+                        const color = SOMATIC_KIND_COLORS[k];
+                        if (!label) return null;
+                        return (
+                          <span
+                            className="text-[10px] px-1.5 py-0.5 rounded-full border"
+                            style={{
+                              borderColor: color,
+                              color,
+                              backgroundColor: color + "12",
+                            }}
+                          >
+                            {label}
+                          </span>
+                        );
+                      })()}
                       <span
                         className="text-[10px] font-mono"
                         style={{ color: "var(--psych-muted)" }}
@@ -241,12 +293,49 @@ export default function ClinicalBodyMapPage() {
           {region && (
             <SectionCard
               title="Add clinician annotation"
-              description="Visible only to you. Tagged for cross-surface use."
+              description="Pick the somatic kind, then describe the experience. Tagged for cross-surface use."
             >
+              <div className="flex items-center gap-1 mb-2 flex-wrap">
+                {(Object.keys(SOMATIC_KIND_LABELS) as SomaticKind[]).map((k) => (
+                  <button
+                    key={k}
+                    onClick={() => setSomaticKind(k)}
+                    className="text-[10px] px-2 py-0.5 rounded-full border transition-colors"
+                    style={{
+                      backgroundColor:
+                        somaticKind === k
+                          ? SOMATIC_KIND_COLORS[k] + "20"
+                          : "transparent",
+                      borderColor:
+                        somaticKind === k
+                          ? SOMATIC_KIND_COLORS[k]
+                          : "var(--psych-border)",
+                      color:
+                        somaticKind === k
+                          ? SOMATIC_KIND_COLORS[k]
+                          : "var(--psych-muted)",
+                    }}
+                  >
+                    {SOMATIC_KIND_LABELS[k]}
+                  </button>
+                ))}
+              </div>
               <Textarea
                 value={annotation}
                 onChange={(e) => setAnnotation(e.target.value)}
-                placeholder="e.g. consistent throat constriction during attachment-related sessions"
+                placeholder={
+                  somaticKind === "dissociation"
+                    ? "e.g. floating sensation, lost sense of time during the third session"
+                    : somaticKind === "sensory"
+                    ? "e.g. overwhelmed by lighting / sounds when stressed"
+                    : somaticKind === "numbness"
+                    ? "e.g. left side felt blank during EMDR"
+                    : somaticKind === "tension"
+                    ? "e.g. clenched jaw whenever boundaries came up"
+                    : somaticKind === "fatigue"
+                    ? "e.g. crushing tiredness after Sunday sessions"
+                    : "e.g. consistent throat constriction during attachment-related sessions"
+                }
                 className="min-h-[80px]"
               />
               <Button

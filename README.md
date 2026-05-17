@@ -20,6 +20,82 @@ Psych is designed to be beautiful and calming — soft pink gradients, rounded c
 
 ---
 
+## Consolidated systems
+
+Eyla's workspace is built around four primary surfaces. Earlier
+iterations split overlapping concepts across many pages; the
+refinement pass below collapses them into a smaller, sharper set.
+
+### Material System (`/material`, `lib/workspace/material.ts`)
+
+A single read-only lens that aggregates everything fragment-like
+in the workspace into one filterable browse view:
+
+- **Quotes** (`/research/quotes`)
+- **Inbox captures** (`/inbox`)
+- **Tracked loops** (`/loops`)
+- **Thinking-mode thoughts** (`/thinking`)
+- **Literature excerpts** (`/research/literature`)
+
+Each store keeps its own canonical shape; the Material page calls
+adapter functions (`fragmentFromQuote`, `fragmentFromCapture`, …)
+that normalise everything into a unified `MaterialFragment`. Tags,
+themes, kinds, status, and pinned flags drive shared filtering
+and sorting. The Material lens is additive — mutations still
+happen on each source page.
+
+### Interactive Cognitive Workspace (`/clinical/thought-web`)
+
+Single graph-canvas surface for thoughts, emotions, beliefs,
+defenses, distortions, body sensations, behaviors, memories, and
+roles. Built on `lib/psy/nodes.ts` + `lib/psy/links.ts`. Recurring
+psychological threads appear as a side panel inside the canvas
+(powered by `lib/psy/threads.ts`); contradictions render as dashed
+"contradicts" links. `/clinical/threads` exists as a focused
+read-only summary with a banner pointing back to the canvas.
+
+### Somatic Experience System (`/clinical/body-map`)
+
+The body-map is now the unified bodily-experience surface. Each
+clinician annotation picks a somatic kind — *sensation*, *sensory
+load*, *dissociation*, *numbness*, *tension*, *fatigue* — which is
+stored as a `somatic:<kind>` tag on the underlying body-sensation
+node. The heatmap, region drill-in, and recurring-thread analysis
+all pick up these entries for free.
+
+### Assessment engine (`lib/assessments/`)
+
+One config-driven engine handles every assessment: scoring,
+interpretation bands, longitudinal comparison, manual entry, and
+report insertion. New scales are added by dropping a config — not
+by writing a bespoke UI per instrument.
+
+### Workspace memory (`lib/workspace/memory.ts`)
+
+Persistent recent-items list, scoped resume positions, and a
+lightweight UI-flags bag. `useRecordVisit()` is wired into the
+high-traffic pages (cases, thesis writer, articles, thinking) so
+the dashboard `RecentTrails` rail can offer "continue where you
+left off" without ceremony.
+
+### Microcopy (`lib/workspace/microcopy.ts`)
+
+Centralised psychologically-aware UI language. Confirmation
+verbs, empty-state lines, status labels, and the
+`replaceProductivityJargon()` helper all live in one file. Drift
+words ("insights", "task complete", "wellness journey",
+"productivity streak") are normalised into clinical language
+("patterns", "marked as resolved", "clinical work", "work
+rhythm").
+
+### Sidebar groups
+
+Five groups, in order: **Workspace**, **Clinical**, **Tools**,
+**Research**, **System**. Each app pillar lives in exactly one
+group; consolidated surfaces sit at the top of their group.
+
+---
+
 ## Running Locally
 
 ### Prerequisites

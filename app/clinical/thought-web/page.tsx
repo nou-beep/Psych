@@ -25,6 +25,7 @@ import {
   LINK_TYPE_LABELS,
   type LinkType,
 } from "@/lib/psy/links";
+import { recurringThreads } from "@/lib/psy/threads";
 
 const ADDABLE_KINDS: NodeKind[] = [
   ...CLIENT_AUTHORABLE_KINDS,
@@ -61,6 +62,7 @@ export default function ThoughtWebPage() {
   );
 
   const selected = caseNodes.find((n) => n.id === selectedId) ?? null;
+  const threads = useMemo(() => recurringThreads(caseNodes).slice(0, 8), [caseNodes]);
 
   function addNew() {
     if (!caseId || !newLabel.trim()) return;
@@ -276,6 +278,36 @@ export default function ThoughtWebPage() {
               </div>
             )}
           </SectionCard>
+
+          {threads.length > 0 && (
+            <SectionCard
+              title="Recurring threads"
+              description="Tags appearing across multiple node-kinds — patterns worth naming."
+            >
+              <ul className="space-y-1">
+                {threads.map((t) => (
+                  <li
+                    key={t.tag}
+                    className="flex items-center gap-2 text-xs"
+                    style={{ color: "var(--psych-text)" }}
+                  >
+                    <span
+                      className="font-medium flex-1 truncate"
+                      title={`Across ${Object.keys(t.kinds).length} kinds`}
+                    >
+                      #{t.tag}
+                    </span>
+                    <span
+                      className="text-[10px]"
+                      style={{ color: "var(--psych-muted)" }}
+                    >
+                      {t.count} occurrence{t.count === 1 ? "" : "s"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          )}
 
           <SectionCard title="Tips">
             <ul
