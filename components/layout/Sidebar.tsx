@@ -36,6 +36,7 @@ import {
   AlertCircle,
   Quote,
   PenLine,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/contexts/AppContext";
@@ -47,10 +48,11 @@ const navGroups = [
       { href: "/therapist", label: "Dashboard", icon: LayoutDashboard },
       { href: "/calendar", label: "Calendar", icon: CalendarRange },
       { href: "/quick-notes", label: "Quick notes", icon: StickyNote },
-      { href: "/inbox", label: "Inbox ✦", icon: AlertCircle },
-      { href: "/open-loops", label: "Open loops", icon: AlertCircle },
-      { href: "/loops", label: "Tracked loops ✦", icon: AlertCircle },
-      { href: "/prep", label: "Session prep ✦", icon: ClipboardCheck },
+      { href: "/inbox", label: "Inbox", icon: AlertCircle },
+      { href: "/material", label: "Material ✦", icon: Layers },
+      { href: "/loops", label: "Tracked loops", icon: AlertCircle },
+      { href: "/open-loops", label: "Open loops (auto)", icon: AlertCircle },
+      { href: "/prep", label: "Session prep", icon: ClipboardCheck },
       { href: "/cases", label: "Cases", icon: FolderOpen },
       { href: "/checkins", label: "Check-ins", icon: ClipboardCheck },
       { href: "/goals", label: "Goals", icon: Target },
@@ -59,10 +61,9 @@ const navGroups = [
   {
     label: "Clinical",
     items: [
-      { href: "/clinical", label: "Clinical tools ✦", icon: Stethoscope },
-      { href: "/clinical/body-map", label: "Body map", icon: Heart },
-      { href: "/clinical/thought-web", label: "Thought web", icon: Network },
-      { href: "/clinical/threads", label: "Threads", icon: Sparkles },
+      { href: "/clinical", label: "Clinical tools", icon: Stethoscope },
+      { href: "/clinical/body-map", label: "Somatic experience", icon: Heart },
+      { href: "/clinical/thought-web", label: "Cognitive workspace", icon: Network },
       { href: "/clinical/worksheets", label: "Worksheet library", icon: ClipboardCheck },
       { href: "/clinical/templates", label: "Note templates (FR)", icon: FileText },
       { href: "/reflect", label: "Reflections", icon: BookOpen },

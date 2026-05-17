@@ -1,7 +1,13 @@
 "use client";
-// Threads — recurring tags across all nodes for a case. Therapist-side
-// view with a kind-breakdown bar per thread.
+// Threads — recurring tags across all nodes for a case.
+//
+// This view now lives inside the Interactive Cognitive Workspace
+// (/clinical/thought-web). The threads sidebar there surfaces the
+// same recurring-tag analysis. This page is preserved for bookmark
+// stability and as a focused read-only overview.
 
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionCard } from "@/components/shared/SectionCard";
@@ -58,6 +64,29 @@ export default function ThreadsPage() {
         title="Threads"
         subtitle="Recurring psychological themes — derived from tags on every node across the case."
       />
+
+      <div
+        className="rounded-xl border px-3 py-2 mb-3 text-xs flex items-center gap-2"
+        style={{
+          backgroundColor: "var(--psych-primary-light)",
+          borderColor: "var(--psych-primary)",
+          color: "var(--psych-text)",
+        }}
+      >
+        <span className="flex-1">
+          Threads are now part of the{" "}
+          <span className="font-semibold">Interactive Cognitive Workspace</span>.
+          Nodes, links, contradictions, and recurring-tag analysis all live in
+          the Thought Web. This page stays as a focused read-only overview.
+        </span>
+        <Link
+          href="/clinical/thought-web"
+          className="inline-flex items-center gap-1 font-medium"
+          style={{ color: "var(--psych-primary)" }}
+        >
+          Open Thought Web <ArrowUpRight size={11} />
+        </Link>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
         <div className="md:col-span-2">
