@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, AlertCircle, Tag, Target, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, AlertCircle, Tag, Target, Plus, Trash2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge, getStatusVariant } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,13 +40,6 @@ const priorityColor: Record<string, string> = {
   low: "#6B7280",
 };
 
-const statusBg: Record<string, string> = {
-  "in-progress": "var(--psych-primary-light)",
-  completed: "#F0FDF4",
-  "not-started": "var(--psych-bg)",
-  paused: "#FEF9C3",
-};
-
 export default function CaseDetailPage({ params }: PageProps) {
   const { getCase, getCaseCheckIns, getCaseWeekly, getCaseMonthly, getCaseSessions, getCaseSupervision, getCaseGoals, getCaseFiles, cases, updateGoal, deleteGoal, removeFile } = useApp();
   const { toast } = useToast();
@@ -59,7 +52,7 @@ export default function CaseDetailPage({ params }: PageProps) {
     return (
       <div className="max-w-xl mx-auto pt-16 text-center">
         <p className="text-lg font-semibold mb-2" style={{ color: "var(--psych-text)" }}>Case not found</p>
-        <p className="text-sm mb-6" style={{ color: "var(--psych-muted)" }}>The case "{params.id}" does not exist.</p>
+        <p className="text-sm mb-6" style={{ color: "var(--psych-muted)" }}>The case &ldquo;{params.id}&rdquo; does not exist.</p>
         <Link href="/cases">
           <Button variant="secondary" size="sm">← Back to Cases</Button>
         </Link>

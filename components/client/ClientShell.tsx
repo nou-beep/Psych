@@ -5,7 +5,7 @@
 // inside this shell.
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   Home,
   Library,
@@ -18,10 +18,8 @@ import {
   Heart,
   Sparkles,
   Settings as SettingsIcon,
-  LogOut,
 } from "lucide-react";
 import { useClientPortal } from "@/contexts/ClientPortalContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { AftercareOverlay } from "@/components/client/AftercareOverlay";
 import { CrisisOverlay } from "@/components/client/CrisisOverlay";
 

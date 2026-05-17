@@ -15,6 +15,10 @@ export type CalendarCategory =
   | "workbook-review"
   | "intake"
   | "research"
+  | "thesis-deadline"
+  | "writing-session"
+  | "session-prep"
+  | "worksheet-due"
   | "other";
 
 export const CATEGORY_META: Record<
@@ -29,6 +33,10 @@ export const CATEGORY_META: Record<
   "workbook-review": { label: "Workbook review", section: "client", color: "#9882C0" },
   intake: { label: "Intake appointment", section: "client", color: "#6E8A7B" },
   research: { label: "Research deadline", section: "research", color: "#7E7A6E" },
+  "thesis-deadline": { label: "Thesis deadline", section: "research", color: "#7E7A6E" },
+  "writing-session": { label: "Writing session", section: "research", color: "#9882C0" },
+  "session-prep": { label: "Session prep", section: "client", color: "#6B7AA0" },
+  "worksheet-due": { label: "Worksheet due", section: "interventions", color: "#B07A4F" },
   other: { label: "Other", section: "calendar", color: "#6E8A7B" },
 };
 

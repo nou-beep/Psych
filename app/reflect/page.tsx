@@ -6,7 +6,7 @@ import { useApp } from "@/contexts/AppContext";
 import { useToast } from "@/components/ui/Toast";
 import { ATMOSPHERE_TAGS, type ClinicalReflection } from "@/lib/clinical-data";
 import {
-  BookOpen, Plus, Trash2, Lock, Unlock, Tag, ChevronDown, ChevronUp,
+  BookOpen, Plus, Trash2, Lock, Unlock, ChevronDown, ChevronUp,
   Printer, Search, Filter, Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

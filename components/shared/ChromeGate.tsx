@@ -10,6 +10,7 @@ import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { CommandPalette } from "@/components/shared/CommandPalette";
 import { QuickAddButton } from "@/components/shared/QuickAddButton";
+import { QuickCapture } from "@/components/shared/QuickCapture";
 import { WorkspaceModeShell } from "@/components/shared/WorkspaceModeShell";
 
 function isImmersiveRoute(pathname: string | null): boolean {
@@ -49,6 +50,7 @@ export function ChromeGate({ children }: { children: React.ReactNode }) {
       </div>
       <CommandPalette />
       <QuickAddButton />
+      <QuickCapture />
     </WorkspaceModeShell>
   );
 }

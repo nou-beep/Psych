@@ -1,7 +1,5 @@
 // Clinical workspace — types, seed data, and utilities for all new features
 
-import { generateId, nowISO } from "@/lib/store";
-
 // ── Session atmosphere tags ───────────────────────────────────
 
 export const ATMOSPHERE_TAGS = [
@@ -205,7 +203,8 @@ export const WORKBOOK_FORMATS = [
 
 // ── Workbook template generator ───────────────────────────────
 
-export function generateWorkbookContent(category: string, format: string, ageGroup: string): WorkbookContent {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function generateWorkbookContent(category: string, _format: string, _ageGroup: string): WorkbookContent {
   const templates: Record<string, WorkbookContent> = {
     Anxiety: {
       subtitle: "Grounding Through Your Senses",

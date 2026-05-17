@@ -290,7 +290,7 @@ export default function DictionaryPage() {
                         </div>
                         <p className="text-sm italic rounded-xl px-3 py-2"
                           style={{ backgroundColor: "var(--psych-bg)", color: "var(--psych-text)" }}>
-                          "{t.clinicalNoteExample}"
+                          &ldquo;{t.clinicalNoteExample}&rdquo;
                         </p>
                       </div>
                     )}
@@ -306,7 +306,7 @@ export default function DictionaryPage() {
                         </div>
                         <p className="text-sm italic rounded-xl px-3 py-2"
                           style={{ backgroundColor: "var(--psych-bg)", color: "var(--psych-text)" }}>
-                          "{t.reportPhrasing}"
+                          &ldquo;{t.reportPhrasing}&rdquo;
                         </p>
                       </div>
                     )}

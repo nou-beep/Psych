@@ -6,7 +6,6 @@ import {
   Search,
   CheckCircle,
   Clock,
-  Pause,
   MoreHorizontal,
   Trash2,
   Archive,

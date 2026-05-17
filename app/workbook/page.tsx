@@ -6,7 +6,7 @@ import { useApp } from "@/contexts/AppContext";
 import { useToast } from "@/components/ui/Toast";
 import { generateWorkbookContent, type WorkbookSheet } from "@/lib/clinical-data";
 import {
-  BookMarked, Plus, Trash2, Star, Printer, Search, Edit3, ChevronDown, ChevronUp,
+  BookMarked, Plus, Trash2, Star, Printer, Search, Edit3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +37,6 @@ export default function WorkbookPage() {
   const [step, setStep] = useState<"list" | "configure" | "edit">("list");
   const [form, setForm] = useState<Partial<WorkbookSheet>>({ ...EMPTY });
   const [editId, setEditId] = useState<string | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("");
   const [filterFav, setFilterFav] = useState(false);

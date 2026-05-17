@@ -5,7 +5,7 @@ import { useClinical } from "@/contexts/ClinicalContext";
 import { useApp } from "@/contexts/AppContext";
 import { useToast } from "@/components/ui/Toast";
 import { INTERVENTION_CATEGORIES, ATMOSPHERE_TAGS, type Intervention } from "@/lib/clinical-data";
-import { Zap, Plus, Trash2, Star, Search, Filter, Printer } from "lucide-react";
+import { Zap, Plus, Trash2, Star, Search, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const EFFECTIVENESS_LABELS = ["", "Not helpful", "Slightly helpful", "Moderately helpful", "Very helpful", "Transformative"];

@@ -21,7 +21,6 @@ function ConsentCard({ record, linkedCase, onUpdate }: {
   linkedCase: { code: string; label: string } | undefined;
   onUpdate: (data: Partial<ConsentRecord>) => void;
 }) {
-  const [editingRef, setEditingRef] = useState(false);
   const [refValue, setRefValue] = useState(record.ethicsApprovalRef || "");
   const [notes, setNotes] = useState(record.notes || "");
 
@@ -143,10 +142,6 @@ export default function EthicsPage() {
   }, [activeCases, allConsent, search]);
 
   // Stats
-  const totalChecked = consent.reduce((sum, r) => {
-    return sum + CONSENT_FIELDS.filter((f) => r[f.key]).length;
-  }, 0);
-  const totalPossible = consent.length * CONSENT_FIELDS.length;
   const completeCases = consent.filter((r) => CONSENT_FIELDS.every((f) => r[f.key])).length;
   const incompleteCases = consent.length - completeCases;
 

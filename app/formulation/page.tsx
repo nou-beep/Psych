@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useClinical } from "@/contexts/ClinicalContext";
 import { useApp } from "@/contexts/AppContext";
