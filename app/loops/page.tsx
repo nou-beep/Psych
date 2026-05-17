@@ -15,7 +15,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { PageHeader } from "@/components/shared/PageHeader";
+import { PaperStack, WorkspaceHeader, AnnotationLabel } from "@/components/desk";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,14 +96,24 @@ export default function LoopsPage() {
   }, [list, surfaceFilter, statusFilter, query]);
 
   return (
-    <div className="max-w-5xl mx-auto animate-fade-in">
-      <PageHeader
+    <PaperStack>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+      <WorkspaceHeader
+        size="md"
+        sectionMark={`loops · ${stats.open} open · ${stats.inProgress} in progress · ${stats.stale} stale`}
         title="Tracked loops"
-        subtitle="Boucles que l'on garde ouvertes : priorité, poids émotionnel, échéance, matériaux liés."
-        action={
-          <Button size="sm" onClick={() => setShowNew(true)}>
-            <Plus size={12} /> Nouvelle boucle
-          </Button>
+        subtitle="Boucles que l'on garde ouvertes — priorité, poids émotionnel, échéance, matériaux liés."
+        actions={
+          <>
+            <Button size="sm" onClick={() => setShowNew(true)}>
+              <Plus size={12} /> Nouvelle boucle
+            </Button>
+            {stats.stale > 0 && (
+              <AnnotationLabel tone="berry">
+                ↳ {stats.stale} boucle{stats.stale === 1 ? "" : "s"} en retard.
+              </AnnotationLabel>
+            )}
+          </>
         }
       />
 
@@ -244,7 +254,8 @@ export default function LoopsPage() {
           }}
         />
       )}
-    </div>
+      </div>
+    </PaperStack>
   );
 }
 
