@@ -24,15 +24,15 @@ export function PaperStack({
   className = "",
   style,
 }: PaperStackProps) {
-  // paper-stack-root carries the negative-margin bleed + responsive
-  // padding so the paper background reaches the chrome edges instead
-  // of floating in a frame of the surrounding theme colour.
   return (
     <div
-      className={`desk-scope paper-stack-root ${
-        warm ? "paper-warm-bg" : "paper-bg"
-      } ${className}`.trim()}
-      style={{ position: "relative", ...style }}
+      className={`desk-scope ${warm ? "paper-warm-bg" : "paper-bg"} ${className}`.trim()}
+      style={{
+        position: "relative",
+        padding: "22px 24px 60px",
+        minHeight: "calc(100vh - 60px)",
+        ...style,
+      }}
     >
       {children}
     </div>

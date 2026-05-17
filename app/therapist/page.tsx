@@ -174,9 +174,15 @@ export default function DashboardPage() {
         }
       />
 
-      {/* Main 3-column grid — collapses to 1 column under 1180px via
-          .desk-3col so tablets in portrait stay usable. */}
-      <div className="desk-3col">
+      {/* Main 3-column grid — exact layout mirrors the design spec. */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 300px) minmax(0, 1fr) minmax(0, 320px)",
+          gap: 16,
+          alignItems: "start",
+        }}
+      >
         {/* LEFT COLUMN — agenda */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <DeskPanel
