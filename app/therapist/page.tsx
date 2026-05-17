@@ -21,6 +21,7 @@ import { useApp } from "@/contexts/AppContext";
 import { WorkingOn } from "@/components/clinical/WorkingOn";
 import { CalendarDashboardWidgets } from "@/components/clinical/CalendarDashboardWidgets";
 import { QuickAccessRail } from "@/components/clinical/QuickAccessRail";
+import { RecentTrails } from "@/components/shared/RecentTrails";
 
 const today = new Date();
 const displayDate = today.toLocaleDateString("en-US", {
@@ -179,6 +180,9 @@ export default function DashboardPage() {
 
       {/* Currently working on */}
       <WorkingOn />
+
+      {/* Recent trails — continuity across sessions */}
+      <RecentTrails />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent cases */}

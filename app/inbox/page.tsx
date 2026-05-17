@@ -27,6 +27,7 @@ import {
   type CaptureNote,
   type CaptureStatus,
 } from "@/lib/workspace/quick-capture";
+import { PHRASES } from "@/lib/workspace/microcopy";
 
 const COLOR_BG: Record<string, string> = {
   default: "var(--psych-card)",
@@ -224,7 +225,7 @@ export default function InboxPage() {
                       variant="ghost"
                       onClick={() => {
                         persist(processCapture(list, c.id));
-                        toast("Marqué comme traité.", "success");
+                        toast(PHRASES.resolved, "success");
                       }}
                     >
                       <Check size={11} /> Traité

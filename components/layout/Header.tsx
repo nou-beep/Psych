@@ -53,6 +53,8 @@ const pageTitles: Record<string, string> = {
   "/thesis/exports": "Thesis export packs",
   "/inbox": "Inbox",
   "/prep": "Session prep",
+  "/loops": "Tracked loops",
+  "/thinking": "Thinking",
   "/thesis/writer": "Thesis writer",
   "/thesis/dashboard": "Thesis dashboard",
   "/thesis/import": "Import participant data",

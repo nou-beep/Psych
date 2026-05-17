@@ -43,6 +43,7 @@ import {
   type ArticleType,
 } from "@/lib/research/apa";
 import { REAL_CHAPTER_OUTLINE } from "@/lib/thesis/real-seed";
+import { useRecordVisit } from "@/components/shared/useRecordVisit";
 
 const HIGHLIGHT_COLORS: Array<"yellow" | "blue" | "green" | "pink" | "violet"> = [
   "yellow",
@@ -124,6 +125,14 @@ export default function ArticleLibraryPage() {
     () => visible.find((a) => a.id === activeId) ?? null,
     [visible, activeId]
   );
+
+  useRecordVisit({
+    id: active?.id ?? "",
+    kind: "article",
+    label: active?.title ?? "Article",
+    href: "/research/articles",
+    disabled: !active,
+  });
 
   return (
     <div className="max-w-7xl mx-auto animate-fade-in" data-section="research">
