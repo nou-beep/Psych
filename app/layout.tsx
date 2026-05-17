@@ -1,40 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Libre_Baskerville,
-  IBM_Plex_Sans,
-  IBM_Plex_Mono,
-  Caveat,
-} from "next/font/google";
 import "./globals.css";
-
-// Desk-theme typefaces. Variables surface as CSS custom properties so
-// .desk-scope can reference them via var(--serif|--sans|--mono|--hand).
-const libreBaskerville = Libre_Baskerville({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  style: ["normal", "italic"],
-  display: "swap",
-  variable: "--font-desk-serif",
-});
-const ibmPlexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  style: ["normal", "italic"],
-  display: "swap",
-  variable: "--font-desk-sans",
-});
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["300", "400"],
-  display: "swap",
-  variable: "--font-desk-mono",
-});
-const caveat = Caveat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-  variable: "--font-desk-hand",
-});
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { AppProvider } from "@/contexts/AppContext";
 import { ThesisProvider } from "@/contexts/ThesisContext";
@@ -79,11 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${libreBaskerville.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} ${caveat.variable}`}
-    >
+    <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider>
           <SettingsProvider>

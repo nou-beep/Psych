@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Desk theme — scoped under .desk-scope; loaded globally so the
-   three target screens (/therapist, /cases/[id], /thesis) can opt
-   in by class without affecting any other route. */
-@import "./desk-theme.css";
-
 /* ==========================================================
    PSYCH — GLOBAL STYLES
    This file defines the 7 themes (as CSS variables) and the
