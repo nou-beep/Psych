@@ -5,7 +5,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Inbox, Pin, Archive, Check, Trash2, Search, RotateCcw } from "lucide-react";
-import { PaperStack, WorkspaceHeader } from "@/components/desk";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,13 +75,10 @@ export default function InboxPage() {
   const stats = useMemo(() => captureStats(list), [list]);
 
   return (
-    <PaperStack>
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-      <WorkspaceHeader
-        size="md"
-        sectionMark={`inbox · ${stats.inbox} waiting · ${stats.processed} processed · ${stats.archived} archived`}
+    <div className="max-w-5xl mx-auto animate-fade-in">
+      <PageHeader
         title="Inbox"
-        subtitle="Captures rapides en attente de traitement — inbox-zero pour les pensées cliniques et de recherche."
+        subtitle="Captures rapides en attente de traitement. Inbox-zero pour les pensées cliniques et de recherche."
       />
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
@@ -267,8 +264,7 @@ export default function InboxPage() {
           ))
         )}
       </div>
-      </div>
-    </PaperStack>
+    </div>
   );
 }
 
