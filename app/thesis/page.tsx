@@ -25,6 +25,12 @@ import {
   pearsonR, interpretR, interpretRClinical,
   type ThesisParticipant, type ThesisNote,
 } from "@/lib/thesis-data";
+import {
+  PaperStack,
+  WorkspaceHeader,
+  PinnedNote,
+  AnnotationLabel,
+} from "@/components/desk";
 
 // Dynamic chart import — avoids SSR issues with recharts
 const Charts = dynamic(() => import("@/components/thesis/ChartsInner").then((m) => ({
@@ -337,44 +343,99 @@ export default function ThesisPage() {
     (completeParticipants.length / Math.max(participants.length, 1)) * 100
   );
 
+  const thesisTitle = design.title?.trim() || "Untitled thesis";
+  const titleParts = thesisTitle.split(":");
+  const titleHead = titleParts[0]?.trim();
+  const titleTail = titleParts.slice(1).join(":").trim();
+
   return (
-    <div className="max-w-7xl mx-auto animate-fade-in">
-      {/* Hero */}
-      <div
-        className="relative overflow-hidden rounded-3xl p-6 mb-6 border"
-        style={{
-          background: "linear-gradient(135deg, var(--psych-primary-light) 0%, #EDE9FE 50%, #FDF2F8 100%)",
-          borderColor: "var(--psych-border)",
-        }}
-      >
-        <div className="orb orb-primary opacity-20" style={{ top: -40, right: -40, width: 180, height: 180 }} />
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <GraduationCap size={20} style={{ color: "var(--psych-primary)" }} />
-              <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--psych-primary)" }}>
-                Thesis Studio
+    <PaperStack warm>
+      <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+      <WorkspaceHeader
+        size="md"
+        sectionMark={
+          <>
+            thesis ·{" "}
+            {participants.length} participants · {completeParticipants.length} complete
+            {missingDataCount > 0 && ` · ${missingDataCount} with missing data`}
+          </>
+        }
+        title={titleHead || "Untitled thesis"}
+        titleItalic={titleTail || undefined}
+        subtitle={
+          design.researchQuestion ? (
+            <>research question · {design.researchQuestion}</>
+          ) : undefined
+        }
+        actions={
+          <>
+            <div style={{ display: "flex", gap: 6 }}>
+              <span className="desk-chip plum">draft</span>
+              <span className="desk-chip">
+                <GraduationCap size={9} /> studio
               </span>
             </div>
-            <h1 className="text-xl font-bold leading-tight mb-1" style={{ color: "var(--psych-text)" }}>
-              {design.title || "Your Thesis Title"}
-            </h1>
-            <p className="text-sm" style={{ color: "var(--psych-muted)" }}>
-              {participants.length} participants · {completeParticipants.length} complete · {missingDataCount > 0 && `${missingDataCount} with missing data`}
-            </p>
-          </div>
-          <div className="flex gap-2">
+            <div
+              className="desk-mono"
+              style={{
+                fontSize: 9.5,
+                color: "var(--ink-faded)",
+                letterSpacing: "0.12em",
+              }}
+            >
+              DATA COMPLETENESS · {progressPct}%
+            </div>
+            <AnnotationLabel tone="plum">
+              ↳ you were close. keep going.
+            </AnnotationLabel>
             <Button size="sm" onClick={openAddP}>
-              <Plus size={14} /> Add Participant
+              <Plus size={13} /> Add participant
             </Button>
-          </div>
+          </>
+        }
+      />
+
+      {/* Slim progress bar — paper-style */}
+      <div
+        style={{
+          margin: "0 0 18px",
+          padding: "8px 12px",
+          background: "var(--paper)",
+          border: "1px solid var(--border-light)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+            marginBottom: 4,
+          }}
+        >
+          <span
+            className="desk-mono"
+            style={{
+              fontSize: 9,
+              color: "var(--rose-dust)",
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+            }}
+          >
+            data completeness
+          </span>
+          <span
+            className="desk-serif"
+            style={{
+              fontSize: 13,
+              fontStyle: "italic",
+              color: "var(--plum-mid)",
+            }}
+          >
+            {progressPct}%
+          </span>
         </div>
-        <div className="mt-4">
-          <div className="flex justify-between text-xs mb-1" style={{ color: "var(--psych-muted)" }}>
-            <span>Data completeness</span>
-            <span>{progressPct}%</span>
-          </div>
-          <ProgressBar value={progressPct} size="sm" />
+        <div className="desk-bar">
+          <i style={{ width: `${progressPct}%` }} />
         </div>
       </div>
 
@@ -1331,6 +1392,30 @@ export default function ThesisPage() {
         }}
         onCancel={() => setPDeleteId(null)}
       />
-    </div>
+
+      {/* Floating stickies — late-night writing energy */}
+      <PinnedNote
+        tone="y"
+        rot={-3}
+        pin
+        author="2:11 a.m."
+        style={{ top: 90, right: 24, width: 175, zIndex: 60 }}
+      >
+        let the participants speak before you interpret.{" "}
+        <span className="squiggle">three quotes</span> per finding.
+      </PinnedNote>
+
+      <PinnedNote
+        tone="b"
+        rot={2.4}
+        author="supervisor"
+        style={{ bottom: 80, right: 360, width: 165, zIndex: 60 }}
+      >
+        Rivka asked — &ldquo;process or place?&rdquo;
+        <br />
+        <em>both. that&rsquo;s the chapter.</em>
+      </PinnedNote>
+      </div>
+    </PaperStack>
   );
 }
