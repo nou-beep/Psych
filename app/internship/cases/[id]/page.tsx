@@ -74,6 +74,7 @@ export default function InternshipCasePage({ params }: PageProps) {
     updateCaseIdentification,
     updateCaseContext,
     updateCaseStructuredProfile,
+    seedCaseFromInternshipReport,
     createScorableAdmin,
     planTestFromShell,
     planManualTest,
@@ -174,6 +175,33 @@ export default function InternshipCasePage({ params }: PageProps) {
 
         {/* ═════════════════ OVERVIEW ═════════════════ */}
         <TabsContent value="overview">
+          {/* One-shot seed — applies the À Petit Pas institutional
+              defaults + structured profile chip seed to this case. */}
+          <div
+            className="rounded-xl border px-3 py-2.5 mb-4 flex items-center gap-3 flex-wrap"
+            style={{
+              backgroundColor: "var(--psych-primary-light)",
+              borderColor: "var(--psych-primary)",
+            }}
+          >
+            <span
+              className="text-xs flex-1"
+              style={{ color: "var(--psych-text)" }}
+            >
+              <strong>Seed from internship report.</strong>{" "}
+              Pré-remplit le cas avec le contexte institutionnel (École Rihani / À Petit Pas) et le profil structuré dérivé du rapport.
+            </span>
+            <Button
+              size="sm"
+              onClick={() => {
+                const c = seedCaseFromInternshipReport(caseData.id);
+                if (c) toast("Cas pré-rempli depuis le rapport.", "success");
+              }}
+            >
+              Seed from internship report
+            </Button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SectionCard
               title="Identification"

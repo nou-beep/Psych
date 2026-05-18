@@ -14,7 +14,11 @@ export type VerbalLevel =
   | "non-verbal"
   | "isolated-words"
   | "simple-phrases"
-  | "functional-phrases";
+  | "functional-phrases"
+  // The internship report observed targeted verbalisations (numbers,
+  // colours, body parts) inside structured prompts with non-verbal
+  // tendency outside them — captured as its own level.
+  | "partially-functional";
 
 export type Comprehension =
   | "absent"
@@ -50,6 +54,17 @@ export type EyeContact =
   | "excessive"
   | "variable";
 
+// Functional needs the child can express verbally (or via support).
+// Multi-select chips, drawn from the categories the internship
+// report tracks (toileting, breaks, meals, pain, fatigue, help).
+export type FunctionalNeed =
+  | "toilet"
+  | "break"
+  | "meal"
+  | "pain"
+  | "fatigue"
+  | "help";
+
 export interface CommunicationProfile {
   verbalLevel?: VerbalLevel;
   comprehension?: Comprehension;
@@ -57,6 +72,7 @@ export interface CommunicationProfile {
   requests?: RequestsLevel;
   responseToName?: ResponseToName;
   eyeContact?: EyeContact;
+  functionalNeedsExpressed?: FunctionalNeed[];
 }
 
 // ─── Social interaction ────────────────────────────────────────
@@ -107,9 +123,28 @@ export type BehaviorPattern =
   | "opposition"
   | "stereotypies"
   | "self-stimulation"
+  // Imitation is a frequent observation in some autism profiles —
+  // tracked as its own behaviour pattern.
+  | "imitation"
   | "aggression"
   | "self-injury-placeholder"
   | "none-observed";
+
+// Global demeanour during the session — a single chip the clinician
+// can use as a quick headline observation.
+export type GlobalDemeanor =
+  | "calm-organized"
+  | "calm-but-distant"
+  | "variable"
+  | "restless"
+  | "withdrawn";
+
+// Laughter / vocal response patterns the report flagged.
+export type LaughterResponse =
+  | "absent"
+  | "sound-triggered"
+  | "social-triggered"
+  | "spontaneous";
 
 export type BehaviorTrigger =
   | "demand"
@@ -137,6 +172,10 @@ export interface BehaviorProfile {
   intensity?: Intensity;
   frequency?: Frequency;
   functionHypothesis?: BehaviorFunction;
+  // Single-chip headline observation.
+  globalDemeanor?: GlobalDemeanor;
+  // Laughter / vocal response pattern observed.
+  laughterResponse?: LaughterResponse;
 }
 
 // ─── Attention / engagement ───────────────────────────────────
@@ -161,6 +200,40 @@ export interface AttentionProfile {
   distractibility?: Distractibility;
   waitingTolerance?: WaitingTolerance;
   responseToInstructions?: ResponseToInstructions;
+}
+
+// ─── Motor / visuospatial ─────────────────────────────────────
+
+export type PencilGrip = "correct" | "atypical" | "not-assessed";
+export type WritingGesture =
+  | "autonomous"
+  | "needs-structuring"
+  | "not-acquired"
+  | "not-assessed";
+export type LeftRightDistinction =
+  | "acquired"
+  | "emerging"
+  | "difficulty"
+  | "not-assessed";
+export type VisuospatialOrganization =
+  | "acquired"
+  | "partial"
+  | "difficulty"
+  | "not-assessed";
+export type GraphomotorWork = "recommended" | "in-progress" | "not-needed";
+export type FineMotorLevel =
+  | "acquired"
+  | "partial"
+  | "difficulty"
+  | "not-assessed";
+
+export interface MotorVisuospatialProfile {
+  pencilGrip?: PencilGrip;
+  writingGesture?: WritingGesture;
+  leftRightDistinction?: LeftRightDistinction;
+  visuospatialOrganization?: VisuospatialOrganization;
+  graphomotorWork?: GraphomotorWork;
+  fineMotor?: FineMotorLevel;
 }
 
 // ─── Autonomy / adaptive ──────────────────────────────────────
@@ -197,7 +270,8 @@ export type ProfileDomain =
   | "sensory"
   | "behavior"
   | "attention"
-  | "autonomy";
+  | "autonomy"
+  | "motor";
 
 export const PROFILE_DOMAIN_LABELS: Record<ProfileDomain, string> = {
   communication: "Communication",
@@ -206,6 +280,7 @@ export const PROFILE_DOMAIN_LABELS: Record<ProfileDomain, string> = {
   behavior: "Comportement",
   attention: "Attention / engagement",
   autonomy: "Autonomie / adaptation",
+  motor: "Motricité / visuospatial",
 };
 
 // ─── Top-level structured profile ─────────────────────────────
@@ -217,6 +292,7 @@ export interface StructuredProfile {
   behavior?: BehaviorProfile;
   attention?: AttentionProfile;
   autonomy?: AutonomyProfile;
+  motor?: MotorVisuospatialProfile;
   // Optional collapsed notes per domain — written only when the
   // clinician actually wants to add nuance.
   notes?: Partial<Record<ProfileDomain, string>>;
@@ -231,6 +307,15 @@ export const VERBAL_LEVEL_LABELS: Record<VerbalLevel, string> = {
   "isolated-words": "Mots isolés",
   "simple-phrases": "Phrases simples",
   "functional-phrases": "Phrases fonctionnelles",
+  "partially-functional": "Partiellement fonctionnel",
+};
+export const FUNCTIONAL_NEED_LABELS: Record<FunctionalNeed, string> = {
+  toilet: "Toilettes",
+  break: "Récréation / pause",
+  meal: "Repas",
+  pain: "Douleur",
+  fatigue: "Fatigue",
+  help: "Aide",
 };
 export const COMPREHENSION_LABELS: Record<Comprehension, string> = {
   absent: "Absente",
@@ -323,9 +408,23 @@ export const BEHAVIOR_PATTERN_LABELS: Record<BehaviorPattern, string> = {
   opposition: "Opposition",
   stereotypies: "Stéréotypies",
   "self-stimulation": "Auto-stimulation",
+  imitation: "Imitation fréquente",
   aggression: "Comportement hétéro-agressif",
   "self-injury-placeholder": "Comportements auto-dirigés (à préciser)",
   "none-observed": "Aucun observé",
+};
+export const GLOBAL_DEMEANOR_LABELS: Record<GlobalDemeanor, string> = {
+  "calm-organized": "Calme et organisé",
+  "calm-but-distant": "Calme mais à distance",
+  variable: "Variable",
+  restless: "Agité",
+  withdrawn: "En retrait",
+};
+export const LAUGHTER_RESPONSE_LABELS: Record<LaughterResponse, string> = {
+  absent: "Absente",
+  "sound-triggered": "Réaction aux stimulations sonores",
+  "social-triggered": "Réaction sociale",
+  spontaneous: "Spontanée",
 };
 export const BEHAVIOR_TRIGGER_LABELS: Record<BehaviorTrigger, string> = {
   demand: "Demande",
@@ -409,6 +508,41 @@ export const SAFETY_AWARENESS_LABELS: Record<SafetyAwareness, string> = {
   adapted: "Adaptée",
 };
 
+export const PENCIL_GRIP_LABELS: Record<PencilGrip, string> = {
+  correct: "Correcte",
+  atypical: "Atypique",
+  "not-assessed": "Non évaluée",
+};
+export const WRITING_GESTURE_LABELS: Record<WritingGesture, string> = {
+  autonomous: "Autonome",
+  "needs-structuring": "Nécessite un étayage",
+  "not-acquired": "Non acquis",
+  "not-assessed": "Non évalué",
+};
+export const LEFT_RIGHT_DISTINCTION_LABELS: Record<LeftRightDistinction, string> = {
+  acquired: "Acquise",
+  emerging: "Émergente",
+  difficulty: "Difficulté observée",
+  "not-assessed": "Non évalué",
+};
+export const VISUOSPATIAL_ORG_LABELS: Record<VisuospatialOrganization, string> = {
+  acquired: "Adaptée",
+  partial: "Partielle",
+  difficulty: "Difficulté observée",
+  "not-assessed": "Non évaluée",
+};
+export const GRAPHOMOTOR_WORK_LABELS: Record<GraphomotorWork, string> = {
+  recommended: "Travail graphomoteur recommandé",
+  "in-progress": "Travail en cours",
+  "not-needed": "Non indiqué",
+};
+export const FINE_MOTOR_LEVEL_LABELS: Record<FineMotorLevel, string> = {
+  acquired: "Adaptée",
+  partial: "Partielle",
+  difficulty: "Difficulté observée",
+  "not-assessed": "Non évaluée",
+};
+
 // ─── Mutations ────────────────────────────────────────────────
 
 export function patchStructuredProfile(
@@ -430,6 +564,8 @@ export function patchStructuredProfile(
       return { ...base, attention: { ...(base.attention ?? {}), ...patch } };
     case "autonomy":
       return { ...base, autonomy: { ...(base.autonomy ?? {}), ...patch } };
+    case "motor":
+      return { ...base, motor: { ...(base.motor ?? {}), ...patch } };
   }
 }
 
@@ -487,9 +623,20 @@ export function profileCoverage(profile: StructuredProfile | undefined): {
         profile.autonomy?.dressing,
         profile.autonomy?.routines,
         profile.autonomy?.safetyAwareness,
+        profile.motor?.pencilGrip,
+        profile.motor?.writingGesture,
+        profile.motor?.leftRightDistinction,
+        profile.motor?.visuospatialOrganization,
+        profile.motor?.graphomotorWork,
+        profile.motor?.fineMotor,
+        (profile.communication?.functionalNeedsExpressed?.length ?? 0) > 0
+          ? "x"
+          : undefined,
+        profile.behavior?.globalDemeanor,
+        profile.behavior?.laughterResponse,
       ]
     : [];
-  const total = 32;
+  const total = 41;
   const filled = slots.filter((s) => s !== undefined && s !== null).length;
   return {
     filled,

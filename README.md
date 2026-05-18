@@ -434,6 +434,64 @@ authorized materials. Eyla provides observation grids,
 structured shells, and manual scoring support — proprietary
 items are never reproduced.
 
+### Institutional defaults + "Seed from internship report"
+
+`lib/internship/institutions.ts` ships a `DEFAULT_INSTITUTION`
+constant anchoring on the user's actual internship context:
+**Association À Petit Pas / École Rihani**, Master en Psychologie
+Clinique et Psychothérapie at **Université Ibn Tofail**, with the
+academic supervisor + master responsible names from the user's
+own report. Overridable via `saveInstitution()` (localStorage)
+for future internship sites.
+
+The Overview tab on each case now exposes a **Seed from
+internship report** button that, in one click, applies:
+
+- The institutional defaults to identification (setting,
+  internship place, supervisor).
+- A pre-built `SEED_STRUCTURED_PROFILE` carrying chip selections
+  across all seven domains (communication, social, sensory,
+  behaviour, attention, autonomy, **motor / visuospatial**).
+
+The seeded admin (`SEED_INTERNSHIP_SCORABLE`) is also evaluator =
+Nouhaila Mrini, so the workspace renders coherent context on
+first load.
+
+### Motor / visuospatial — 7th profile domain
+
+Added to the structured profile after the report flagged
+visuospatial fragilities and graphomotor work as a priority:
+
+- Pencil grip · Geste graphique · Repérage gauche / droite ·
+  Organisation visuospatiale · Travail graphomoteur · Motricité
+  fine.
+
+When weak, the suggestion engine surfaces `grille-graphomotricite`,
+`grille-organisation-visuospatiale`, `grille-motricite-fine` —
+labels render in the suggestion UI even before the templates
+themselves ship.
+
+### TSA-aware integrative headline
+
+When the chip selections carry the TSA markers (partial verbal
+language + sensory atypicalities + visuospatial concerns), the
+summary headline switches from the generic "priority domains"
+line to an integrative paragraph that names the clinical picture
+in original French wording. Falls back to the generic line
+otherwise.
+
+### Final report template scaffolding
+
+`lib/internship/report-template.ts` ships the standard French
+master's internship report section structure
+(Remerciements · Liste des figures · Liste des abréviations ·
+Introduction · Présentation du lieu de stage · Cadre théorique ·
+Méthodologie · Missions réalisées · Étude de cas clinique
+(Présentation · Symptômes · Hypothèse · Démarche · Intervention ·
+Évolution) · Conclusion et perspectives · Bibliographie · Annexes).
+`defaultFinalReportInitial()` pre-seeds the cover page with the
+intern's identity + institutional context.
+
 ### Click-based test shells (deferred)
 
 The brief asked for click-based scoring for 7 official test

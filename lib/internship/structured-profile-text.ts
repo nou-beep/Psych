@@ -21,9 +21,12 @@ import {
   EXPRESSION_MODALITY_LABELS,
   EYE_CONTACT_LABELS,
   FREQUENCY_LABELS,
+  FUNCTIONAL_NEED_LABELS,
+  GRAPHOMOTOR_WORK_LABELS,
   INITIATION_LABELS,
   INTENSITY_LABELS,
   JOINT_ATTENTION_LABELS,
+  LEFT_RIGHT_DISTINCTION_LABELS,
   PEER_INTERACTION_LABELS,
   PROFILE_DOMAIN_LABELS,
   REQUESTS_LEVEL_LABELS,
@@ -37,7 +40,9 @@ import {
   TASK_ENGAGEMENT_LABELS,
   TURN_TAKING_LABELS,
   VERBAL_LEVEL_LABELS,
+  VISUOSPATIAL_ORG_LABELS,
   WAITING_TOLERANCE_LABELS,
+  WRITING_GESTURE_LABELS,
   type ProfileDomain,
   type SensoryModality,
   type SensoryPattern,
@@ -102,6 +107,28 @@ function communicationParagraph(profile: StructuredProfile): string {
     parts.push(
       `Le contact visuel est ${EYE_CONTACT_LABELS[c.eyeContact].toLowerCase()}.`
     );
+  }
+  if (c.functionalNeedsExpressed && c.functionalNeedsExpressed.length > 0) {
+    parts.push(
+      `Les besoins fonctionnels mobilisés à l'oral incluent : ${joinFrench(
+        c.functionalNeedsExpressed.map((n) =>
+          FUNCTIONAL_NEED_LABELS[n].toLowerCase()
+        )
+      )}.`
+    );
+    // If the verbal level is partial or below, flag that the
+    // expressive register narrows outside structured contexts —
+    // composed from the chip data rather than the report's
+    // wording.
+    if (
+      c.verbalLevel === "partially-functional" ||
+      c.verbalLevel === "non-verbal" ||
+      c.verbalLevel === "isolated-words"
+    ) {
+      parts.push(
+        "Hors de ces contextes, l'expression verbale se réduit nettement et le canal non verbal redevient prépondérant."
+      );
+    }
   }
   return joinSentences(parts);
 }
@@ -292,10 +319,115 @@ function autonomyParagraph(profile: StructuredProfile): string {
   return joinSentences(parts);
 }
 
+function motorParagraph(profile: StructuredProfile): string {
+  const m = profile.motor;
+  if (!m) return "";
+  const parts: string[] = [];
+  if (m.pencilGrip && m.pencilGrip !== "not-assessed") {
+    parts.push(
+      m.pencilGrip === "correct"
+        ? "La tenue du crayon est correcte."
+        : "La tenue du crayon est atypique."
+    );
+  }
+  if (m.writingGesture && m.writingGesture !== "not-assessed") {
+    parts.push(
+      `Le geste graphique est ${WRITING_GESTURE_LABELS[m.writingGesture].toLowerCase()}.`
+    );
+  }
+  if (m.leftRightDistinction && m.leftRightDistinction !== "not-assessed") {
+    parts.push(
+      `Le repérage gauche / droite est ${LEFT_RIGHT_DISTINCTION_LABELS[m.leftRightDistinction].toLowerCase()}.`
+    );
+  }
+  if (
+    m.visuospatialOrganization &&
+    m.visuospatialOrganization !== "not-assessed"
+  ) {
+    parts.push(
+      `L'organisation visuospatiale est ${VISUOSPATIAL_ORG_LABELS[m.visuospatialOrganization].toLowerCase()}.`
+    );
+  }
+  if (m.graphomotorWork) {
+    parts.push(GRAPHOMOTOR_WORK_LABELS[m.graphomotorWork]);
+  }
+  return joinSentences(parts);
+}
+
 // Avoid an unused-import warning for the adaptive type alias above.
 type AdaptiveLevel = NonNullable<
   StructuredProfile["autonomy"]
 >["toileting"];
+
+// ─── TSA-aware headline ──────────────────────────────────────
+//
+// When the profile carries the markers the internship report
+// describes (TSA + partially-functional verbal language + sensory
+// particularities + visuospatial difficulties), generate an
+// integrative paragraph rather than the generic "priority domains"
+// headline. The phrase pieces are composed from the chip selections.
+
+function tsaSignatureHeadline(profile: StructuredProfile): string | null {
+  const c = profile.communication;
+  const s = profile.sensory;
+  const m = profile.motor;
+  const hasTsaCommunication =
+    c?.verbalLevel === "partially-functional" ||
+    c?.verbalLevel === "isolated-words" ||
+    c?.verbalLevel === "non-verbal";
+  const sensoryConcerns =
+    s &&
+    Object.values(s).some(
+      (p) =>
+        p === "hyper" ||
+        p === "hypo" ||
+        p === "seeking" ||
+        p === "avoiding"
+    );
+  const visuospatialDifficulty =
+    m?.visuospatialOrganization === "difficulty" ||
+    m?.leftRightDistinction === "difficulty";
+
+  if (!hasTsaCommunication) return null;
+
+  const sentences: string[] = [];
+
+  // Opening: clinical context line in original phrasing, composed
+  // from the chip selections.
+  let opening: string;
+  if (c?.verbalLevel === "partially-functional") {
+    opening =
+      "Le tableau clinique observé évoque un trouble du spectre de l'autisme, avec un langage verbal disponible de manière partielle et mobilisable surtout dans des situations ciblées";
+  } else if (c?.verbalLevel === "isolated-words") {
+    opening =
+      "Le tableau clinique observé évoque un trouble du spectre de l'autisme, avec une expression essentiellement limitée à des mots isolés";
+  } else {
+    opening =
+      "Le tableau clinique observé évoque un trouble du spectre de l'autisme, avec une communication principalement non verbale";
+  }
+  const qualifiers: string[] = [];
+  if (sensoryConcerns) qualifiers.push("un profil sensoriel atypique");
+  if (visuospatialDifficulty)
+    qualifiers.push("des fragilités visuospatiales");
+  if (qualifiers.length > 0) {
+    opening += `. À cela s'ajoutent ${joinFrench(qualifiers)}`;
+  }
+  sentences.push(opening + ".");
+
+  // Closing observation about regulation hypothesis when the
+  // chips support it — original phrasing.
+  if (
+    profile.behavior?.laughterResponse === "sound-triggered" ||
+    profile.behavior?.mainBehaviors?.includes("stereotypies") ||
+    profile.behavior?.mainBehaviors?.includes("imitation")
+  ) {
+    sentences.push(
+      "Sur le plan comportemental, des conduites répétitives et des réponses marquées aux entrées auditives sont relevées ; elles peuvent être interprétées, dans ce contexte, comme des stratégies de régulation à la fois sensorielle et émotionnelle."
+    );
+  }
+
+  return sentences.join(" ");
+}
 
 // ─── Domain weakness scoring ─────────────────────────────────
 
@@ -450,6 +582,40 @@ function autonomyWeakness(profile: StructuredProfile): number {
   return factors > 0 ? score / factors : 0;
 }
 
+function motorWeakness(profile: StructuredProfile): number {
+  const m = profile.motor;
+  if (!m) return 0;
+  let score = 0;
+  let factors = 0;
+  if (m.writingGesture && m.writingGesture !== "not-assessed") {
+    factors++;
+    if (m.writingGesture === "not-acquired") score += 1;
+    else if (m.writingGesture === "needs-structuring") score += 0.6;
+  }
+  if (
+    m.leftRightDistinction &&
+    m.leftRightDistinction !== "not-assessed"
+  ) {
+    factors++;
+    if (m.leftRightDistinction === "difficulty") score += 1;
+    else if (m.leftRightDistinction === "emerging") score += 0.5;
+  }
+  if (
+    m.visuospatialOrganization &&
+    m.visuospatialOrganization !== "not-assessed"
+  ) {
+    factors++;
+    if (m.visuospatialOrganization === "difficulty") score += 1;
+    else if (m.visuospatialOrganization === "partial") score += 0.5;
+  }
+  if (m.fineMotor && m.fineMotor !== "not-assessed") {
+    factors++;
+    if (m.fineMotor === "difficulty") score += 1;
+    else if (m.fineMotor === "partial") score += 0.5;
+  }
+  return factors > 0 ? score / factors : 0;
+}
+
 // ─── Public summary ──────────────────────────────────────────
 
 export interface ProfileSummary {
@@ -522,6 +688,12 @@ export function generateProfileSummary(
       paragraph: autonomyParagraph(profile),
       weakness: autonomyWeakness(profile),
     },
+    {
+      domain: "motor",
+      label: PROFILE_DOMAIN_LABELS.motor,
+      paragraph: motorParagraph(profile),
+      weakness: motorWeakness(profile),
+    },
   ];
 
   // Priority domains = top-3 with weakness >= 0.5.
@@ -539,9 +711,13 @@ export function generateProfileSummary(
     (d) => PROFILE_DOMAIN_LABELS[d].toLowerCase()
   );
 
-  const headline = priorityDomains.length === 0
-    ? "Le profil clinique fait apparaître un fonctionnement globalement adapté sur les domaines évalués."
-    : `Le profil clinique fait apparaître des besoins prioritaires sur : ${joinFrench(difficultyLabels)}.`;
+  // Prefer the TSA-aware integrative headline when the signature
+  // chips match; fall back to the generic priority-domain headline.
+  const headline =
+    tsaSignatureHeadline(profile) ??
+    (priorityDomains.length === 0
+      ? "Le profil clinique fait apparaître un fonctionnement globalement adapté sur les domaines évalués."
+      : `Le profil clinique fait apparaître des besoins prioritaires sur : ${joinFrench(difficultyLabels)}.`);
 
   const strengths = strengthLabels.length === 0
     ? "Pas de domaine clairement préservé sur les sélections renseignées."
@@ -600,6 +776,13 @@ export function suggestGridsFromProfile(
   // Autonomy concerns → autonomy.
   if (autonomyWeakness(profile) >= 0.4) {
     out.add("grille-autonomie-adaptation");
+  }
+  // Motor / visuospatial concerns → graphomotor + fine-motor grids
+  // (keys may not yet have templates — the UI will show the label).
+  if (motorWeakness(profile) >= 0.4) {
+    out.add("grille-graphomotricite");
+    out.add("grille-organisation-visuospatiale");
+    out.add("grille-motricite-fine");
   }
   return Array.from(out);
 }
