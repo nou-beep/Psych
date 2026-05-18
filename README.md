@@ -96,6 +96,123 @@ group; consolidated surfaces sit at the top of their group.
 
 ---
 
+## Internship Studio
+
+A dedicated workspace for supervised clinical internship work — the
+second real reason Eyla exists (alongside the Thesis Studio for the
+master's research). Lives at `/internship`, with case detail at
+`/internship/cases/[id]`. State is held in `InternshipContext` and
+persisted across six localStorage blobs (cases / tests / grids /
+reports / supervision / files).
+
+### Test administration workflow
+
+`lib/internship/test-shells.ts` ships 12 generic test shells covering
+autism / developmental work: CARS-2, M-CHAT-R/F, Vineland, ABLLS-R,
+VB-MAPP, Sensory Profile, plus six observation checklists / grids.
+Every shell is a **structured skeleton only** — name, domain, age
+range, scoring method, description. No copyrighted items. Each
+shell carries a licensing reminder.
+
+Each test moves through a status flow with enforced transitions:
+
+```
+planned → administered → awaiting-scoring → scored → reviewed → in-report
+```
+
+Recording a score auto-advances the test to `scored` if it is
+behind. The status flow is enforced by `canTransition()` in
+`lib/internship/tests.ts` (illegal jumps are silent no-ops).
+
+### Evaluation grid suggestion
+
+`lib/internship/grid-library.ts` ships 24 grid shells and the
+domain → grid suggestion map the brief flagged as the studio's
+central differentiator:
+
+| Test domain | Suggested grids |
+|---|---|
+| Communication | Communication Grid · Expressive/Receptive · Social Communication |
+| Social interaction | Social Interaction · Joint Attention · Peer Interaction |
+| Sensory | Sensory Profile · Sensory Trigger Log · Regulation Strategy |
+| Behavior | ABC Behavior · Frequency/Intensity Tracker · Trigger/Response |
+| Emotional regulation | Emotional Regulation · Meltdown/Shutdown · Coping Strategy |
+| Adaptive functioning | Autonomy · Daily Living Skills · Routine Participation |
+
+In the Tests tab of a case, picking a test surfaces an "Attach
+suggested grid" row driven by `suggestGridShellsForTest()` — one
+click creates an empty `InternshipGrid` linked to the test.
+
+### Report workflow
+
+Seven report kinds defined in `lib/internship/reports.ts`:
+
+- **Daily observation** — 13 sections (context, objectives,
+  observations, communication, social interaction, behaviour,
+  emotional regulation, sensory notes, intervention used,
+  response, reflection, next steps).
+- **Weekly synthesis** — 9 sections, with `sourceDailyIds` tracking
+  which dailies fed the synthesis.
+- **Monthly synthesis** — same shape as weekly, longer window.
+- **Final internship report** — 14 sections (cover, context, case,
+  methodology, tests, grids, observations, intervention,
+  progress, supervision, limits, recommendations, conclusion,
+  appendices).
+- Test administration / evaluation grid summary / supervision
+  summary — simpler one-body reports.
+
+Two assembly helpers turn the chain into pre-filled drafts the user
+edits rather than blank canvases:
+
+- `assembleWeeklyFromDailies()` — given a week window, gathers all
+  daily reports inside it and produces a weekly draft with
+  per-area concatenated text ("Day 1 · 2026-03-11 …").
+- `assembleFinalDraft()` — given a case, gathers all weekly
+  reports + tests + grids + supervision notes and produces a
+  final-report draft with the right sections pre-filled.
+
+### Supervision workflow
+
+`InternshipSupervisionNote` carries the usual fields (date,
+supervisor, cases discussed, tests discussed, grids reviewed,
+clinical questions, feedback received, corrections requested,
+action plan, follow-up) plus three cross-link arrays:
+`linkedTestIds`, `linkedGridIds`, `linkedReportIds`. The case page's
+Supervision tab lets you click any test or report in the case and
+attach the supervision note to it. Backlinks render on the test /
+report side.
+
+### Files
+
+`InternshipFile` is metadata only — names, kind, tags, link target.
+PDFs / binaries stay on the user's disk; we just store the
+reference. The model is in place; the UI tab is deferred to a
+follow-up.
+
+### Seed data
+
+One anonymized seed case (`CHILD-AUT-2026-01`) ships in
+`lib/internship/seed.ts`: a 6-year-old followed in an association
+setting. Four tests at different status points (Vineland planned,
+Sensory Profile administered, Communication checklist scored, ABC
+behaviour awaiting scoring), two daily reports, one weekly
+synthesis, one supervision note. All identifiers are fictional and
+deterministic. The seed loads on first run and is dismissable.
+
+### Navigation cleanup shipped with this pass
+
+- `/audio` standalone route removed from sidebar — audio
+  functionality lives consolidated under Transcripts +
+  `/research/audio-sync`. The page file is preserved so existing
+  audio note data isn't lost.
+- Sidebar restructured into five groups: **Home** · **Clinical
+  Work** · **Research** · **Materials** · **Admin**. Internship
+  Studio sits at the top of Clinical Work, beside Cases.
+- Phrase library moved from Clinical into Materials (it's reference
+  content, not a clinical surface).
+
+---
+
 ## Running Locally
 
 ### Prerequisites

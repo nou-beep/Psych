@@ -52,6 +52,7 @@ const pageTitles: Record<string, string> = {
   "/research/audio-sync": "Audio + transcript sync",
   "/thesis/exports": "Thesis export packs",
   "/inbox": "Inbox",
+  "/internship": "Internship Studio",
   "/material": "Material",
   "/prep": "Session prep",
   "/loops": "Tracked loops",
@@ -73,6 +74,7 @@ export function Header() {
   function getTitle() {
     if (pageTitles[pathname]) return pageTitles[pathname];
     if (pathname.startsWith("/cases/")) return "Case Details";
+    if (pathname.startsWith("/internship/cases/")) return "Internship case";
     return "Psych";
   }
 

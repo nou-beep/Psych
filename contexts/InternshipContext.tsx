@@ -1,0 +1,754 @@
+"use client";
+
+// Internship Studio context — loads/persists the six record types,
+// exposes helpers for the pages to call. Pure React context wired to
+// localStorage; pure-logic mutations live in lib/internship/.
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+
+import { loadFromStorage, saveToStorage } from "@/lib/store";
+import { INTERNSHIP_STORAGE_KEYS } from "@/lib/internship/storage";
+import {
+  archiveCase,
+  newCase,
+  patchContext,
+  patchIdentification,
+} from "@/lib/internship/case";
+import {
+  attachGrid,
+  detachGrid,
+  newManualTest,
+  newTestFromShell,
+  patchTest,
+  recordScore,
+  setStatus,
+} from "@/lib/internship/tests";
+import {
+  addEntry,
+  newGridFromShell,
+  patchEntry,
+  removeEntry,
+  setWeeklySynthesis,
+} from "@/lib/internship/grids";
+import {
+  assembleFinalDraft,
+  assembleWeeklyFromDailies,
+  markComplete,
+  newDailyReport,
+  newFinalReport,
+  newSimpleReport,
+  newWeeklyReport,
+  patchDailySections,
+  patchFinalSections,
+  patchReport,
+  patchWeeklySections,
+} from "@/lib/internship/reports";
+import {
+  linkSupervisionTo,
+  newSupervisionNote,
+  patchSupervisionNote,
+  unlinkSupervisionFrom,
+} from "@/lib/internship/supervision";
+import { newFileRecord } from "@/lib/internship/files";
+import {
+  INTERNSHIP_SEED_ACCEPTED_KEY,
+  SEED_INTERNSHIP_CASES,
+  SEED_INTERNSHIP_REPORTS,
+  SEED_INTERNSHIP_SUPERVISION,
+  SEED_INTERNSHIP_TESTS,
+} from "@/lib/internship/seed";
+import type {
+  InternshipCase,
+  InternshipClinicalContext,
+  InternshipFile,
+  InternshipFileKind,
+  InternshipGrid,
+  InternshipIdentification,
+  InternshipReport,
+  InternshipReportKind,
+  InternshipSupervisionNote,
+  InternshipTest,
+  InternshipTestScore,
+  TestDomain,
+  TestStatus,
+} from "@/lib/internship/types";
+
+interface InternshipContextValue {
+  // State.
+  cases: InternshipCase[];
+  tests: InternshipTest[];
+  grids: InternshipGrid[];
+  reports: InternshipReport[];
+  supervision: InternshipSupervisionNote[];
+  files: InternshipFile[];
+
+  // Cases.
+  createCase: (input: Parameters<typeof newCase>[0]) => InternshipCase;
+  updateCaseIdentification: (
+    id: string,
+    patch: Partial<InternshipIdentification>
+  ) => void;
+  updateCaseContext: (
+    id: string,
+    patch: Partial<InternshipClinicalContext>
+  ) => void;
+  setCaseArchived: (id: string, archived: boolean) => void;
+
+  // Tests.
+  planTestFromShell: (input: {
+    caseId: string;
+    shellId: string;
+    plannedDate?: string;
+  }) => InternshipTest | null;
+  planManualTest: (input: {
+    caseId: string;
+    name: string;
+    domain: TestDomain;
+    plannedDate?: string;
+    purpose?: string;
+    scoringMethod?: string;
+  }) => InternshipTest;
+  advanceTestStatus: (id: string, next: TestStatus) => void;
+  updateTest: (
+    id: string,
+    patch: Partial<Omit<InternshipTest, "id" | "createdAt" | "caseId">>
+  ) => void;
+  recordTestScore: (
+    id: string,
+    score: InternshipTestScore,
+    interpretationNotes?: string
+  ) => void;
+  attachGridToTest: (testId: string, gridId: string) => void;
+  detachGridFromTest: (testId: string, gridId: string) => void;
+
+  // Grids.
+  createGridFromShell: (input: {
+    caseId: string;
+    shellId: string;
+    linkedTestId?: string;
+    name?: string;
+  }) => InternshipGrid | null;
+  addGridEntry: (
+    gridId: string,
+    entry: { fields: Record<string, string>; date?: string; sessionLabel?: string; notes?: string }
+  ) => void;
+  updateGridEntry: (
+    gridId: string,
+    entryId: string,
+    patch: Partial<{
+      fields: Record<string, string>;
+      date: string;
+      sessionLabel: string;
+      notes: string;
+    }>
+  ) => void;
+  removeGridEntry: (gridId: string, entryId: string) => void;
+  setGridWeeklySynthesis: (gridId: string, synthesis: string) => void;
+
+  // Reports.
+  createDailyReport: (caseId: string, date: string) => InternshipReport;
+  createWeeklyReport: (
+    caseId: string,
+    weekStart: string,
+    weekEnd: string
+  ) => InternshipReport;
+  createFinalReport: (caseId: string) => InternshipReport;
+  createSimpleReport: (input: {
+    caseId: string;
+    kind: Exclude<
+      InternshipReportKind,
+      "daily" | "weekly" | "monthly" | "final"
+    >;
+    title?: string;
+  }) => InternshipReport;
+  assembleWeekly: (
+    caseId: string,
+    weekStart: string,
+    weekEnd: string
+  ) => InternshipReport;
+  assembleFinal: (caseId: string) => InternshipReport;
+  updateReport: (
+    id: string,
+    patch: Partial<Omit<InternshipReport, "id" | "createdAt" | "caseId" | "kind">>
+  ) => void;
+  updateDailySections: (
+    id: string,
+    patch: Partial<NonNullable<InternshipReport["daily"]>>
+  ) => void;
+  updateWeeklySections: (
+    id: string,
+    patch: Partial<NonNullable<InternshipReport["weekly"]>>
+  ) => void;
+  updateFinalSections: (
+    id: string,
+    patch: Partial<NonNullable<InternshipReport["final"]>>
+  ) => void;
+  markReportComplete: (id: string) => void;
+
+  // Supervision.
+  createSupervisionNote: (input: {
+    caseId: string;
+    date: string;
+    supervisor?: string;
+  }) => InternshipSupervisionNote;
+  updateSupervisionNote: (
+    id: string,
+    patch: Partial<
+      Omit<InternshipSupervisionNote, "id" | "createdAt" | "caseId">
+    >
+  ) => void;
+  linkSupervision: (
+    noteId: string,
+    kind: "test" | "grid" | "report",
+    targetId: string
+  ) => void;
+  unlinkSupervision: (
+    noteId: string,
+    kind: "test" | "grid" | "report",
+    targetId: string
+  ) => void;
+
+  // Files.
+  createFile: (input: {
+    caseId: string;
+    kind: InternshipFileKind;
+    name: string;
+    notes?: string;
+    tags?: string[];
+    linkedTestId?: string;
+    linkedGridId?: string;
+    linkedReportId?: string;
+  }) => InternshipFile;
+  removeFile: (id: string) => void;
+
+  // Seed control.
+  seedAccepted: boolean;
+  acceptSeed: () => void;
+  resetSeed: () => void;
+}
+
+const InternshipContext = createContext<InternshipContextValue | null>(null);
+
+export function InternshipProvider({ children }: { children: ReactNode }) {
+  const [cases, setCases] = useState<InternshipCase[]>([]);
+  const [tests, setTests] = useState<InternshipTest[]>([]);
+  const [grids, setGrids] = useState<InternshipGrid[]>([]);
+  const [reports, setReports] = useState<InternshipReport[]>([]);
+  const [supervision, setSupervision] = useState<InternshipSupervisionNote[]>(
+    []
+  );
+  const [files, setFiles] = useState<InternshipFile[]>([]);
+  const [seedAccepted, setSeedAccepted] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  // Initial load — pull each blob from localStorage, seed on first run.
+  useEffect(() => {
+    try {
+      const storedCases = loadFromStorage<InternshipCase[]>(
+        INTERNSHIP_STORAGE_KEYS.cases,
+        []
+      );
+      const storedTests = loadFromStorage<InternshipTest[]>(
+        INTERNSHIP_STORAGE_KEYS.tests,
+        []
+      );
+      const storedGrids = loadFromStorage<InternshipGrid[]>(
+        INTERNSHIP_STORAGE_KEYS.grids,
+        []
+      );
+      const storedReports = loadFromStorage<InternshipReport[]>(
+        INTERNSHIP_STORAGE_KEYS.reports,
+        []
+      );
+      const storedSupervision = loadFromStorage<InternshipSupervisionNote[]>(
+        INTERNSHIP_STORAGE_KEYS.supervision,
+        []
+      );
+      const storedFiles = loadFromStorage<InternshipFile[]>(
+        INTERNSHIP_STORAGE_KEYS.files,
+        []
+      );
+      const accepted = loadFromStorage<boolean>(
+        INTERNSHIP_SEED_ACCEPTED_KEY,
+        false
+      );
+
+      // If nothing is in storage and the user hasn't dismissed the seed,
+      // start with the seeded case.
+      const noUserData =
+        storedCases.length === 0 &&
+        storedTests.length === 0 &&
+        storedReports.length === 0;
+      if (noUserData && !accepted) {
+        setCases(SEED_INTERNSHIP_CASES);
+        setTests(SEED_INTERNSHIP_TESTS);
+        setReports(SEED_INTERNSHIP_REPORTS);
+        setSupervision(SEED_INTERNSHIP_SUPERVISION);
+      } else {
+        setCases(storedCases);
+        setTests(storedTests);
+        setGrids(storedGrids);
+        setReports(storedReports);
+        setSupervision(storedSupervision);
+        setFiles(storedFiles);
+      }
+      setSeedAccepted(accepted);
+    } catch {
+      // localStorage unavailable — keep empty state.
+    } finally {
+      setReady(true);
+    }
+  }, []);
+
+  // Persist on change.
+  useEffect(() => {
+    if (!ready) return;
+    saveToStorage(INTERNSHIP_STORAGE_KEYS.cases, cases);
+  }, [cases, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    saveToStorage(INTERNSHIP_STORAGE_KEYS.tests, tests);
+  }, [tests, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    saveToStorage(INTERNSHIP_STORAGE_KEYS.grids, grids);
+  }, [grids, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    saveToStorage(INTERNSHIP_STORAGE_KEYS.reports, reports);
+  }, [reports, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    saveToStorage(INTERNSHIP_STORAGE_KEYS.supervision, supervision);
+  }, [supervision, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    saveToStorage(INTERNSHIP_STORAGE_KEYS.files, files);
+  }, [files, ready]);
+
+  // ─── Cases ───────────────────────────────────────────────
+  const createCase = useCallback(
+    (input: Parameters<typeof newCase>[0]) => {
+      const c = newCase(input);
+      setCases((list) => [c, ...list]);
+      return c;
+    },
+    []
+  );
+  const updateCaseIdentification = useCallback(
+    (id: string, patch: Partial<InternshipIdentification>) =>
+      setCases((list) => patchIdentification(list, id, patch)),
+    []
+  );
+  const updateCaseContext = useCallback(
+    (id: string, patch: Partial<InternshipClinicalContext>) =>
+      setCases((list) => patchContext(list, id, patch)),
+    []
+  );
+  const setCaseArchived = useCallback(
+    (id: string, archived: boolean) =>
+      setCases((list) => archiveCase(list, id, archived)),
+    []
+  );
+
+  // ─── Tests ───────────────────────────────────────────────
+  const planTestFromShell = useCallback(
+    (input: { caseId: string; shellId: string; plannedDate?: string }) => {
+      const t = newTestFromShell(input);
+      if (t) setTests((list) => [t, ...list]);
+      return t;
+    },
+    []
+  );
+  const planManualTest = useCallback(
+    (input: {
+      caseId: string;
+      name: string;
+      domain: TestDomain;
+      plannedDate?: string;
+      purpose?: string;
+      scoringMethod?: string;
+    }) => {
+      const t = newManualTest(input);
+      setTests((list) => [t, ...list]);
+      return t;
+    },
+    []
+  );
+  const advanceTestStatus = useCallback(
+    (id: string, next: TestStatus) =>
+      setTests((list) => setStatus(list, id, next)),
+    []
+  );
+  const updateTest = useCallback(
+    (
+      id: string,
+      patch: Partial<Omit<InternshipTest, "id" | "createdAt" | "caseId">>
+    ) => setTests((list) => patchTest(list, id, patch)),
+    []
+  );
+  const recordTestScore = useCallback(
+    (id: string, score: InternshipTestScore, interpretationNotes?: string) =>
+      setTests((list) => recordScore(list, id, score, interpretationNotes)),
+    []
+  );
+  const attachGridToTest = useCallback(
+    (testId: string, gridId: string) =>
+      setTests((list) => attachGrid(list, testId, gridId)),
+    []
+  );
+  const detachGridFromTest = useCallback(
+    (testId: string, gridId: string) =>
+      setTests((list) => detachGrid(list, testId, gridId)),
+    []
+  );
+
+  // ─── Grids ───────────────────────────────────────────────
+  const createGridFromShell = useCallback(
+    (input: {
+      caseId: string;
+      shellId: string;
+      linkedTestId?: string;
+      name?: string;
+    }) => {
+      const g = newGridFromShell(input);
+      if (g) {
+        setGrids((list) => [g, ...list]);
+        if (input.linkedTestId) {
+          setTests((list) => attachGrid(list, input.linkedTestId!, g.id));
+        }
+      }
+      return g;
+    },
+    []
+  );
+  const addGridEntry = useCallback(
+    (
+      gridId: string,
+      entry: { fields: Record<string, string>; date?: string; sessionLabel?: string; notes?: string }
+    ) => setGrids((list) => addEntry(list, gridId, entry)),
+    []
+  );
+  const updateGridEntry = useCallback(
+    (
+      gridId: string,
+      entryId: string,
+      patch: Partial<{
+        fields: Record<string, string>;
+        date: string;
+        sessionLabel: string;
+        notes: string;
+      }>
+    ) => setGrids((list) => patchEntry(list, gridId, entryId, patch)),
+    []
+  );
+  const removeGridEntry = useCallback(
+    (gridId: string, entryId: string) =>
+      setGrids((list) => removeEntry(list, gridId, entryId)),
+    []
+  );
+  const setGridWeeklySynthesis = useCallback(
+    (gridId: string, synthesis: string) =>
+      setGrids((list) => setWeeklySynthesis(list, gridId, synthesis)),
+    []
+  );
+
+  // ─── Reports ─────────────────────────────────────────────
+  const createDailyReport = useCallback((caseId: string, date: string) => {
+    const r = newDailyReport({ caseId, date });
+    setReports((list) => [r, ...list]);
+    return r;
+  }, []);
+  const createWeeklyReport = useCallback(
+    (caseId: string, weekStart: string, weekEnd: string) => {
+      const r = newWeeklyReport({ caseId, weekStart, weekEnd });
+      setReports((list) => [r, ...list]);
+      return r;
+    },
+    []
+  );
+  const createFinalReport = useCallback((caseId: string) => {
+    const r = newFinalReport({ caseId });
+    setReports((list) => [r, ...list]);
+    return r;
+  }, []);
+  const createSimpleReport = useCallback(
+    (input: {
+      caseId: string;
+      kind: Exclude<
+        InternshipReportKind,
+        "daily" | "weekly" | "monthly" | "final"
+      >;
+      title?: string;
+    }) => {
+      const r = newSimpleReport(input);
+      setReports((list) => [r, ...list]);
+      return r;
+    },
+    []
+  );
+
+  const assembleWeekly = useCallback(
+    (caseId: string, weekStart: string, weekEnd: string) => {
+      const dailies = reports.filter(
+        (r) => r.caseId === caseId && r.kind === "daily"
+      );
+      const r = assembleWeeklyFromDailies({
+        caseId,
+        weekStart,
+        weekEnd,
+        dailies,
+      });
+      setReports((list) => [r, ...list]);
+      return r;
+    },
+    [reports]
+  );
+
+  const assembleFinal = useCallback(
+    (caseId: string) => {
+      const weeklies = reports.filter(
+        (r) => r.caseId === caseId && r.kind === "weekly"
+      );
+      const caseTests = tests.filter((t) => t.caseId === caseId);
+      const caseGrids = grids.filter((g) => g.caseId === caseId);
+      const caseSupervision = supervision.filter((s) => s.caseId === caseId);
+      const r = assembleFinalDraft({
+        caseId,
+        weeklyReports: weeklies,
+        tests: caseTests.map((t) => ({
+          name: t.name,
+          status: t.status,
+          interpretationNotes: t.interpretationNotes,
+        })),
+        grids: caseGrids.map((g) => ({
+          name: g.name,
+          weeklySynthesis: g.weeklySynthesis,
+        })),
+        supervisionNotes: caseSupervision.map((s) => ({
+          date: s.date,
+          feedbackReceived: s.feedbackReceived,
+        })),
+      });
+      setReports((list) => [r, ...list]);
+      return r;
+    },
+    [reports, tests, grids, supervision]
+  );
+
+  const updateReport = useCallback(
+    (
+      id: string,
+      patch: Partial<
+        Omit<InternshipReport, "id" | "createdAt" | "caseId" | "kind">
+      >
+    ) => setReports((list) => patchReport(list, id, patch)),
+    []
+  );
+  const updateDailySections = useCallback(
+    (id: string, patch: Partial<NonNullable<InternshipReport["daily"]>>) =>
+      setReports((list) => patchDailySections(list, id, patch)),
+    []
+  );
+  const updateWeeklySections = useCallback(
+    (id: string, patch: Partial<NonNullable<InternshipReport["weekly"]>>) =>
+      setReports((list) => patchWeeklySections(list, id, patch)),
+    []
+  );
+  const updateFinalSections = useCallback(
+    (id: string, patch: Partial<NonNullable<InternshipReport["final"]>>) =>
+      setReports((list) => patchFinalSections(list, id, patch)),
+    []
+  );
+  const markReportComplete = useCallback(
+    (id: string) => setReports((list) => markComplete(list, id)),
+    []
+  );
+
+  // ─── Supervision ─────────────────────────────────────────
+  const createSupervisionNote = useCallback(
+    (input: { caseId: string; date: string; supervisor?: string }) => {
+      const n = newSupervisionNote(input);
+      setSupervision((list) => [n, ...list]);
+      return n;
+    },
+    []
+  );
+  const updateSupervisionNote = useCallback(
+    (
+      id: string,
+      patch: Partial<
+        Omit<InternshipSupervisionNote, "id" | "createdAt" | "caseId">
+      >
+    ) => setSupervision((list) => patchSupervisionNote(list, id, patch)),
+    []
+  );
+  const linkSupervision = useCallback(
+    (
+      noteId: string,
+      kind: "test" | "grid" | "report",
+      targetId: string
+    ) =>
+      setSupervision((list) => linkSupervisionTo(list, noteId, kind, targetId)),
+    []
+  );
+  const unlinkSupervision = useCallback(
+    (
+      noteId: string,
+      kind: "test" | "grid" | "report",
+      targetId: string
+    ) =>
+      setSupervision((list) =>
+        unlinkSupervisionFrom(list, noteId, kind, targetId)
+      ),
+    []
+  );
+
+  // ─── Files ───────────────────────────────────────────────
+  const createFile = useCallback(
+    (input: {
+      caseId: string;
+      kind: InternshipFileKind;
+      name: string;
+      notes?: string;
+      tags?: string[];
+      linkedTestId?: string;
+      linkedGridId?: string;
+      linkedReportId?: string;
+    }) => {
+      const f = newFileRecord(input);
+      setFiles((list) => [f, ...list]);
+      return f;
+    },
+    []
+  );
+  const removeFile = useCallback((id: string) => {
+    setFiles((list) => list.filter((f) => f.id !== id));
+  }, []);
+
+  // ─── Seed control ────────────────────────────────────────
+  const acceptSeed = useCallback(() => {
+    setSeedAccepted(true);
+    saveToStorage(INTERNSHIP_SEED_ACCEPTED_KEY, true);
+  }, []);
+  const resetSeed = useCallback(() => {
+    setCases(SEED_INTERNSHIP_CASES);
+    setTests(SEED_INTERNSHIP_TESTS);
+    setReports(SEED_INTERNSHIP_REPORTS);
+    setSupervision(SEED_INTERNSHIP_SUPERVISION);
+    setGrids([]);
+    setFiles([]);
+  }, []);
+
+  const value = useMemo<InternshipContextValue>(
+    () => ({
+      cases,
+      tests,
+      grids,
+      reports,
+      supervision,
+      files,
+      createCase,
+      updateCaseIdentification,
+      updateCaseContext,
+      setCaseArchived,
+      planTestFromShell,
+      planManualTest,
+      advanceTestStatus,
+      updateTest,
+      recordTestScore,
+      attachGridToTest,
+      detachGridFromTest,
+      createGridFromShell,
+      addGridEntry,
+      updateGridEntry,
+      removeGridEntry,
+      setGridWeeklySynthesis,
+      createDailyReport,
+      createWeeklyReport,
+      createFinalReport,
+      createSimpleReport,
+      assembleWeekly,
+      assembleFinal,
+      updateReport,
+      updateDailySections,
+      updateWeeklySections,
+      updateFinalSections,
+      markReportComplete,
+      createSupervisionNote,
+      updateSupervisionNote,
+      linkSupervision,
+      unlinkSupervision,
+      createFile,
+      removeFile,
+      seedAccepted,
+      acceptSeed,
+      resetSeed,
+    }),
+    [
+      cases,
+      tests,
+      grids,
+      reports,
+      supervision,
+      files,
+      createCase,
+      updateCaseIdentification,
+      updateCaseContext,
+      setCaseArchived,
+      planTestFromShell,
+      planManualTest,
+      advanceTestStatus,
+      updateTest,
+      recordTestScore,
+      attachGridToTest,
+      detachGridFromTest,
+      createGridFromShell,
+      addGridEntry,
+      updateGridEntry,
+      removeGridEntry,
+      setGridWeeklySynthesis,
+      createDailyReport,
+      createWeeklyReport,
+      createFinalReport,
+      createSimpleReport,
+      assembleWeekly,
+      assembleFinal,
+      updateReport,
+      updateDailySections,
+      updateWeeklySections,
+      updateFinalSections,
+      markReportComplete,
+      createSupervisionNote,
+      updateSupervisionNote,
+      linkSupervision,
+      unlinkSupervision,
+      createFile,
+      removeFile,
+      seedAccepted,
+      acceptSeed,
+      resetSeed,
+    ]
+  );
+
+  return (
+    <InternshipContext.Provider value={value}>
+      {children}
+    </InternshipContext.Provider>
+  );
+}
+
+export function useInternship() {
+  const ctx = useContext(InternshipContext);
+  if (!ctx)
+    throw new Error("useInternship must be used inside InternshipProvider");
+  return ctx;
+}
