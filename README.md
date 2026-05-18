@@ -384,6 +384,56 @@ so deep links keep working; the sidebar just doesn't surface
 them as top-level entries anymore. Use Reports / Clinical Tools
 / Thesis Studio as the canonical entry points.
 
+### Structured case profile (click-driven, no writing)
+
+The Overview tab on every internship case now drives the clinical
+context through chips and segmented controls rather than free-text
+fields. Six clinical domains, each a chip-row card:
+
+| Domain | Fields |
+|---|---|
+| **Communication** | Niveau verbal · Compréhension · Expression (multi) · Demandes · Réponse au prénom · Contact visuel |
+| **Interaction sociale** | Initiation · Réponse à l'adulte · Pairs · Attention conjointe · Tour de rôle |
+| **Sensoriel** | Auditif · Visuel · Tactile · Vestibulaire · Proprioceptif · Oral (chacun : hypo / hyper / recherche / évitement / pas de difficulté) |
+| **Comportement** | Comportements (multi) · Déclencheurs (multi) · Intensité · Fréquence · Hypothèse de fonction |
+| **Attention / engagement** | Position assise · Engagement · Distractibilité · Tolérance attente · Réponse aux consignes |
+| **Autonomie / adaptation** | Toilettes · Repas · Habillage · Routines · Conscience des dangers |
+
+Each domain has a collapsed "Ajouter une note si besoin" affordance
+— writing only happens when chips can't capture a nuance.
+
+Implementation: `lib/internship/structured-profile.ts` (typed
+enums + French labels + coverage helper) +
+`lib/internship/structured-profile-text.ts` (auto-summary +
+suggestion engine) + `components/internship/StructuredProfileForm.tsx`
+(chip-driven form). The structured profile lives on
+`InternshipClinicalContext.structuredProfile`, with the free-text
+fields preserved as a collapsed fallback for backward
+compatibility.
+
+### "Generate profile summary"
+
+One button on the Overview tab produces:
+
+- A French headline describing priority domains.
+- One paragraph per domain (rendered from the chip selections).
+- Strengths + difficulties + priority domains.
+- Suggested next grids — each a one-click button that creates a
+  scorable-grid administration on the case directly.
+
+Weakness scoring per domain drives both the priority list and
+the suggestion engine. Rules are pure functions; everything can
+be tested in isolation.
+
+### Content policy disclaimer
+
+The Internship Studio dashboard now carries an explicit clinical
+content policy banner: official copyrighted tests (CARS-2,
+M-CHAT-R/F, Vineland, etc.) require their published manuals and
+authorized materials. Eyla provides observation grids,
+structured shells, and manual scoring support — proprietary
+items are never reproduced.
+
 ### Click-based test shells (deferred)
 
 The brief asked for click-based scoring for 7 official test

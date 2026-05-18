@@ -53,7 +53,9 @@ import {
   findTestShell,
 } from "@/lib/internship/test-shells";
 import { suggestGridShellsForTest } from "@/lib/internship/grid-library";
+import { SCORABLE_TEMPLATES } from "@/lib/internship/scorable-templates";
 import { ScorableGridSection } from "@/components/internship/ScorableGridSection";
+import { StructuredProfileForm } from "@/components/internship/StructuredProfileForm";
 
 interface PageProps {
   params: { id: string };
@@ -71,6 +73,8 @@ export default function InternshipCasePage({ params }: PageProps) {
     supervision,
     updateCaseIdentification,
     updateCaseContext,
+    updateCaseStructuredProfile,
+    createScorableAdmin,
     planTestFromShell,
     planManualTest,
     advanceTestStatus,
@@ -183,16 +187,53 @@ export default function InternshipCasePage({ params }: PageProps) {
               />
             </SectionCard>
 
-            <SectionCard
-              title="Clinical context"
-              description="Free-text observations across domains."
+            <div>
+              <StructuredProfileForm
+                value={caseData.context.structuredProfile}
+                onChange={(next) =>
+                  updateCaseStructuredProfile(caseData.id, next)
+                }
+                onAdministerGrid={(templateKey) => {
+                  // Some suggested keys are placeholders for templates
+                  // that aren't built yet. We only create a scorable
+                  // admin when the key matches an actual template.
+                  const tpl = SCORABLE_TEMPLATES.find(
+                    (t) => t.id === templateKey
+                  );
+                  if (!tpl) {
+                    toast(
+                      `Grille « ${templateKey} » pas encore disponible.`,
+                      "info"
+                    );
+                    return;
+                  }
+                  createScorableAdmin({
+                    caseId: caseData.id,
+                    templateId: tpl.id,
+                    context: "Atelier individuel",
+                  });
+                  toast(`Administration « ${tpl.name} » créée`, "success");
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Optional free-text fallback — collapsed by default, kept
+              for nuance the chips don't capture. */}
+          <details className="mt-3">
+            <summary
+              className="text-xs cursor-pointer"
+              style={{ color: "var(--psych-muted)" }}
             >
+              Observations libres (optionnelles)
+            </summary>
+            <div className="mt-2">
               <ContextForm
                 value={caseData.context}
                 onPatch={(p) => updateCaseContext(caseData.id, p)}
               />
-            </SectionCard>
-          </div>
+            </div>
+          </details>
         </TabsContent>
 
         {/* ═════════════════ EVALUATION ═════════════════ */}
