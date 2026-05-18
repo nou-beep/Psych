@@ -8,6 +8,7 @@ export const INTERNSHIP_STORAGE_KEYS = {
   reports: "psych-internship-reports-v1",
   supervision: "psych-internship-supervision-v1",
   files: "psych-internship-files-v1",
+  scorableAdmins: "psych-internship-scorable-grids-v1",
 } as const;
 
 export type InternshipStorageKey =

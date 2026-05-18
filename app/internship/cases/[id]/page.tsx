@@ -53,6 +53,7 @@ import {
   findTestShell,
 } from "@/lib/internship/test-shells";
 import { suggestGridShellsForTest } from "@/lib/internship/grid-library";
+import { ScorableGridSection } from "@/components/internship/ScorableGridSection";
 
 interface PageProps {
   params: { id: string };
@@ -155,6 +156,7 @@ export default function InternshipCasePage({ params }: PageProps) {
       <Tabs defaultValue="overview">
         <TabsList className="mb-4 flex-wrap">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="evaluation">Évaluation ✦</TabsTrigger>
           <TabsTrigger value="tests">
             Tests {caseTests.length > 0 && `(${caseTests.length})`}
           </TabsTrigger>
@@ -191,6 +193,11 @@ export default function InternshipCasePage({ params }: PageProps) {
               />
             </SectionCard>
           </div>
+        </TabsContent>
+
+        {/* ═════════════════ EVALUATION ═════════════════ */}
+        <TabsContent value="evaluation">
+          <ScorableGridSection caseId={caseData.id} />
         </TabsContent>
 
         {/* ═════════════════ TESTS ═════════════════ */}

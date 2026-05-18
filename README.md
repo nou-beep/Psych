@@ -199,6 +199,95 @@ behaviour awaiting scoring), two daily reports, one weekly
 synthesis, one supervision note. All identifiers are fictional and
 deterministic. The seed loads on first run and is dismissable.
 
+### Click-based capability evaluation engine
+
+The studio's **Évaluation** tab on each case opens a scorable
+grid surface — click A / EC / NA / N/O on each item and Eyla
+writes the French clinical paragraphs automatically. Implemented
+in three files:
+
+- `lib/internship/scorable-grids.ts` — `ScorableGridTemplate`,
+  `ScorableGridAdministration`, `CapabilityScore`, plus the pure
+  helpers (`scoreItem`, `clearItemScore`, `domainBreakdown`,
+  `gridBreakdown`, `suggestNextGridKeys`).
+- `lib/internship/scorable-templates.ts` — ships the first
+  template, **Grille clinique d'évaluation des capacités** (14
+  items across 3 domains: Attention et disponibilité · Mémoire et
+  évocation · Perception visuelle et discrimination). Each item
+  carries the optional EC/NA and A summary phrases the text
+  generator uses.
+- `lib/internship/scorable-text.ts` — `generateDomainSummary`,
+  `generateGridSummary`, `renderSummaryAsText`, and the report
+  assembly helpers `buildDailyFromGrid` /
+  `buildGridSummaryReportBody`.
+
+#### Domain status thresholds
+
+Each item contributes to a domain score: **A** counts 1.0, **EC**
+counts 0.5, **NA** counts 0, **N/O** is excluded from the
+denominator. Domain status:
+
+| Acquisition % | Observability | Status |
+|---|---|---|
+| — | < 50% | Non suffisamment observable |
+| ≥ 75% | ≥ 50% | Majoritairement acquis |
+| 40 – 74% | ≥ 50% | En cours d'acquisition |
+| < 40% | ≥ 50% | À renforcer |
+
+#### Suggested next grids
+
+When a domain reads "à renforcer" or "en cours", the engine
+surfaces follow-up grid keys defined on the template. The
+suggestion logic for the first template:
+
+| Domain status | Suggested next grids |
+|---|---|
+| Attention et disponibilité — weak | Attention soutenue · Engagement dans la tâche · Tolérance à l'attente · Distractibilité |
+| Mémoire et évocation — weak | Mémoire visuelle courte durée · Reconnaissance et rappel |
+| Perception et discrimination — weak | Discrimination visuelle · Appariement image/objet · Tri couleur/forme/taille |
+| Whole grid mostly acquis | Tâches structurées avancées · Généralisation · Autonomie dans la tâche |
+
+The follow-up templates themselves are deferred — the suggestion
+surface shows the friendly label even when no template exists
+yet, so the clinician knows what to administer next.
+
+#### Auto-generated text
+
+Per-item phrases fire into the summary based on score. Examples
+from the first template:
+
+- `attention-prenom` scored EC / NA →  *"L'orientation à l'appel
+  du prénom reste fragile et doit être travaillée dans différents
+  contextes."*
+- `attention-distracteurs` scored EC / NA →  *"La résistance aux
+  distracteurs environnementaux demeure limitée, ce qui peut
+  impacter la disponibilité attentionnelle."*
+- `perception-tri` scored A →  *"Les capacités de discrimination
+  visuelle sont mobilisables, notamment dans les tâches de tri
+  selon des critères simples."*
+
+#### One-click report generation
+
+From a scored administration, two buttons assemble:
+
+- **Daily report** — uses `buildDailyFromGrid` to populate the
+  `DailyReportSections` shape (context, objectives, observations,
+  reflection, next steps) from the grid's summary text. The
+  daily appears in the Reports tab as a draft the user can edit.
+- **Grid summary report** — a "grid-summary" simple report with
+  a free-text body containing the headline, per-domain status +
+  paragraph, strengths, difficulties, recommendations, suggested
+  next grids.
+
+#### Printable A4 view
+
+`/internship/grid-print/[adminId]` renders the paper-style grid
+without app chrome: title block, identification panel, one table
+per domain with A / EC/NA / item / domain columns, observations
+section, signature lines, licensing footer. Print CSS strips the
+on-screen toolbar so the page goes straight to PDF or printer.
+The case page's evaluation tab links to it in a new tab.
+
 ### Navigation cleanup shipped with this pass
 
 - `/audio` standalone route removed from sidebar — audio
