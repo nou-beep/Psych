@@ -47,10 +47,10 @@ describe("new scorable grid templates", () => {
     }
   });
 
-  it("template ids stay unique across the now-15 templates", () => {
+  it("template ids stay unique across the now-26 templates", () => {
     const ids = SCORABLE_TEMPLATES.map((t) => t.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(SCORABLE_TEMPLATES.length).toBe(15);
+    expect(SCORABLE_TEMPLATES.length).toBe(26);
   });
 
   it("graphomotor template covers prehension + tracés + organisation", () => {

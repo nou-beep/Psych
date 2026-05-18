@@ -588,7 +588,35 @@ strips the on-screen toolbar.
 Every report row in the case Reports tab gains a **Print**
 button next to "Mark complete".
 
-### Three new scorable grid templates (15 total)
+### Eleven more grid templates close every dangling suggestion key (26 total)
+
+The structured profile + scored-grid suggestion engines reference
+follow-up keys when a domain reads weak. Eleven of those keys
+used to render as label-only chips with no real template behind
+them; this batch closes the gap. Clicking a suggested chip now
+opens a real scorable grid every time.
+
+| Key | Template |
+|---|---|
+| `grille-engagement-tache` | Engagement dans la tâche |
+| `grille-tolerance-attente` | Tolérance à l'attente |
+| `grille-distractibilite` | Distractibilité |
+| `grille-memoire-visuelle-courte` | Mémoire visuelle courte durée |
+| `grille-reconnaissance-rappel` | Reconnaissance et rappel |
+| `grille-discrimination-visuelle` | Discrimination visuelle |
+| `grille-appariement-image-objet` | Appariement image / objet |
+| `grille-tri-couleur-forme-taille` | Tri couleur / forme / taille |
+| `grille-taches-structurees-avancees` | Tâches structurées avancées |
+| `grille-generalisation` | Généralisation |
+| `grille-autonomie-tache` | Autonomie dans la tâche |
+
+Library now ships 26 scorable templates (was 15). Each new
+template covers 2–4 domains with 4–9 items; items carry the
+optional `aPhrase` / `ecOrNaPhrase` strings the auto-text
+generator uses so the summary panel produces real French
+clinical paragraphs on every score change.
+
+### Three motor-domain grid templates (PR #14)
 
 | Template | Closes |
 |---|---|

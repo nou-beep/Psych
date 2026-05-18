@@ -1096,6 +1096,730 @@ export const GRILLE_MOTRICITE_FINE: ScorableGridTemplate = {
   ],
 };
 
+// ─── Attention follow-ups (closes suggestion-engine gaps) ─────
+
+export const GRILLE_ENGAGEMENT_TACHE: ScorableGridTemplate = {
+  id: "grille-engagement-tache",
+  name: "Grille d'engagement dans la tâche",
+  description:
+    "Initiation, persistance et finalisation d'une tâche structurée courte.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "eng-initiation",
+      label: "Initiation",
+      items: [
+        {
+          id: "eng-init-spontanee",
+          label: "Démarre la tâche sans incitation",
+          aPhrase: "L'initiation autonome de la tâche est mobilisable.",
+          ecOrNaPhrase: "L'initiation autonome n'est pas encore stabilisée.",
+        },
+        {
+          id: "eng-init-consigne",
+          label: "Démarre la tâche sur consigne verbale unique",
+          ecOrNaPhrase:
+            "Le démarrage sur consigne unique reste à étayer.",
+        },
+      ],
+    },
+    {
+      id: "eng-persistance",
+      label: "Persistance",
+      items: [
+        {
+          id: "eng-pers-difficulte",
+          label: "Persiste face à une difficulté simple",
+          ecOrNaPhrase:
+            "La persistance face à la difficulté est limitée ; l'abandon est rapide.",
+        },
+        {
+          id: "eng-pers-erreur",
+          label: "Continue après une erreur",
+          ecOrNaPhrase:
+            "Le maintien dans la tâche après une erreur est encore fragile.",
+        },
+      ],
+    },
+    {
+      id: "eng-finalisation",
+      label: "Finalisation",
+      items: [
+        {
+          id: "eng-fin-jusqu-fin",
+          label: "Termine la tâche jusqu'à la consigne d'arrêt",
+          aPhrase: "La finalisation d'une tâche entamée est mobilisable.",
+          ecOrNaPhrase:
+            "La finalisation jusqu'au bout n'est pas systématique.",
+        },
+        {
+          id: "eng-fin-signaler",
+          label: "Signale que la tâche est terminée",
+          ecOrNaPhrase:
+            "Le signalement de fin de tâche n'est pas encore en place.",
+        },
+      ],
+    },
+  ],
+};
+
+export const GRILLE_TOLERANCE_ATTENTE: ScorableGridTemplate = {
+  id: "grille-tolerance-attente",
+  name: "Grille de tolérance à l'attente",
+  description:
+    "Capacité à attendre — délais courts, délais avec support visuel, délais imprévus.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "tol-courte",
+      label: "Attente courte",
+      items: [
+        {
+          id: "tol-30s",
+          label: "Attend 30 secondes avant l'accès à un objet motivant",
+          ecOrNaPhrase:
+            "L'attente courte (30s) reste difficile à soutenir.",
+          aPhrase: "L'attente courte (30s) est mobilisable.",
+        },
+        {
+          id: "tol-tour-role",
+          label: "Attend son tour dans une activité partagée",
+          ecOrNaPhrase:
+            "L'attente du tour dans une activité partagée n'est pas systématique.",
+        },
+      ],
+    },
+    {
+      id: "tol-avec-support",
+      label: "Attente avec support visuel",
+      items: [
+        {
+          id: "tol-timer",
+          label: "Tolère un timer visuel jusqu'à la fin",
+          ecOrNaPhrase:
+            "L'utilisation d'un timer visuel comme support d'attente reste à consolider.",
+          aPhrase: "Le timer visuel structure l'attente de manière fiable.",
+        },
+        {
+          id: "tol-now-next",
+          label: "Tolère la séquence « maintenant / après »",
+          ecOrNaPhrase:
+            "La séquence « maintenant / après » aide ponctuellement mais n'est pas généralisée.",
+        },
+      ],
+    },
+    {
+      id: "tol-imprevue",
+      label: "Attente imprévue",
+      items: [
+        {
+          id: "tol-imprevu",
+          label: "Tolère un délai imprévu sans désorganisation",
+          ecOrNaPhrase:
+            "Le délai imprévu reste un déclencheur de désorganisation.",
+        },
+      ],
+    },
+  ],
+};
+
+export const GRILLE_DISTRACTIBILITE: ScorableGridTemplate = {
+  id: "grille-distractibilite",
+  name: "Grille de distractibilité",
+  description:
+    "Résistance aux distracteurs sensoriels et capacité de recentrage.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "dis-auditifs",
+      label: "Distracteurs auditifs",
+      items: [
+        {
+          id: "dis-aud-bruit-couloir",
+          label: "Maintient l'attention malgré un bruit de couloir",
+          ecOrNaPhrase:
+            "Les bruits de couloir captent fortement l'attention et interrompent la tâche.",
+        },
+        {
+          id: "dis-aud-conversation",
+          label: "Maintient l'attention malgré une conversation environnante",
+          ecOrNaPhrase:
+            "Une conversation environnante détourne facilement l'attention.",
+        },
+      ],
+    },
+    {
+      id: "dis-visuels",
+      label: "Distracteurs visuels",
+      items: [
+        {
+          id: "dis-vis-mouvement",
+          label: "Maintient l'attention malgré un mouvement dans la pièce",
+          ecOrNaPhrase:
+            "Un mouvement dans la pièce détourne l'attention de manière marquée.",
+        },
+        {
+          id: "dis-vis-objet-motivant",
+          label: "Maintient l'attention si un objet motivant est visible",
+          ecOrNaPhrase:
+            "La présence d'un objet motivant dans le champ visuel capte fortement l'attention.",
+        },
+      ],
+    },
+    {
+      id: "dis-recentrage",
+      label: "Recentrage",
+      items: [
+        {
+          id: "dis-rec-verbale",
+          label: "Se recentre sur la tâche après guidance verbale",
+          aPhrase:
+            "Le recentrage après guidance verbale est mobilisable.",
+          ecOrNaPhrase:
+            "Le recentrage après guidance verbale n'est pas systématique.",
+        },
+        {
+          id: "dis-rec-spontane",
+          label: "Se recentre spontanément après une distraction",
+          ecOrNaPhrase:
+            "Le recentrage spontané après distraction n'est pas encore acquis.",
+        },
+      ],
+    },
+  ],
+};
+
+// ─── Mémoire follow-ups ────────────────────────────────────────
+
+export const GRILLE_MEMOIRE_VISUELLE_COURTE: ScorableGridTemplate = {
+  id: "grille-memoire-visuelle-courte",
+  name: "Grille de mémoire visuelle courte durée",
+  description:
+    "Maintien immédiat et rappel après délai bref de matériel visuel.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "mem-immediat",
+      label: "Maintien immédiat",
+      items: [
+        {
+          id: "mem-im-2-elements",
+          label: "Retient 2 éléments visuels présentés simultanément",
+          ecOrNaPhrase:
+            "Le maintien immédiat de 2 éléments visuels n'est pas encore stabilisé.",
+          aPhrase: "Le maintien immédiat de 2 éléments est mobilisable.",
+        },
+        {
+          id: "mem-im-3-elements",
+          label: "Retient 3 éléments visuels présentés simultanément",
+          ecOrNaPhrase:
+            "Le maintien immédiat de 3 éléments visuels est encore fragile.",
+        },
+      ],
+    },
+    {
+      id: "mem-delai",
+      label: "Rappel après délai bref",
+      items: [
+        {
+          id: "mem-del-10s",
+          label: "Rappelle un item après 10 secondes",
+          ecOrNaPhrase:
+            "Le rappel après 10 secondes reste inconstant.",
+        },
+        {
+          id: "mem-del-1min",
+          label: "Rappelle un item après 1 minute",
+          ecOrNaPhrase:
+            "Le rappel après 1 minute n'est pas encore stabilisé.",
+        },
+      ],
+    },
+  ],
+};
+
+export const GRILLE_RECONNAISSANCE_RAPPEL: ScorableGridTemplate = {
+  id: "grille-reconnaissance-rappel",
+  name: "Grille de reconnaissance et rappel",
+  description:
+    "Reconnaissance d'un matériel déjà présenté, rappel libre et rappel indicé.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "rr-reconnaissance",
+      label: "Reconnaissance",
+      items: [
+        {
+          id: "rr-rec-objet",
+          label: "Reconnaît un objet déjà présenté parmi des distracteurs",
+          ecOrNaPhrase:
+            "La reconnaissance d'un objet parmi des distracteurs est inconstante.",
+          aPhrase:
+            "La reconnaissance d'un objet déjà présenté est fiable.",
+        },
+        {
+          id: "rr-rec-image",
+          label: "Reconnaît une image déjà présentée parmi des distracteurs",
+          ecOrNaPhrase:
+            "La reconnaissance d'une image parmi des distracteurs reste à consolider.",
+        },
+      ],
+    },
+    {
+      id: "rr-libre",
+      label: "Rappel libre",
+      items: [
+        {
+          id: "rr-lib-objet",
+          label: "Rappelle spontanément un objet vu plus tôt en séance",
+          ecOrNaPhrase:
+            "Le rappel libre n'est pas encore disponible.",
+        },
+        {
+          id: "rr-lib-action",
+          label: "Rappelle spontanément une action réalisée plus tôt",
+          ecOrNaPhrase:
+            "Le rappel spontané d'une action n'est pas encore disponible.",
+        },
+      ],
+    },
+    {
+      id: "rr-indice",
+      label: "Rappel indicé",
+      items: [
+        {
+          id: "rr-ind-categorie",
+          label: "Rappelle un item après indiçage catégoriel",
+          ecOrNaPhrase:
+            "Le rappel indicé par catégorie reste à étayer.",
+        },
+        {
+          id: "rr-ind-image",
+          label: "Rappelle un item après indiçage visuel",
+          ecOrNaPhrase:
+            "L'indiçage visuel n'a pas encore d'effet fiable sur le rappel.",
+        },
+      ],
+    },
+  ],
+};
+
+// ─── Perception / discrimination follow-ups ────────────────────
+
+export const GRILLE_DISCRIMINATION_VISUELLE: ScorableGridTemplate = {
+  id: "grille-discrimination-visuelle",
+  name: "Grille de discrimination visuelle",
+  description:
+    "Discrimination des couleurs, formes, tailles, et différences fines.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "dv-couleur",
+      label: "Discrimination couleur",
+      items: [
+        {
+          id: "dv-coul-primaires",
+          label: "Distingue les couleurs primaires",
+          aPhrase: "Les couleurs primaires sont discriminées.",
+          ecOrNaPhrase: "La discrimination des couleurs primaires reste à consolider.",
+        },
+        {
+          id: "dv-coul-nuances",
+          label: "Distingue des nuances proches",
+          ecOrNaPhrase:
+            "La distinction de nuances proches n'est pas encore en place.",
+        },
+      ],
+    },
+    {
+      id: "dv-forme",
+      label: "Discrimination forme",
+      items: [
+        {
+          id: "dv-forme-simples",
+          label: "Distingue rond / carré / triangle",
+          aPhrase: "Les formes simples sont discriminées.",
+          ecOrNaPhrase: "La discrimination des formes simples est en cours.",
+        },
+        {
+          id: "dv-forme-orientation",
+          label: "Distingue des formes selon l'orientation",
+          ecOrNaPhrase:
+            "La discrimination des formes selon l'orientation n'est pas encore stable.",
+        },
+      ],
+    },
+    {
+      id: "dv-taille",
+      label: "Discrimination taille",
+      items: [
+        {
+          id: "dv-taille-grand-petit",
+          label: "Distingue grand / petit",
+          aPhrase: "La distinction grand / petit est mobilisable.",
+          ecOrNaPhrase: "La distinction grand / petit reste à consolider.",
+        },
+        {
+          id: "dv-taille-3-niveaux",
+          label: "Distingue 3 niveaux de taille (petit / moyen / grand)",
+          ecOrNaPhrase:
+            "La distinction à 3 niveaux de taille n'est pas encore stabilisée.",
+        },
+      ],
+    },
+    {
+      id: "dv-fine",
+      label: "Discrimination fine",
+      items: [
+        {
+          id: "dv-detail",
+          label: "Repère un détail différent entre deux images proches",
+          ecOrNaPhrase:
+            "La discrimination fine entre images proches n'est pas encore disponible.",
+        },
+      ],
+    },
+  ],
+};
+
+export const GRILLE_APPARIEMENT_IMAGE_OBJET: ScorableGridTemplate = {
+  id: "grille-appariement-image-objet",
+  name: "Grille d'appariement image / objet",
+  description:
+    "Appariement identique, par catégorie, et fonctionnel (compétence symbolique).",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "ap-identique",
+      label: "Appariement identique",
+      items: [
+        {
+          id: "ap-obj-obj",
+          label: "Apparie objet / objet identique",
+          aPhrase: "L'appariement objet / objet identique est acquis.",
+          ecOrNaPhrase:
+            "L'appariement objet / objet identique reste à consolider.",
+        },
+        {
+          id: "ap-im-im",
+          label: "Apparie image / image identique",
+          aPhrase: "L'appariement image / image identique est acquis.",
+          ecOrNaPhrase:
+            "L'appariement image / image identique reste à étayer.",
+        },
+      ],
+    },
+    {
+      id: "ap-categorie",
+      label: "Appariement par catégorie",
+      items: [
+        {
+          id: "ap-cat-fruits",
+          label: "Apparie des objets de même catégorie (fruits, animaux…)",
+          ecOrNaPhrase:
+            "L'appariement par catégorie reste à construire.",
+        },
+        {
+          id: "ap-cat-fonction",
+          label: "Apparie deux objets ayant la même fonction",
+          ecOrNaPhrase:
+            "L'appariement fonctionnel n'est pas encore stabilisé.",
+        },
+      ],
+    },
+    {
+      id: "ap-symbolique",
+      label: "Appariement symbolique",
+      items: [
+        {
+          id: "ap-obj-image",
+          label: "Apparie objet / image (compétence symbolique)",
+          aPhrase:
+            "L'appariement objet / image est mobilisable, signe d'une compétence symbolique disponible.",
+          ecOrNaPhrase:
+            "L'appariement objet / image reste à étayer.",
+        },
+        {
+          id: "ap-image-mot",
+          label: "Apparie image / mot écrit (si entré dans la lecture)",
+          ecOrNaPhrase:
+            "L'appariement image / mot écrit n'est pas encore en place.",
+        },
+      ],
+    },
+  ],
+};
+
+export const GRILLE_TRI: ScorableGridTemplate = {
+  id: "grille-tri-couleur-forme-taille",
+  name: "Grille de tri couleur / forme / taille",
+  description:
+    "Tri selon des critères simples puis selon un double critère.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "tri-couleur",
+      label: "Tri par couleur",
+      items: [
+        {
+          id: "tri-coul-2",
+          label: "Trie selon 2 couleurs",
+          aPhrase: "Le tri sur 2 couleurs est mobilisable.",
+          ecOrNaPhrase: "Le tri sur 2 couleurs reste à étayer.",
+        },
+        {
+          id: "tri-coul-4",
+          label: "Trie selon 4 couleurs",
+          ecOrNaPhrase: "Le tri sur 4 couleurs n'est pas encore stable.",
+        },
+      ],
+    },
+    {
+      id: "tri-forme",
+      label: "Tri par forme",
+      items: [
+        {
+          id: "tri-forme-2",
+          label: "Trie selon 2 formes",
+          aPhrase: "Le tri sur 2 formes est mobilisable.",
+          ecOrNaPhrase: "Le tri sur 2 formes reste à étayer.",
+        },
+        {
+          id: "tri-forme-4",
+          label: "Trie selon 4 formes",
+          ecOrNaPhrase: "Le tri sur 4 formes n'est pas encore stable.",
+        },
+      ],
+    },
+    {
+      id: "tri-taille",
+      label: "Tri par taille",
+      items: [
+        {
+          id: "tri-taille-2",
+          label: "Trie selon 2 tailles",
+          ecOrNaPhrase: "Le tri sur 2 tailles reste à étayer.",
+        },
+        {
+          id: "tri-taille-3",
+          label: "Trie selon 3 tailles",
+          ecOrNaPhrase: "Le tri sur 3 tailles n'est pas encore stable.",
+        },
+      ],
+    },
+    {
+      id: "tri-double",
+      label: "Tri sur double critère",
+      items: [
+        {
+          id: "tri-double-couleur-forme",
+          label: "Trie selon couleur ET forme",
+          ecOrNaPhrase:
+            "Le tri sur double critère reste à construire.",
+        },
+      ],
+    },
+  ],
+};
+
+// ─── Advanced follow-ups (whole-grid majoritairement acquis) ───
+
+export const GRILLE_TACHES_AVANCEES: ScorableGridTemplate = {
+  id: "grille-taches-structurees-avancees",
+  name: "Grille de tâches structurées avancées",
+  description:
+    "Tâches multi-étapes, consignes complexes et travail en quasi-autonomie.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "ta-multi-etapes",
+      label: "Tâches multi-étapes",
+      items: [
+        {
+          id: "ta-3-etapes",
+          label: "Réalise une tâche en 3 étapes",
+          aPhrase: "Les tâches à 3 étapes sont mobilisables.",
+          ecOrNaPhrase:
+            "Les tâches à 3 étapes restent à étayer.",
+        },
+        {
+          id: "ta-5-etapes",
+          label: "Réalise une tâche en 5 étapes",
+          ecOrNaPhrase:
+            "Les tâches à 5 étapes ne sont pas encore acquises.",
+        },
+      ],
+    },
+    {
+      id: "ta-consignes-complexes",
+      label: "Consignes complexes",
+      items: [
+        {
+          id: "ta-2-actions",
+          label: "Exécute une consigne portant sur 2 actions",
+          ecOrNaPhrase:
+            "Les consignes à 2 actions restent à consolider.",
+        },
+        {
+          id: "ta-3-elements",
+          label: "Exécute une consigne portant sur 3 éléments",
+          ecOrNaPhrase:
+            "Les consignes à 3 éléments ne sont pas encore disponibles.",
+        },
+      ],
+    },
+    {
+      id: "ta-quasi-autonomie",
+      label: "Quasi-autonomie",
+      items: [
+        {
+          id: "ta-supervision-distante",
+          label: "Travaille avec une supervision distante",
+          ecOrNaPhrase:
+            "Le travail avec supervision distante n'est pas encore stable.",
+        },
+        {
+          id: "ta-correction-spontanee",
+          label: "Corrige spontanément une erreur",
+          ecOrNaPhrase:
+            "La correction spontanée d'une erreur n'est pas encore en place.",
+        },
+      ],
+    },
+  ],
+};
+
+export const GRILLE_GENERALISATION: ScorableGridTemplate = {
+  id: "grille-generalisation",
+  name: "Grille de généralisation",
+  description:
+    "Transfert des acquis vers d'autres contextes, personnes et matériels.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "gen-contexte",
+      label: "Généralisation au contexte",
+      items: [
+        {
+          id: "gen-ctx-autre-salle",
+          label: "Mobilise la compétence dans une autre salle",
+          ecOrNaPhrase:
+            "La compétence ne se généralise pas encore à un autre espace.",
+        },
+        {
+          id: "gen-ctx-exterieur",
+          label: "Mobilise la compétence en extérieur",
+          ecOrNaPhrase:
+            "La généralisation en extérieur n'est pas encore observée.",
+        },
+      ],
+    },
+    {
+      id: "gen-personnes",
+      label: "Généralisation aux personnes",
+      items: [
+        {
+          id: "gen-pers-autre-adulte",
+          label: "Mobilise la compétence avec un autre adulte",
+          aPhrase:
+            "La compétence se généralise à d'autres adultes de l'équipe.",
+          ecOrNaPhrase:
+            "La compétence reste dépendante de l'adulte de référence.",
+        },
+        {
+          id: "gen-pers-pair",
+          label: "Mobilise la compétence avec un pair",
+          ecOrNaPhrase:
+            "La généralisation à un pair n'est pas encore observée.",
+        },
+      ],
+    },
+    {
+      id: "gen-materiel",
+      label: "Généralisation au matériel",
+      items: [
+        {
+          id: "gen-mat-variante",
+          label: "Mobilise la compétence avec un matériel différent",
+          ecOrNaPhrase:
+            "La compétence reste fortement liée au matériel d'apprentissage.",
+        },
+        {
+          id: "gen-mat-naturel",
+          label: "Mobilise la compétence avec un matériel naturel / quotidien",
+          ecOrNaPhrase:
+            "Le transfert au matériel quotidien reste à construire.",
+        },
+      ],
+    },
+  ],
+};
+
+export const GRILLE_AUTONOMIE_TACHE: ScorableGridTemplate = {
+  id: "grille-autonomie-tache",
+  name: "Grille d'autonomie dans la tâche",
+  description:
+    "Démarrage autonome, maintien sans guidance et finalisation autonome.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "at-demarrage",
+      label: "Démarrage autonome",
+      items: [
+        {
+          id: "at-prend-materiel",
+          label: "Prend le matériel sans incitation",
+          ecOrNaPhrase:
+            "La prise autonome du matériel reste à étayer.",
+          aPhrase: "La prise autonome du matériel est mobilisable.",
+        },
+        {
+          id: "at-installe",
+          label: "S'installe à sa place sans incitation",
+          ecOrNaPhrase:
+            "L'installation autonome au poste de travail reste à étayer.",
+        },
+      ],
+    },
+    {
+      id: "at-maintien",
+      label: "Maintien sans guidance",
+      items: [
+        {
+          id: "at-sans-guidance",
+          label: "Travaille sans guidance pendant 2 minutes",
+          ecOrNaPhrase:
+            "Le maintien sans guidance pendant 2 minutes n'est pas encore stable.",
+        },
+        {
+          id: "at-sans-guidance-5min",
+          label: "Travaille sans guidance pendant 5 minutes",
+          ecOrNaPhrase:
+            "Le maintien sans guidance pendant 5 minutes n'est pas encore disponible.",
+        },
+      ],
+    },
+    {
+      id: "at-finalisation",
+      label: "Finalisation autonome",
+      items: [
+        {
+          id: "at-range",
+          label: "Range son matériel à la fin de la tâche",
+          ecOrNaPhrase:
+            "Le rangement autonome en fin de tâche reste à étayer.",
+        },
+        {
+          id: "at-signale-fin",
+          label: "Signale spontanément la fin de la tâche",
+          ecOrNaPhrase:
+            "Le signalement autonome de fin de tâche n'est pas encore acquis.",
+        },
+      ],
+    },
+  ],
+};
+
 export const SCORABLE_TEMPLATES: ScorableGridTemplate[] = [
   GRILLE_CAPACITES,
   GRILLE_ATTENTION_DISPONIBILITE,
@@ -1112,6 +1836,17 @@ export const SCORABLE_TEMPLATES: ScorableGridTemplate[] = [
   GRILLE_GRAPHOMOTRICITE,
   GRILLE_ORGANISATION_VISUOSPATIALE,
   GRILLE_MOTRICITE_FINE,
+  GRILLE_ENGAGEMENT_TACHE,
+  GRILLE_TOLERANCE_ATTENTE,
+  GRILLE_DISTRACTIBILITE,
+  GRILLE_MEMOIRE_VISUELLE_COURTE,
+  GRILLE_RECONNAISSANCE_RAPPEL,
+  GRILLE_DISCRIMINATION_VISUELLE,
+  GRILLE_APPARIEMENT_IMAGE_OBJET,
+  GRILLE_TRI,
+  GRILLE_TACHES_AVANCEES,
+  GRILLE_GENERALISATION,
+  GRILLE_AUTONOMIE_TACHE,
 ];
 
 export function findScorableTemplate(
