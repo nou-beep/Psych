@@ -7,6 +7,7 @@ import { ClinicalProvider } from "@/contexts/ClinicalContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ClientPortalProvider } from "@/contexts/ClientPortalContext";
 import { PsyGraphProvider } from "@/contexts/PsyGraphContext";
+import { InternshipProvider } from "@/contexts/InternshipContext";
 import { WorkspaceModeProvider } from "@/contexts/WorkspaceModeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastProvider } from "@/components/ui/Toast";
@@ -54,6 +55,7 @@ export default function RootLayout({
             <ClinicalProvider>
             <ClientPortalProvider>
             <PsyGraphProvider>
+            <InternshipProvider>
             <WorkspaceModeProvider>
             <ToastProvider>
               <AccessibilityShell>
@@ -64,6 +66,7 @@ export default function RootLayout({
               </AccessibilityShell>
             </ToastProvider>
             </WorkspaceModeProvider>
+            </InternshipProvider>
             </PsyGraphProvider>
             </ClientPortalProvider>
             </ClinicalProvider>
