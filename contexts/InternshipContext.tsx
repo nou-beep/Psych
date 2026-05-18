@@ -70,6 +70,10 @@ import {
 import { buildDailyFromGrid, buildGridSummaryReportBody } from "@/lib/internship/scorable-text";
 import { findScorableTemplate } from "@/lib/internship/scorable-templates";
 import {
+  attributionLine,
+  buildFinalReport,
+} from "@/lib/internship/final-report-builder";
+import {
   INTERNSHIP_SEED_ACCEPTED_KEY,
   SEED_INTERNSHIP_CASES,
   SEED_INTERNSHIP_REPORTS,
@@ -197,6 +201,13 @@ interface InternshipContextValue {
     weekEnd: string
   ) => InternshipReport;
   assembleFinal: (caseId: string) => InternshipReport;
+  // Source-driven final-report generator — fills every section of
+  // FinalReportSections from case + profile + grids + tests +
+  // supervision + weekly/daily reports. Returns the new draft +
+  // a count attribution the UI can render.
+  generateFinalReportFromMaterial: (
+    caseId: string
+  ) => { report: InternshipReport; attribution: string } | null;
   updateReport: (
     id: string,
     patch: Partial<Omit<InternshipReport, "id" | "createdAt" | "caseId" | "kind">>
@@ -651,6 +662,43 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
     [reports, tests, grids, supervision]
   );
 
+  // Source-driven final-report generator. Pulls the case's
+  // structured profile + scorable grid administrations + tests +
+  // supervision notes + weekly/daily reports through
+  // buildFinalReport() and creates a draft InternshipReport with
+  // every section pre-filled.
+  const generateFinalReportFromMaterial = useCallback(
+    (caseId: string) => {
+      const caseData = cases.find((c) => c.id === caseId);
+      if (!caseData) return null;
+      const caseScorable = scorableAdmins.filter(
+        (a) => a.caseId === caseId
+      );
+      const caseTests = tests.filter((t) => t.caseId === caseId);
+      const caseSupervision = supervision.filter(
+        (s) => s.caseId === caseId
+      );
+      const caseReports = reports.filter((r) => r.caseId === caseId);
+      const weeklyReports = caseReports.filter((r) => r.kind === "weekly");
+      const dailyReports = caseReports.filter((r) => r.kind === "daily");
+      const { sections, attribution } = buildFinalReport({
+        caseData,
+        scorableAdmins: caseScorable,
+        tests: caseTests,
+        supervision: caseSupervision,
+        weeklyReports,
+        dailyReports,
+      });
+      const report = newFinalReport({
+        caseId,
+        initial: sections,
+      });
+      setReports((list) => [report, ...list]);
+      return { report, attribution: attributionLine(attribution) };
+    },
+    [cases, scorableAdmins, tests, supervision, reports]
+  );
+
   const updateReport = useCallback(
     (
       id: string,
@@ -922,6 +970,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       createSimpleReport,
       assembleWeekly,
       assembleFinal,
+      generateFinalReportFromMaterial,
       updateReport,
       updateDailySections,
       updateWeeklySections,
@@ -978,6 +1027,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       createSimpleReport,
       assembleWeekly,
       assembleFinal,
+      generateFinalReportFromMaterial,
       updateReport,
       updateDailySections,
       updateWeeklySections,
