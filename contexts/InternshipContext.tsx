@@ -76,7 +76,9 @@ import {
   SEED_INTERNSHIP_SCORABLE,
   SEED_INTERNSHIP_SUPERVISION,
   SEED_INTERNSHIP_TESTS,
+  SEED_STRUCTURED_PROFILE,
 } from "@/lib/internship/seed";
+import { DEFAULT_INSTITUTION } from "@/lib/internship/institutions";
 import type {
   InternshipCase,
   InternshipClinicalContext,
@@ -117,6 +119,9 @@ interface InternshipContextValue {
     id: string,
     next: import("@/lib/internship/structured-profile").StructuredProfile
   ) => void;
+  // One-shot: applies the internship-report-derived institutional
+  // defaults + the seeded structured profile to an existing case.
+  seedCaseFromInternshipReport: (id: string) => InternshipCase | null;
   setCaseArchived: (id: string, archived: boolean) => void;
 
   // Tests.
@@ -434,6 +439,31 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
     (id: string, archived: boolean) =>
       setCases((list) => archiveCase(list, id, archived)),
     []
+  );
+  // Applies the internship-report-derived defaults to an existing
+  // case in one shot — identification (institutional context,
+  // supervisor) + structured profile chip seed. Keeps any
+  // free-text the user already wrote.
+  const seedCaseFromInternshipReport = useCallback(
+    (id: string): InternshipCase | null => {
+      const existing = cases.find((c) => c.id === id);
+      if (!existing) return null;
+      // Apply institutional defaults to identification, then merge
+      // the seeded structured profile (existing context fields are
+      // preserved).
+      setCases((list) => {
+        const withId = patchIdentification(list, id, {
+          setting: DEFAULT_INSTITUTION.setting,
+          internshipPlace: DEFAULT_INSTITUTION.name,
+          supervisor: DEFAULT_INSTITUTION.academicSupervisor,
+        });
+        return patchContext(withId, id, {
+          structuredProfile: SEED_STRUCTURED_PROFILE,
+        });
+      });
+      return existing;
+    },
+    [cases]
   );
 
   // ─── Tests ───────────────────────────────────────────────
@@ -872,6 +902,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       updateCaseIdentification,
       updateCaseContext,
       updateCaseStructuredProfile,
+      seedCaseFromInternshipReport,
       setCaseArchived,
       planTestFromShell,
       planManualTest,
@@ -927,6 +958,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       updateCaseIdentification,
       updateCaseContext,
       updateCaseStructuredProfile,
+      seedCaseFromInternshipReport,
       setCaseArchived,
       planTestFromShell,
       planManualTest,

@@ -940,6 +940,9 @@ export const FOLLOW_UP_GRID_LABELS: Record<string, string> = {
   "grille-routine-participation": "Participation aux routines",
   "grille-autonomie": "Autonomie dans la tâche",
   "grille-daily-living-skills-grid": "Compétences de vie quotidienne",
+  "grille-graphomotricite": "Graphomotricité",
+  "grille-organisation-visuospatiale": "Organisation visuospatiale",
+  "grille-motricite-fine": "Motricité fine",
 };
 
 export function followUpGridLabel(key: string): string {

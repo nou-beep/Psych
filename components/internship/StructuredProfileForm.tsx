@@ -31,11 +31,18 @@ import {
   DISTRACTIBILITY_LABELS,
   EXPRESSION_MODALITY_LABELS,
   EYE_CONTACT_LABELS,
+  FINE_MOTOR_LEVEL_LABELS,
   FREQUENCY_LABELS,
+  FUNCTIONAL_NEED_LABELS,
+  GLOBAL_DEMEANOR_LABELS,
+  GRAPHOMOTOR_WORK_LABELS,
   INITIATION_LABELS,
   INTENSITY_LABELS,
   JOINT_ATTENTION_LABELS,
+  LAUGHTER_RESPONSE_LABELS,
+  LEFT_RIGHT_DISTINCTION_LABELS,
   PEER_INTERACTION_LABELS,
+  PENCIL_GRIP_LABELS,
   PROFILE_DOMAIN_LABELS,
   REQUESTS_LEVEL_LABELS,
   RESPONSE_TO_ADULT_LABELS,
@@ -49,7 +56,9 @@ import {
   TASK_ENGAGEMENT_LABELS,
   TURN_TAKING_LABELS,
   VERBAL_LEVEL_LABELS,
+  VISUOSPATIAL_ORG_LABELS,
   WAITING_TOLERANCE_LABELS,
+  WRITING_GESTURE_LABELS,
   patchStructuredProfile,
   profileCoverage,
   setProfileNote,
@@ -61,11 +70,18 @@ import {
   type Distractibility,
   type ExpressionModality,
   type EyeContact,
+  type FineMotorLevel,
   type Frequency,
+  type FunctionalNeed,
+  type GlobalDemeanor,
+  type GraphomotorWork,
   type Initiation,
   type Intensity,
   type JointAttention,
+  type LaughterResponse,
+  type LeftRightDistinction,
   type PeerInteraction,
+  type PencilGrip,
   type ProfileDomain,
   type RequestsLevel,
   type ResponseToAdult,
@@ -80,7 +96,9 @@ import {
   type TaskEngagement,
   type TurnTaking,
   type VerbalLevel,
+  type VisuospatialOrganization,
   type WaitingTolerance,
+  type WritingGesture,
 } from "@/lib/internship/structured-profile";
 import { generateProfileSummary } from "@/lib/internship/structured-profile-text";
 import { followUpGridLabel } from "@/lib/internship/scorable-templates";
@@ -202,6 +220,14 @@ export function StructuredProfileForm({
           value={profile.communication?.eyeContact}
           onPick={(v) => patch("communication", { eyeContact: v })}
         />
+        <MultiChipRow
+          label="Besoins fonctionnels exprimés"
+          options={ENUMS.functionalNeed}
+          value={profile.communication?.functionalNeedsExpressed ?? []}
+          onPick={(values) =>
+            patch("communication", { functionalNeedsExpressed: values })
+          }
+        />
       </DomainCard>
 
       {/* Social interaction */}
@@ -301,6 +327,18 @@ export function StructuredProfileForm({
             patch("behavior", { functionHypothesis: v })
           }
         />
+        <ChipRow
+          label="Allure globale en séance"
+          options={ENUMS.globalDemeanor}
+          value={profile.behavior?.globalDemeanor}
+          onPick={(v) => patch("behavior", { globalDemeanor: v })}
+        />
+        <ChipRow
+          label="Rires / réponses vocales"
+          options={ENUMS.laughterResponse}
+          value={profile.behavior?.laughterResponse}
+          onPick={(v) => patch("behavior", { laughterResponse: v })}
+        />
       </DomainCard>
 
       {/* Attention */}
@@ -380,6 +418,54 @@ export function StructuredProfileForm({
           options={ENUMS.safetyAwareness}
           value={profile.autonomy?.safetyAwareness}
           onPick={(v) => patch("autonomy", { safetyAwareness: v })}
+        />
+      </DomainCard>
+
+      {/* Motor / visuospatial */}
+      <DomainCard
+        domain="motor"
+        notes={profile.notes?.motor ?? ""}
+        onNoteChange={(v) => note("motor", v)}
+      >
+        <ChipRow
+          label="Tenue du crayon"
+          options={ENUMS.pencilGrip}
+          value={profile.motor?.pencilGrip}
+          onPick={(v) => patch("motor", { pencilGrip: v })}
+        />
+        <ChipRow
+          label="Geste graphique"
+          options={ENUMS.writingGesture}
+          value={profile.motor?.writingGesture}
+          onPick={(v) => patch("motor", { writingGesture: v })}
+        />
+        <ChipRow
+          label="Repérage gauche / droite"
+          options={ENUMS.leftRightDistinction}
+          value={profile.motor?.leftRightDistinction}
+          onPick={(v) =>
+            patch("motor", { leftRightDistinction: v })
+          }
+        />
+        <ChipRow
+          label="Organisation visuospatiale"
+          options={ENUMS.visuospatialOrganization}
+          value={profile.motor?.visuospatialOrganization}
+          onPick={(v) =>
+            patch("motor", { visuospatialOrganization: v })
+          }
+        />
+        <ChipRow
+          label="Travail graphomoteur"
+          options={ENUMS.graphomotorWork}
+          value={profile.motor?.graphomotorWork}
+          onPick={(v) => patch("motor", { graphomotorWork: v })}
+        />
+        <ChipRow
+          label="Motricité fine"
+          options={ENUMS.fineMotor}
+          value={profile.motor?.fineMotor}
+          onPick={(v) => patch("motor", { fineMotor: v })}
         />
       </DomainCard>
     </div>
@@ -749,6 +835,19 @@ const ENUMS = {
   adaptiveLevel: optionsFromLabels<AdaptiveLevel>(ADAPTIVE_LEVEL_LABELS),
   routinesLevel: optionsFromLabels<RoutinesLevel>(ROUTINES_LEVEL_LABELS),
   safetyAwareness: optionsFromLabels<SafetyAwareness>(SAFETY_AWARENESS_LABELS),
+  functionalNeed: optionsFromLabels<FunctionalNeed>(FUNCTIONAL_NEED_LABELS),
+  globalDemeanor: optionsFromLabels<GlobalDemeanor>(GLOBAL_DEMEANOR_LABELS),
+  laughterResponse: optionsFromLabels<LaughterResponse>(LAUGHTER_RESPONSE_LABELS),
+  pencilGrip: optionsFromLabels<PencilGrip>(PENCIL_GRIP_LABELS),
+  writingGesture: optionsFromLabels<WritingGesture>(WRITING_GESTURE_LABELS),
+  leftRightDistinction: optionsFromLabels<LeftRightDistinction>(
+    LEFT_RIGHT_DISTINCTION_LABELS
+  ),
+  visuospatialOrganization: optionsFromLabels<VisuospatialOrganization>(
+    VISUOSPATIAL_ORG_LABELS
+  ),
+  graphomotorWork: optionsFromLabels<GraphomotorWork>(GRAPHOMOTOR_WORK_LABELS),
+  fineMotor: optionsFromLabels<FineMotorLevel>(FINE_MOTOR_LEVEL_LABELS),
 };
 
 // Silence FileText lint warning — referenced in the report-block

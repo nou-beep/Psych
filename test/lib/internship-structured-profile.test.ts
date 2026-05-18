@@ -108,8 +108,11 @@ describe("profileCoverage", () => {
     };
     const c = profileCoverage(profile);
     expect(c.filled).toBe(11);
-    expect(c.total).toBe(32);
-    expect(c.pct).toBe(Math.round((11 / 32) * 100));
+    // Slot count grew with the new motor domain + behaviour /
+    // communication additions; the test now asserts against the
+    // current total.
+    expect(c.total).toBe(41);
+    expect(c.pct).toBe(Math.round((11 / 41) * 100));
   });
 });
 

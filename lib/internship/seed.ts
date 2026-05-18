@@ -10,7 +10,9 @@ import type {
   InternshipTest,
 } from "./types";
 import type { ScorableGridAdministration } from "./scorable-grids";
+import type { StructuredProfile } from "./structured-profile";
 import { DEFAULT_EVALUATOR } from "./evaluator";
+import { DEFAULT_INSTITUTION } from "./institutions";
 
 const CASE_ID = "internship-case-seed-int-ap-001";
 const TEST_VINELAND = "internship-test-seed-vineland";
@@ -26,42 +28,105 @@ const SCORABLE_ADMIN_CAPACITES = "internship-scorable-seed-capacites-001";
 
 const NOW = "2026-03-18T00:00:00.000Z";
 
+// Structured chip selections seeded from the internship report
+// content the user transcribed in their brief. Captured as a
+// reusable constant so the "Seed from internship report" button on
+// the case page can apply the same pre-fill on new cases.
+export const SEED_STRUCTURED_PROFILE: StructuredProfile = {
+  communication: {
+    verbalLevel: "partially-functional",
+    comprehension: "simple-instructions",
+    expression: ["words", "gestures", "pointing"],
+    requests: "with-help",
+    responseToName: "partial",
+    eyeContact: "variable",
+    functionalNeedsExpressed: ["toilet", "break", "meal"],
+  },
+  social: {
+    initiation: "rare",
+    responseToAdult: "variable",
+    peerInteraction: "parallel",
+    jointAttention: "emerging",
+    turnTaking: "with-help",
+  },
+  sensory: {
+    auditory: "hyper",
+    visual: "no-concern",
+    tactile: "seeking",
+    vestibular: "seeking",
+    proprioceptive: "seeking",
+    oral: "no-concern",
+  },
+  behavior: {
+    mainBehaviors: ["imitation", "stereotypies"],
+    triggers: ["transition", "noise", "sensory-overload"],
+    intensity: "moderate",
+    frequency: "occasional",
+    functionHypothesis: "sensory",
+    globalDemeanor: "calm-organized",
+    laughterResponse: "sound-triggered",
+  },
+  attention: {
+    sittingTolerance: "partial",
+    taskEngagement: "short-duration",
+    distractibility: "moderate",
+    waitingTolerance: "brief",
+    responseToInstructions: "partial",
+  },
+  autonomy: {
+    toileting: "partial-help",
+    feeding: "partial-help",
+    dressing: "partial-help",
+    routines: "follows-with-help",
+    safetyAwareness: "emerging",
+  },
+  motor: {
+    pencilGrip: "correct",
+    writingGesture: "needs-structuring",
+    leftRightDistinction: "difficulty",
+    visuospatialOrganization: "difficulty",
+    graphomotorWork: "recommended",
+    fineMotor: "partial",
+  },
+};
+
 export const SEED_INTERNSHIP_CASES: InternshipCase[] = [
   {
     id: CASE_ID,
     identification: {
       caseCode: "INT-AP-001",
-      age: "âge placeholder",
-      setting: "association · medico-social",
-      internshipPlace: "Centre d'accompagnement (association)",
-      supervisor: "Dr. R. Cohen",
+      age: "5",
+      setting: DEFAULT_INSTITUTION.setting,
+      internshipPlace: DEFAULT_INSTITUTION.name,
+      supervisor: DEFAULT_INSTITUTION.academicSupervisor,
       reasonForFollowUp:
-        "Accompagnement individuel dans le cadre d'un suivi autisme / développement. Objectifs : observation clinique, soutien à la régulation, médiation des interactions, évaluation par grilles structurées.",
+        "Trouble du spectre de l'autisme · difficultés de communication · comportements répétitifs · particularités sensorielles · difficultés visuospatiales · soutien de l'autonomie · accompagnement psycho-éducatif · observation clinique sous supervision.",
       presentingConcerns:
-        "Communication verbale limitée (quelques mots fonctionnels). Difficultés sensorielles (auditives, tactiles). Recherche de routines stables, réactions marquées aux transitions. Episodes de désorganisation 1–2x/semaine.",
+        "Langage verbal partiellement fonctionnel. Particularités sensorielles, notamment réponses marquées aux stimulations sonores. Difficultés visuospatiales. Comportements répétitifs et tendance à l'imitation. Autonomie relative dans les routines quotidiennes ; expression fonctionnelle de certains besoins.",
       diagnosticContext:
-        "TSA confirmé. Pas de comorbidité épileptique connue. Bilan d'autonomie en cours.",
+        "TSA · langage verbal partiellement fonctionnel · particularités sensorielles · difficultés visuospatiales · autonomie relative dans les routines · suivi en contexte éducatif et thérapeutique spécialisé.",
       consent: "written",
     },
     context: {
       developmentalObservations:
-        "Acquisitions motrices dans les normes. Langage tardif, premières combinaisons de 2 mots vers 4 ans. Joue seul majoritairement, parfois en parallèle.",
+        "Suivi en contexte éducatif et thérapeutique spécialisé. Acquisitions motrices observées en activité structurée.",
       communicationProfile:
-        "Mode mixte : mots fonctionnels + pointage + PECS-like en cours. Comprend mieux qu'il ne s'exprime. Echolalie différée fréquente le matin.",
+        "Langage verbal partiellement fonctionnel : verbalisations ciblées lorsque sollicité (chiffres, couleurs, parties du corps). Tendance au mode non verbal en dehors des contextes ciblés.",
       socialInteraction:
-        "Initiation rare avec adultes inconnus. Reciprocité émergente avec deux pairs spécifiques. Tolère le contact visuel sur courtes durées si demande explicite.",
+        "Interaction observable en contexte structuré avec l'adulte. Interaction avec les pairs à approfondir.",
       emotionalRegulation:
-        "Régulation par stéréotypies douces (balancement, jeu de doigts). Crises essentiellement déclenchées par changements imprévus, bruit fort, transitions sans préavis.",
+        "Modalités de régulation sensorielle et émotionnelle hypothèsées via les comportements répétitifs et les réponses aux stimulations sonores.",
       sensoryProfile:
-        "Hypersensibilité auditive marquée. Hyposensibilité proprioceptive (recherche pressions). Néophobie alimentaire.",
+        "Réactions aux stimulations sonores ; profil sensoriel à approfondir par grille dédiée.",
       behaviorObservations:
-        "Pas de comportements auto-agressifs ni hétéro-agressifs majeurs. Quelques pincements/pressions sur soi en moments de stress.",
+        "Allure globale calme et organisée en séance. Comportements répétitifs et imitation fréquente observés.",
       attentionEngagement:
-        "Attention soutenue sur intérêt spécifique. Difficulté à passer à une activité non choisie sans support visuel.",
+        "Activités structurées observées. Engagement et tolérance à l'attente à évaluer plus finement.",
       autonomyAdaptive:
-        "Autonomie partielle pour les repas. Toilette : aide nécessaire. Habillage : aide pour fermetures et orientation.",
+        "Autonomie relative dans les routines et les repas. Capacité à exprimer le besoin d'aller aux toilettes.",
       familySchoolContext:
-        "Scolarisé en milieu spécialisé sur temps réduit. Famille engagée. AESH présente sur certaines plages.",
+        "École Rihani / Association À Petit Pas. Équipe pluridisciplinaire : éducateurs, psychomotriciens, orthophonistes, kinésithérapeutes, psychologues.",
+      structuredProfile: SEED_STRUCTURED_PROFILE,
     },
     startDate: "2026-01-15",
     createdAt: NOW,
