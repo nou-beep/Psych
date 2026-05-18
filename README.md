@@ -544,6 +544,62 @@ supervision note, and printable view.
 The Internship Studio dashboard surfaces a **Préférences** link
 in its header action.
 
+### Final internship report auto-builder
+
+`lib/internship/final-report-builder.ts` ships a one-click
+generator that fills every `FinalReportSections` slot from the
+case's source material: identification + structured profile +
+scorable grid administrations + tests + supervision notes +
+weekly / daily reports. The output is editable; clicking the
+button again regenerates from the current state of the sources.
+
+| Section | Derived from |
+|---|---|
+| Cover page | Defaults + case identification |
+| Internship context | `DEFAULT_INSTITUTION` (setting + population + team) |
+| Case presentation | Identification + reason for follow-up + diagnostic context |
+| Observation methodology | Institution focus + counts of grids / tests / dailies collected |
+| Clinical observations | Structured profile (per-domain) + latest grid headline |
+| Tests administered | Per test: name, domain, status, score, interpretation |
+| Evaluation grids | Per grid: template name, date, headline + per-domain acquisition % |
+| Intervention reflection | Aggregated intervention chips across daily reports |
+| Progress evolution | Weekly reports, sorted chronologically |
+| Supervision reflections | Supervision notes (date + supervisor + feedback) |
+| Limits | Stable paragraph framing the stage's scope |
+| Recommendations | Priority domains from the structured profile → per-domain advice |
+| Conclusion | TSA-aware profile headline + grid count + team line |
+
+The Reports tab on `/internship/cases/[id]` exposes the
+**"Generate final from internship material"** button right after
+the existing assembly buttons. A toast displays the
+attribution line — *Généré à partir de : profil structuré · N
+grilles · M tests · K supervisions · J séances · I synthèses* —
+so the user knows what the draft is built on.
+
+### Print views for daily / weekly / final reports
+
+New route `/internship/report-print/[reportId]` renders any
+internship report as a print-friendly A4 document. Cover meta
+strip (case code, evaluator, encadrement, status), per-kind
+section rendering with the structured chips (context, response
+quality) translated to French labels, signature lines. Print CSS
+strips the on-screen toolbar.
+
+Every report row in the case Reports tab gains a **Print**
+button next to "Mark complete".
+
+### Three new scorable grid templates (15 total)
+
+| Template | Closes |
+|---|---|
+| Grille de graphomotricité | `grille-graphomotricite` motor-domain suggestion key |
+| Grille d'organisation visuospatiale | `grille-organisation-visuospatiale` motor-domain suggestion key |
+| Grille de motricité fine | `grille-motricite-fine` motor-domain suggestion key |
+
+Closes the three motor-domain suggestion-engine gaps from PR #12.
+The structured profile's suggestion engine now points to
+templates that actually exist when the motor domain reads weak.
+
 ### Click-based test shells (deferred)
 
 The brief asked for click-based scoring for 7 official test

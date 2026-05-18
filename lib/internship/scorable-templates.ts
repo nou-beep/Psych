@@ -888,6 +888,214 @@ export const GRILLE_TRANSITIONS_FLEXIBILITE: ScorableGridTemplate = {
   ],
 };
 
+export const GRILLE_GRAPHOMOTRICITE: ScorableGridTemplate = {
+  id: "grille-graphomotricite",
+  name: "Grille de graphomotricité",
+  description:
+    "Préhension, geste graphique, tracés de base, lignes et formes.",
+  observationsHeading: "Observations cliniques sur le geste graphique",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "graphomot-prehension",
+      label: "Préhension et posture",
+      items: [
+        {
+          id: "graphomot-prise-crayon",
+          label: "Tient le crayon de façon adaptée",
+          aPhrase: "La tenue du crayon est adaptée et fonctionnelle.",
+          ecOrNaPhrase: "La tenue du crayon reste à structurer.",
+        },
+        {
+          id: "graphomot-pression",
+          label: "Module la pression sur le support",
+          ecOrNaPhrase: "La modulation de la pression n'est pas encore stabilisée.",
+        },
+        {
+          id: "graphomot-posture",
+          label: "Maintient une posture adaptée pendant la tâche",
+          ecOrNaPhrase:
+            "La posture pendant la tâche graphique reste à étayer.",
+        },
+      ],
+    },
+    {
+      id: "graphomot-traces",
+      label: "Tracés et formes",
+      items: [
+        {
+          id: "graphomot-trait-vertical",
+          label: "Réalise un trait vertical sur démonstration",
+          ecOrNaPhrase: "Le trait vertical sur démonstration reste fragile.",
+          aPhrase: "Le trait vertical est mobilisable.",
+        },
+        {
+          id: "graphomot-trait-horizontal",
+          label: "Réalise un trait horizontal sur démonstration",
+          ecOrNaPhrase: "Le trait horizontal sur démonstration reste fragile.",
+        },
+        {
+          id: "graphomot-rond",
+          label: "Réalise un rond fermé",
+          ecOrNaPhrase: "Le rond fermé n'est pas encore acquis.",
+          aPhrase: "Le rond fermé est mobilisable.",
+        },
+        {
+          id: "graphomot-croix",
+          label: "Réalise une croix",
+          ecOrNaPhrase: "La croix reste à consolider.",
+        },
+      ],
+    },
+    {
+      id: "graphomot-organisation",
+      label: "Organisation sur la feuille",
+      followUpGridKeys: ["grille-organisation-visuospatiale"],
+      items: [
+        {
+          id: "graphomot-respect-cadre",
+          label: "Respecte le cadre proposé sur la feuille",
+          ecOrNaPhrase:
+            "L'organisation dans le cadre de la feuille reste à structurer.",
+        },
+        {
+          id: "graphomot-direction",
+          label: "Suit une direction proposée (gauche → droite)",
+          ecOrNaPhrase:
+            "Le suivi d'une direction sur la feuille reste à étayer.",
+        },
+      ],
+    },
+  ],
+};
+
+export const GRILLE_ORGANISATION_VISUOSPATIALE: ScorableGridTemplate = {
+  id: "grille-organisation-visuospatiale",
+  name: "Grille d'organisation visuospatiale",
+  description:
+    "Repérage spatial, latéralité, organisation dans le plan, copie de modèles.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "vs-reperage",
+      label: "Repérage et latéralité",
+      items: [
+        {
+          id: "vs-gauche-droite",
+          label: "Distingue la gauche de la droite sur soi",
+          ecOrNaPhrase:
+            "Le repérage gauche / droite sur soi n'est pas encore acquis.",
+          aPhrase: "Le repérage gauche / droite sur soi est mobilisable.",
+        },
+        {
+          id: "vs-dessus-dessous",
+          label: "Distingue dessus / dessous",
+          ecOrNaPhrase:
+            "La distinction dessus / dessous reste à consolider.",
+        },
+        {
+          id: "vs-devant-derriere",
+          label: "Distingue devant / derrière",
+          ecOrNaPhrase:
+            "La distinction devant / derrière reste à consolider.",
+        },
+      ],
+    },
+    {
+      id: "vs-copie",
+      label: "Copie et reproduction de modèles",
+      items: [
+        {
+          id: "vs-copie-forme-simple",
+          label: "Copie une forme simple (rond, carré)",
+          ecOrNaPhrase:
+            "La copie d'une forme simple reste à étayer.",
+          aPhrase: "La copie d'une forme simple est mobilisable.",
+        },
+        {
+          id: "vs-copie-disposition",
+          label: "Reproduit la disposition spatiale d'un modèle",
+          ecOrNaPhrase:
+            "La reproduction d'une disposition spatiale reste fragile et nécessite un guidage.",
+        },
+        {
+          id: "vs-puzzle-2-pieces",
+          label: "Assemble un puzzle simple (2–4 pièces)",
+          ecOrNaPhrase:
+            "L'assemblage d'un puzzle simple n'est pas encore stabilisé.",
+          aPhrase: "L'assemblage d'un puzzle simple est mobilisable.",
+        },
+      ],
+    },
+  ],
+};
+
+export const GRILLE_MOTRICITE_FINE: ScorableGridTemplate = {
+  id: "grille-motricite-fine",
+  name: "Grille de motricité fine",
+  description:
+    "Pince fine, manipulation d'objets, coordination bimanuelle, précision du geste.",
+  licensingNote: LICENSING_NOTE,
+  domains: [
+    {
+      id: "mf-pince",
+      label: "Pince et préhension",
+      items: [
+        {
+          id: "mf-pince-fine",
+          label: "Réalise une pince fine (pouce-index)",
+          ecOrNaPhrase: "La pince fine reste à consolider.",
+          aPhrase: "La pince fine est disponible.",
+        },
+        {
+          id: "mf-enfile-perles",
+          label: "Enfile de grosses perles sur un fil",
+          ecOrNaPhrase:
+            "L'enfilage de grosses perles reste à étayer.",
+        },
+      ],
+    },
+    {
+      id: "mf-bimanuel",
+      label: "Coordination bimanuelle",
+      items: [
+        {
+          id: "mf-tenir-decouper",
+          label: "Tient la feuille d'une main et l'objet de l'autre",
+          ecOrNaPhrase:
+            "La coordination bimanuelle de stabilisation reste à étayer.",
+          aPhrase: "La coordination bimanuelle est disponible.",
+        },
+        {
+          id: "mf-deboucher-boucher",
+          label: "Débouche / rebouche un récipient",
+          ecOrNaPhrase:
+            "Les manipulations bimanuelles fonctionnelles restent à consolider.",
+        },
+      ],
+    },
+    {
+      id: "mf-precision",
+      label: "Précision et contrôle",
+      items: [
+        {
+          id: "mf-empile-cubes",
+          label: "Empile plusieurs cubes",
+          ecOrNaPhrase:
+            "L'empilement de cubes reste à étayer.",
+          aPhrase: "L'empilement de cubes est mobilisable.",
+        },
+        {
+          id: "mf-suivre-trait",
+          label: "Suit un trait avec un objet (sans dépasser)",
+          ecOrNaPhrase:
+            "Le suivi précis d'un trait reste fragile.",
+        },
+      ],
+    },
+  ],
+};
+
 export const SCORABLE_TEMPLATES: ScorableGridTemplate[] = [
   GRILLE_CAPACITES,
   GRILLE_ATTENTION_DISPONIBILITE,
@@ -901,6 +1109,9 @@ export const SCORABLE_TEMPLATES: ScorableGridTemplate[] = [
   GRILLE_IMITATION_MOTRICE,
   GRILLE_JEU_SYMBOLIQUE,
   GRILLE_TRANSITIONS_FLEXIBILITE,
+  GRILLE_GRAPHOMOTRICITE,
+  GRILLE_ORGANISATION_VISUOSPATIALE,
+  GRILLE_MOTRICITE_FINE,
 ];
 
 export function findScorableTemplate(

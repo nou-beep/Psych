@@ -22,7 +22,9 @@ import {
   Layers,
   ListTodo,
   Plus,
+  Printer,
   Send,
+  Sparkles,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -101,6 +103,7 @@ export default function InternshipCasePage({ params }: PageProps) {
     createFinalReport,
     assembleWeekly,
     assembleFinal,
+    generateFinalReportFromMaterial,
     updateDailySections,
     updateWeeklySections,
     updateFinalSections,
@@ -359,6 +362,16 @@ export default function InternshipCasePage({ params }: PageProps) {
               const r = assembleFinal(caseData.id);
               toast("Final report assembled", "success");
               return r;
+            }}
+            generateFinalFromMaterial={() => {
+              const result = generateFinalReportFromMaterial(caseData.id);
+              if (result) {
+                toast(
+                  `Rapport final généré — ${result.attribution}`,
+                  "success"
+                );
+              }
+              return result?.report ?? null;
             }}
             updateDaily={updateDailySections}
             updateWeekly={updateWeeklySections}
@@ -1037,6 +1050,7 @@ function ReportsTab({
   createFinal,
   assembleWeekly,
   assembleFinal,
+  generateFinalFromMaterial,
   updateDaily,
   updateWeekly,
   updateFinal,
@@ -1049,6 +1063,7 @@ function ReportsTab({
   createFinal: () => InternshipReport;
   assembleWeekly: (weekStart: string, weekEnd: string) => InternshipReport;
   assembleFinal: () => InternshipReport;
+  generateFinalFromMaterial: () => InternshipReport | null;
   updateDaily: (
     id: string,
     patch: Partial<NonNullable<InternshipReport["daily"]>>
@@ -1107,6 +1122,13 @@ function ReportsTab({
           </Button>
           <Button size="sm" onClick={() => assembleFinal()}>
             <Layers size={12} /> Assemble final draft
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => generateFinalFromMaterial()}
+          >
+            <Sparkles size={12} /> Generate final from internship material
           </Button>
         </div>
         <div className="grid grid-cols-2 gap-2 max-w-md">
@@ -1221,7 +1243,16 @@ function ReportsTab({
                           onChange={(patch) => updateFinal(r.id, patch)}
                         />
                       )}
-                      <div className="flex justify-end">
+                      <div className="flex justify-end gap-1.5">
+                        <Link
+                          href={`/internship/report-print/${r.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button size="sm" variant="outline">
+                            <Printer size={12} /> Print
+                          </Button>
+                        </Link>
                         {r.draft && (
                           <Button
                             size="sm"
