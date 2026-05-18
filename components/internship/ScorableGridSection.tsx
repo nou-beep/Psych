@@ -46,6 +46,7 @@ import {
   domainOneLiner,
   generateGridSummary,
 } from "@/lib/internship/scorable-text";
+import { loadEvaluator } from "@/lib/internship/evaluator";
 
 interface Props {
   caseId: string;
@@ -69,6 +70,8 @@ export function ScorableGridSection({ caseId }: Props) {
     removeScorableAdmin,
     createDailyFromScorableAdmin,
     createGridSummaryReport,
+    addScorableAdminToWeekly,
+    addScorableAdminToSupervision,
   } = useInternship();
 
   const caseAdmins = useMemo(
@@ -186,6 +189,28 @@ export function ScorableGridSection({ caseId }: Props) {
             const r = createGridSummaryReport(openAdmin.id);
             if (r) toast(`Grid summary report created`, "success");
           }}
+          onAddToWeekly={() => {
+            const r = addScorableAdminToWeekly(openAdmin.id);
+            if (r) {
+              toast(`Ajouté à la synthèse hebdomadaire`, "success");
+            } else {
+              toast(
+                "Aucune synthèse hebdomadaire en cours. Créer-en une depuis l'onglet Reports.",
+                "info"
+              );
+            }
+          }}
+          onAddToSupervision={() => {
+            const r = addScorableAdminToSupervision(openAdmin.id);
+            if (r) {
+              toast(`Ajouté à la note de supervision`, "success");
+            } else {
+              toast(
+                "Aucune note de supervision en cours. Créer-en une depuis l'onglet Supervision.",
+                "info"
+              );
+            }
+          }}
         />
       )}
     </div>
@@ -210,8 +235,8 @@ function NewAdminPanel({
 }) {
   const [templateId, setTemplateId] = useState(SCORABLE_TEMPLATES[0]?.id ?? "");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [evaluator, setEvaluator] = useState("");
-  const [context, setContext] = useState("");
+  const [evaluator, setEvaluator] = useState(() => loadEvaluator().name);
+  const [context, setContext] = useState("Atelier individuel");
 
   return (
     <div
@@ -223,26 +248,50 @@ function NewAdminPanel({
         border: "1px solid var(--psych-border)",
       }}
     >
-      <div>
+      <div className="md:col-span-4">
         <label className="text-[10px] uppercase tracking-wide block mb-0.5" style={{ color: "var(--psych-muted)" }}>
-          Template
+          Template ({SCORABLE_TEMPLATES.length} disponibles)
         </label>
-        <select
-          value={templateId}
-          onChange={(e) => setTemplateId(e.target.value)}
-          className="w-full rounded-md border px-2 py-1.5 text-sm"
-          style={{
-            backgroundColor: "var(--psych-card)",
-            borderColor: "var(--psych-border)",
-            color: "var(--psych-text)",
-          }}
-        >
-          {SCORABLE_TEMPLATES.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-        </select>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5">
+          {SCORABLE_TEMPLATES.map((t) => {
+            const active = templateId === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTemplateId(t.id)}
+                className="text-left rounded-md border px-3 py-2 transition-colors"
+                style={{
+                  backgroundColor: active
+                    ? "var(--psych-primary-light)"
+                    : "var(--psych-card)",
+                  borderColor: active
+                    ? "var(--psych-primary)"
+                    : "var(--psych-border)",
+                  color: active
+                    ? "var(--psych-primary)"
+                    : "var(--psych-text)",
+                }}
+              >
+                <span className="text-xs font-medium block">{t.name}</span>
+                {t.description && (
+                  <span
+                    className="text-[10px] block mt-0.5"
+                    style={{
+                      color: active
+                        ? "var(--psych-primary)"
+                        : "var(--psych-muted)",
+                    }}
+                  >
+                    {t.description.length > 90
+                      ? t.description.slice(0, 90) + "…"
+                      : t.description}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
       <div>
         <label className="text-[10px] uppercase tracking-wide block mb-0.5" style={{ color: "var(--psych-muted)" }}>
@@ -261,7 +310,7 @@ function NewAdminPanel({
         <Input
           value={evaluator}
           onChange={(e) => setEvaluator(e.target.value)}
-          placeholder="D.T."
+          placeholder="Nouhaila Mrini"
         />
       </div>
       <div>
@@ -306,12 +355,16 @@ function AdministrationEditor({
   onRemove,
   onCreateDaily,
   onCreateGridSummary,
+  onAddToWeekly,
+  onAddToSupervision,
 }: {
   admin: ScorableGridAdministration;
   template: ScorableGridTemplate;
   onRemove: () => void;
   onCreateDaily: () => void;
   onCreateGridSummary: () => void;
+  onAddToWeekly: () => void;
+  onAddToSupervision: () => void;
 }) {
   const {
     scoreScorableItem,
@@ -576,6 +629,12 @@ function AdministrationEditor({
           </Button>
           <Button size="sm" onClick={onCreateGridSummary}>
             <FileText size={12} /> Grid summary
+          </Button>
+          <Button size="sm" variant="outline" onClick={onAddToWeekly}>
+            <Layers size={12} /> Add to weekly
+          </Button>
+          <Button size="sm" variant="outline" onClick={onAddToSupervision}>
+            <Layers size={12} /> Add to supervision
           </Button>
         </div>
       </div>
