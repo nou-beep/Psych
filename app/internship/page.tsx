@@ -78,6 +78,26 @@ export default function InternshipStudioPage() {
         }
       />
 
+      {/* Content policy disclaimer — clarifies what Eyla provides
+          vs what the clinician must obtain through official channels. */}
+      <div
+        className="rounded-xl border px-4 py-2.5 text-[11px] leading-relaxed"
+        style={{
+          backgroundColor: "var(--psych-bg)",
+          borderColor: "var(--psych-border)",
+          color: "var(--psych-muted)",
+        }}
+      >
+        <strong style={{ color: "var(--psych-text)" }}>
+          Sur les contenus :
+        </strong>{" "}
+        les tests cliniques officiels (CARS-2, M-CHAT-R/F, Vineland, etc.)
+        nécessitent les manuels et matériels autorisés correspondants.
+        Eyla fournit des grilles d&rsquo;observation cliniciennes, des coquilles
+        structurées, et un support de cotation manuelle ; les items
+        propriétaires ne sont pas reproduits.
+      </div>
+
       {/* Stat strip */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatCard

@@ -61,7 +61,9 @@ export interface InternshipIdentification {
 }
 
 // Free-text clinical-context bag. All fields optional so partial
-// profiles render gracefully.
+// profiles render gracefully. The new structured selectors live on
+// `structuredProfile`; the free-text fields stay for nuance that
+// doesn't fit a chip.
 export interface InternshipClinicalContext {
   developmentalObservations?: string;
   communicationProfile?: string;
@@ -72,6 +74,10 @@ export interface InternshipClinicalContext {
   attentionEngagement?: string;
   autonomyAdaptive?: string;
   familySchoolContext?: string;
+  // Optional structured profile — driven by chips / segmented
+  // controls / multi-select on the Overview tab. Lives here so
+  // existing case records continue to parse.
+  structuredProfile?: import("./structured-profile").StructuredProfile;
 }
 
 // ─── Case ─────────────────────────────────────────────────────────

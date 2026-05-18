@@ -112,6 +112,11 @@ interface InternshipContextValue {
     id: string,
     patch: Partial<InternshipClinicalContext>
   ) => void;
+  // Structured profile (chip / segmented selections per domain).
+  updateCaseStructuredProfile: (
+    id: string,
+    next: import("@/lib/internship/structured-profile").StructuredProfile
+  ) => void;
   setCaseArchived: (id: string, archived: boolean) => void;
 
   // Tests.
@@ -413,6 +418,16 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
   const updateCaseContext = useCallback(
     (id: string, patch: Partial<InternshipClinicalContext>) =>
       setCases((list) => patchContext(list, id, patch)),
+    []
+  );
+  const updateCaseStructuredProfile = useCallback(
+    (
+      id: string,
+      next: import("@/lib/internship/structured-profile").StructuredProfile
+    ) =>
+      setCases((list) =>
+        patchContext(list, id, { structuredProfile: next })
+      ),
     []
   );
   const setCaseArchived = useCallback(
@@ -856,6 +871,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       createCase,
       updateCaseIdentification,
       updateCaseContext,
+      updateCaseStructuredProfile,
       setCaseArchived,
       planTestFromShell,
       planManualTest,
@@ -910,6 +926,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       createCase,
       updateCaseIdentification,
       updateCaseContext,
+      updateCaseStructuredProfile,
       setCaseArchived,
       planTestFromShell,
       planManualTest,
