@@ -288,6 +288,114 @@ section, signature lines, licensing footer. Print CSS strips the
 on-screen toolbar so the page goes straight to PDF or printer.
 The case page's evaluation tab links to it in a new tab.
 
+### Default evaluator profile
+
+The Internship Studio defaults the evaluator everywhere to
+**Nouhaila Mrini · Psychologue / Thérapeute stagiaire**. The
+constant lives in `lib/internship/evaluator.ts` and can be
+overridden via `saveEvaluator(...)` (localStorage). All
+administration forms, the seed administration, and the printable
+A4 view read from `loadEvaluator()`.
+
+### Grid template library
+
+The click-based engine ships **12 templates** out of the brief's
+24:
+
+| # | Template | Domains |
+|---|---|---|
+| 1 | Grille clinique d'évaluation des capacités | Attention · Mémoire · Perception |
+| 2 | Attention et disponibilité | Attention soutenue · Engagement · Tolérance |
+| 3 | Communication expressive | Demandes/refus · Désignation · Combinaisons |
+| 4 | Communication réceptive | Consignes · Désignation/reconnaissance |
+| 5 | Interaction sociale | Approche/réponse · Tour de rôle |
+| 6 | Attention conjointe | Réponse · Initiation |
+| 7 | Régulation émotionnelle | Repérage · Co-régulation · Tolérance |
+| 8 | Traitement sensoriel | Hyperréactivité · Hypo + recherche |
+| 9 | Autonomie et adaptation | Autonomie de base · Routines |
+| 10 | Imitation motrice | Simple · Séquentielle / symbolique |
+| 11 | Jeu fonctionnel et symbolique | Fonctionnel · Symbolique |
+| 12 | Transitions et flexibilité | Transitions · Flexibilité |
+
+Every template uses the same A / EC / NA / N/O scoring with
+auto-fired French clinical phrases per item. The remaining 12
+templates from the brief are deferred to a follow-up PR — adding
+them is pure data work; the engine + UI handle any number of
+templates.
+
+### Anonymized seed (INT-AP-001)
+
+`lib/internship/seed.ts` now ships an anonymized seed case under
+`INT-AP-001` with:
+
+- An autism / developmental follow-up context (placeholder age,
+  association setting, evaluator = Nouhaila Mrini)
+- 4 planned/in-flight tests
+- 2 daily reports + 1 weekly synthesis
+- 1 supervision note
+- **A pre-filled scored administration** of the Grille clinique
+  d'évaluation des capacités with 14 items scored — so the
+  Évaluation tab renders something real on first load.
+
+No real names or identifiable personal information.
+
+### Connected workflow
+
+The scoring surface now exposes four connection buttons on a
+scored administration:
+
+- **Daily report** — populates `DailyReportSections` from the
+  grid summary, creates a new draft daily.
+- **Grid summary** — creates a `grid-summary` simple report with
+  the full clinical text.
+- **Add to weekly** — appends the grid summary into the most
+  recent weekly draft's `gridsCompleted` field (or toasts to
+  prompt the user to create a weekly first).
+- **Add to supervision** — appends the grid summary into the
+  most recent supervision note's `gridsReviewed` field.
+
+Underlying helpers in `InternshipContext`:
+`addScorableAdminToWeekly` / `addScorableAdminToSupervision`.
+
+### Template picker UI
+
+Replaced the dropdown-only template selector with a **2-column
+card grid** showing each template's name + description, with the
+active selection highlighted. Scales cleanly to the 12 templates
+shipped and beyond.
+
+### Sidebar — five-group structure
+
+Per the brief, the sidebar is reduced to five top-level groups
+with no duplicate or low-value entries:
+
+| Group | Items |
+|---|---|
+| **Home** | Dashboard · Calendar · Inbox · Open Loops |
+| **Clinical Work** | Cases · Internship Studio · Assessments · Reports · Clinical Tools |
+| **Research** | Thesis Studio · Research · Transcripts · Literature |
+| **Materials** | Worksheets · Resources · Dictionary |
+| **System** | Ethics · Backup · Settings |
+
+The page files for the demoted routes (workbook, phrases, audio,
+quick-notes, planner, interventions, formulation, reflect,
+checkins, goals, prep, loops, material, thinking, …) stay alive
+so deep links keep working; the sidebar just doesn't surface
+them as top-level entries anymore. Use Reports / Clinical Tools
+/ Thesis Studio as the canonical entry points.
+
+### Click-based test shells (deferred)
+
+The brief asked for click-based scoring for 7 official test
+shells (CARS-2 ratings, M-CHAT-R/F Y/N, Sensory quadrants,
+Adaptive support levels, Communication / Social / ABC). Each of
+those needs a different score model than the A/EC/NA/NO engine
+(1.0–4.0 ratings, yes/no/observed, four sensory patterns,
+support gradient). This is a clean architectural extension —
+the engine can be generalised to take a custom `ScoreSet` per
+template — and is honestly deferred to the next PR rather than
+half-built here.
+
 ### Navigation cleanup shipped with this pass
 
 - `/audio` standalone route removed from sidebar — audio

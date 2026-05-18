@@ -73,6 +73,7 @@ import {
   INTERNSHIP_SEED_ACCEPTED_KEY,
   SEED_INTERNSHIP_CASES,
   SEED_INTERNSHIP_REPORTS,
+  SEED_INTERNSHIP_SCORABLE,
   SEED_INTERNSHIP_SUPERVISION,
   SEED_INTERNSHIP_TESTS,
 } from "@/lib/internship/seed";
@@ -256,6 +257,13 @@ interface InternshipContextValue {
   // from a scored administration in one click.
   createDailyFromScorableAdmin: (adminId: string) => InternshipReport | null;
   createGridSummaryReport: (adminId: string) => InternshipReport | null;
+  // Append the grid summary into the most recent draft weekly report
+  // for the case (or null if none exists yet).
+  addScorableAdminToWeekly: (adminId: string) => InternshipReport | null;
+  // Same, into the most recent draft supervision note.
+  addScorableAdminToSupervision: (
+    adminId: string
+  ) => InternshipSupervisionNote | null;
 
   // Files.
   createFile: (input: {
@@ -340,6 +348,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
         setTests(SEED_INTERNSHIP_TESTS);
         setReports(SEED_INTERNSHIP_REPORTS);
         setSupervision(SEED_INTERNSHIP_SUPERVISION);
+        setScorableAdmins(SEED_INTERNSHIP_SCORABLE);
       } else {
         setCases(storedCases);
         setTests(storedTests);
@@ -753,6 +762,51 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
     },
     [scorableAdmins]
   );
+  // Append the grid summary into the most recent weekly draft for
+  // the case so the user doesn't manually copy/paste the synthesis.
+  const addScorableAdminToWeekly = useCallback(
+    (adminId: string): InternshipReport | null => {
+      const admin = scorableAdmins.find((a) => a.id === adminId);
+      if (!admin) return null;
+      const template = findScorableTemplate(admin.templateId);
+      if (!template) return null;
+      const weekly = reports
+        .filter((r) => r.kind === "weekly" && r.caseId === admin.caseId)
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+      if (!weekly || !weekly.weekly) return null;
+      const block = buildGridSummaryReportBody(admin, template);
+      const existing = weekly.weekly.gridsCompleted ?? "";
+      setReports((list) =>
+        patchWeeklySections(list, weekly.id, {
+          gridsCompleted: existing ? `${existing}\n\n${block}` : block,
+        })
+      );
+      return weekly;
+    },
+    [scorableAdmins, reports]
+  );
+  // Append the grid summary into the most recent supervision note.
+  const addScorableAdminToSupervision = useCallback(
+    (adminId: string): InternshipSupervisionNote | null => {
+      const admin = scorableAdmins.find((a) => a.id === adminId);
+      if (!admin) return null;
+      const template = findScorableTemplate(admin.templateId);
+      if (!template) return null;
+      const note = supervision
+        .filter((n) => n.caseId === admin.caseId)
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+      if (!note) return null;
+      const block = buildGridSummaryReportBody(admin, template);
+      const existing = note.gridsReviewed ?? "";
+      setSupervision((list) =>
+        patchSupervisionNote(list, note.id, {
+          gridsReviewed: existing ? `${existing}\n\n${block}` : block,
+        })
+      );
+      return note;
+    },
+    [scorableAdmins, supervision]
+  );
 
   // ─── Files ───────────────────────────────────────────────
   const createFile = useCallback(
@@ -786,9 +840,9 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
     setTests(SEED_INTERNSHIP_TESTS);
     setReports(SEED_INTERNSHIP_REPORTS);
     setSupervision(SEED_INTERNSHIP_SUPERVISION);
+    setScorableAdmins(SEED_INTERNSHIP_SCORABLE);
     setGrids([]);
     setFiles([]);
-    setScorableAdmins([]);
   }, []);
 
   const value = useMemo<InternshipContextValue>(
@@ -840,6 +894,8 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       removeScorableAdmin,
       createDailyFromScorableAdmin,
       createGridSummaryReport,
+      addScorableAdminToWeekly,
+      addScorableAdminToSupervision,
       seedAccepted,
       acceptSeed,
       resetSeed,
@@ -892,6 +948,8 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       removeScorableAdmin,
       createDailyFromScorableAdmin,
       createGridSummaryReport,
+      addScorableAdminToWeekly,
+      addScorableAdminToSupervision,
       seedAccepted,
       acceptSeed,
       resetSeed,
