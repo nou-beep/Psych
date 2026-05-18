@@ -15,6 +15,7 @@ import {
   GraduationCap,
   Layers,
   Plus,
+  Settings,
   Users,
 } from "lucide-react";
 
@@ -72,9 +73,16 @@ export default function InternshipStudioPage() {
         title="Internship Studio"
         subtitle="Espace dédié au travail clinique de stage — cas suivis, tests à administrer, grilles d'observation, rapports, supervision."
         action={
-          <Button size="sm" onClick={() => setNewCaseOpen(true)}>
-            <Plus size={13} /> New internship case
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link href="/settings/internship">
+              <Button size="sm" variant="ghost">
+                <Settings size={13} /> Préférences
+              </Button>
+            </Link>
+            <Button size="sm" onClick={() => setNewCaseOpen(true)}>
+              <Plus size={13} /> New internship case
+            </Button>
+          </div>
         }
       />
 

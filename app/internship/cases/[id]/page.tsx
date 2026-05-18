@@ -54,6 +54,20 @@ import {
 } from "@/lib/internship/test-shells";
 import { suggestGridShellsForTest } from "@/lib/internship/grid-library";
 import { SCORABLE_TEMPLATES } from "@/lib/internship/scorable-templates";
+import {
+  INTERVENTION_CHIPS,
+  generateInterventionParagraph,
+  generateResponseParagraph,
+  type InterventionChip,
+} from "@/lib/internship/intervention-chips";
+import {
+  CONTEXT_OPTIONS,
+  ChipSelect,
+  MultiChipSelect,
+  RESPONSE_QUALITY_OPTIONS,
+  SegmentedScore,
+  type ResponseQuality,
+} from "@/components/ui/structured";
 import { ScorableGridSection } from "@/components/internship/ScorableGridSection";
 import { StructuredProfileForm } from "@/components/internship/StructuredProfileForm";
 
@@ -1236,11 +1250,13 @@ function DailySectionsEditor({
   value: NonNullable<InternshipReport["daily"]>;
   onChange: (patch: Partial<NonNullable<InternshipReport["daily"]>>) => void;
 }) {
-  const fields: Array<{
+  // Free-text sections — kept as textareas for now since each
+  // describes a unique observation. The structured fields below
+  // (context, intervention chips, response quality) are click-driven.
+  const textFields: Array<{
     key: keyof typeof value;
     label: string;
   }> = [
-    { key: "contextSession", label: "Context / session" },
     { key: "objectives", label: "Objectives" },
     { key: "observations", label: "Observations" },
     { key: "communication", label: "Communication" },
@@ -1248,34 +1264,202 @@ function DailySectionsEditor({
     { key: "behavior", label: "Behaviour" },
     { key: "emotionalRegulation", label: "Emotional regulation" },
     { key: "sensoryNotes", label: "Sensory notes" },
-    { key: "interventionUsed", label: "Intervention used" },
-    { key: "response", label: "Response" },
     { key: "reflection", label: "Reflection" },
     { key: "nextSteps", label: "Next steps" },
   ];
+
+  const chips: InterventionChip[] = value.interventionChips ?? [];
+
+  // Auto-generate the intervention paragraph + response paragraph
+  // from chip selections. The user can edit the strings after.
+  function syncFromChips(nextChips: InterventionChip[]) {
+    onChange({
+      interventionChips: nextChips,
+      interventionUsed: generateInterventionParagraph(nextChips),
+      response: generateResponseParagraph(value.responseQuality, nextChips),
+    });
+  }
+
+  function syncFromQuality(next: ResponseQuality | undefined) {
+    onChange({
+      responseQuality: next,
+      response: generateResponseParagraph(next, chips),
+    });
+  }
+
+  // Chip rows grouped — the form reads more cleanly when each
+  // intervention category is its own subheading.
+  const interventionGroups: Array<{
+    label: string;
+    items: typeof INTERVENTION_CHIPS;
+  }> = [
+    {
+      label: "Communication / instruction",
+      items: INTERVENTION_CHIPS.filter((c) => c.group === "communication"),
+    },
+    {
+      label: "Soutien direct",
+      items: INTERVENTION_CHIPS.filter((c) => c.group === "soutien"),
+    },
+    {
+      label: "Sensoriel / moteur",
+      items: INTERVENTION_CHIPS.filter((c) => c.group === "sensoriel-moteur"),
+    },
+    {
+      label: "Social",
+      items: INTERVENTION_CHIPS.filter((c) => c.group === "social"),
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-      <FieldText
-        label="Date"
-        type="date"
-        value={value.date}
-        onChange={(v) => onChange({ date: v })}
-      />
-      {fields.map((f) => (
-        <div key={f.key} className="md:col-span-2">
-          <label
-            className="text-[10px] uppercase tracking-wide block mb-0.5"
-            style={{ color: "var(--psych-muted)" }}
-          >
-            {f.label}
-          </label>
-          <Textarea
-            rows={2}
-            value={(value[f.key] as string) ?? ""}
-            onChange={(e) => onChange({ [f.key]: e.target.value })}
+    <div className="space-y-3">
+      {/* Date + context chip on one row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <FieldText
+          label="Date"
+          type="date"
+          value={value.date}
+          onChange={(v) => onChange({ date: v })}
+        />
+        <div className="md:col-span-2">
+          <ChipSelect
+            label="Contexte / séance"
+            options={CONTEXT_OPTIONS}
+            value={value.contextChip}
+            onChange={(v) =>
+              onChange({
+                contextChip: v,
+                contextSession:
+                  v && !value.contextSession
+                    ? CONTEXT_OPTIONS.find((o) => o.value === v)?.label
+                    : value.contextSession,
+              })
+            }
           />
         </div>
-      ))}
+      </div>
+
+      {/* Free-text observation fields */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {textFields.map((f) => (
+          <div key={f.key} className="md:col-span-2">
+            <label
+              className="text-[10px] uppercase tracking-wide block mb-0.5"
+              style={{ color: "var(--psych-muted)" }}
+            >
+              {f.label}
+            </label>
+            <Textarea
+              rows={2}
+              value={(value[f.key] as string) ?? ""}
+              onChange={(e) => onChange({ [f.key]: e.target.value })}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Intervention chips — click-driven */}
+      <div
+        className="rounded-xl border p-3"
+        style={{
+          backgroundColor: "var(--psych-bg)",
+          borderColor: "var(--psych-border)",
+        }}
+      >
+        <p
+          className="text-[10px] uppercase tracking-wider mb-2 font-semibold"
+          style={{ color: "var(--psych-text)" }}
+        >
+          Intervention used — sélectionner les chips
+        </p>
+        <div className="space-y-2">
+          {interventionGroups.map((g) => (
+            <MultiChipSelect
+              key={g.label}
+              label={g.label}
+              options={g.items.map((c) => ({
+                value: c.value,
+                label: c.label,
+                hint: c.phrase,
+              }))}
+              value={chips.filter((c) =>
+                g.items.some((x) => x.value === c)
+              )}
+              onChange={(next) => {
+                // Merge the picks from this group with the chips
+                // belonging to the other groups.
+                const otherGroups = chips.filter(
+                  (c) => !g.items.some((x) => x.value === c)
+                );
+                syncFromChips([...otherGroups, ...next]);
+              }}
+            />
+          ))}
+        </div>
+        {value.interventionUsed && (
+          <div
+            className="mt-3 rounded-md p-2 text-xs"
+            style={{
+              backgroundColor: "var(--psych-card)",
+              border: "1px solid var(--psych-border)",
+              color: "var(--psych-text)",
+            }}
+          >
+            <span
+              className="text-[10px] uppercase tracking-wider block mb-1"
+              style={{ color: "var(--psych-muted)" }}
+            >
+              Paragraphe généré
+            </span>
+            {value.interventionUsed}
+          </div>
+        )}
+      </div>
+
+      {/* Response — segmented control + auto-generated text */}
+      <div
+        className="rounded-xl border p-3"
+        style={{
+          backgroundColor: "var(--psych-bg)",
+          borderColor: "var(--psych-border)",
+        }}
+      >
+        <SegmentedScore<ResponseQuality>
+          label="Réponse de l'enfant"
+          options={RESPONSE_QUALITY_OPTIONS.map((o, i) => ({
+            value: o.value,
+            label: o.label,
+            tone:
+              i === 0
+                ? "alarm"
+                : i === 1
+                ? "warning"
+                : i === 2
+                ? "warm"
+                : "calm",
+          }))}
+          value={value.responseQuality}
+          onChange={syncFromQuality}
+        />
+        {value.response && (
+          <div
+            className="mt-3 rounded-md p-2 text-xs"
+            style={{
+              backgroundColor: "var(--psych-card)",
+              border: "1px solid var(--psych-border)",
+              color: "var(--psych-text)",
+            }}
+          >
+            <span
+              className="text-[10px] uppercase tracking-wider block mb-1"
+              style={{ color: "var(--psych-muted)" }}
+            >
+              Paragraphe généré
+            </span>
+            {value.response}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

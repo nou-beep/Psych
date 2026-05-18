@@ -492,6 +492,58 @@ Méthodologie · Missions réalisées · Étude de cas clinique
 `defaultFinalReportInitial()` pre-seeds the cover page with the
 intern's identity + institutional context.
 
+### Structured input primitive library
+
+`components/ui/structured/` ships six reusable primitives + a
+typed dictionary of standard clinical option lists. Use them
+anywhere a workflow would otherwise default to a blank textarea:
+
+| Primitive | What it replaces |
+|---|---|
+| `ChipSelect` | A dropdown for a small set of mutually exclusive options |
+| `MultiChipSelect` | Free-text "tag this with…" inputs |
+| `SegmentedScore` | Numeric severity selects on ordered scales |
+| `RatingScale` | 1–N numeric scales with anchor labels |
+| `OptionalNoteCollapse` | Always-visible "additional notes" textareas |
+| `GeneratedTextBlock` | Generated paragraphs + source attribution + edit / regenerate / insert |
+
+Standard option dictionaries (`options.ts`): `FREQUENCY_OPTIONS`,
+`INTENSITY_OPTIONS`, `SUPPORT_LEVEL_OPTIONS`, `ACQUISITION_OPTIONS`,
+`CLINICAL_CONFIDENCE_OPTIONS`, `CONTEXT_OPTIONS`,
+`RESPONSE_QUALITY_OPTIONS` — French labels, typed enums,
+`labelOf()` helper for display.
+
+### Intervention chips on the Internship daily editor
+
+`lib/internship/intervention-chips.ts` ships **22 intervention
+chips** across four groups (communication / soutien / sensoriel-
+moteur / social). Each chip carries an inline phrase fragment used
+by the rule-based text generator.
+
+The `DailySectionsEditor` in the case Reports tab now exposes:
+
+- A `CONTEXT_OPTIONS` chip row for the session context
+- A grouped `MultiChipSelect` of the 22 intervention chips
+- A `SegmentedScore` for response quality (Absente → Généralisée),
+  colour-toned alarm → calm
+- Auto-generated French paragraphs for `interventionUsed` and
+  `response` driven by the chip selections, regenerated on every
+  click
+
+Both generated strings remain editable in the underlying text
+fields.
+
+### Internship Settings page
+
+`/settings/internship` exposes the professional defaults
+(`DEFAULT_EVALUATOR` + `DEFAULT_INSTITUTION`) as editable fields
+backed by `saveEvaluator()` / `saveInstitution()`. Changes flow
+into every grid administration, daily / weekly / final report,
+supervision note, and printable view.
+
+The Internship Studio dashboard surfaces a **Préférences** link
+in its header action.
+
 ### Click-based test shells (deferred)
 
 The brief asked for click-based scoring for 7 official test

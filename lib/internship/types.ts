@@ -190,6 +190,9 @@ export const INTERNSHIP_REPORT_LABELS: Record<InternshipReportKind, string> = {
 export interface DailyReportSections {
   date: string;
   contextSession?: string;
+  // Structured context chip — drives the "context / session" line
+  // when the user picks from the standard CONTEXT_OPTIONS.
+  contextChip?: import("@/components/ui/structured/options").ClinicalContext;
   objectives?: string;
   observations?: string;
   communication?: string;
@@ -197,8 +200,16 @@ export interface DailyReportSections {
   behavior?: string;
   emotionalRegulation?: string;
   sensoryNotes?: string;
+  // Free-text fallback — the chip selections below auto-generate
+  // this string but the user can edit it freely.
   interventionUsed?: string;
+  // Structured chip selections for the intervention section.
+  // Persisted so the chip state survives reloads and can drive
+  // weekly / final-report assembly.
+  interventionChips?: import("./intervention-chips").InterventionChip[];
   response?: string;
+  // Structured chip for the response section.
+  responseQuality?: import("@/components/ui/structured/options").ResponseQuality;
   reflection?: string;
   nextSteps?: string;
 }
