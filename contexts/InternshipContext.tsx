@@ -59,6 +59,17 @@ import {
 } from "@/lib/internship/supervision";
 import { newFileRecord } from "@/lib/internship/files";
 import {
+  clearItemScore as clearItemScoreFn,
+  newAdministration,
+  patchAdministration as patchAdminFn,
+  removeAdministration as removeAdminFn,
+  scoreItem as scoreItemFn,
+  type CapabilityScore,
+  type ScorableGridAdministration,
+} from "@/lib/internship/scorable-grids";
+import { buildDailyFromGrid, buildGridSummaryReportBody } from "@/lib/internship/scorable-text";
+import { findScorableTemplate } from "@/lib/internship/scorable-templates";
+import {
   INTERNSHIP_SEED_ACCEPTED_KEY,
   SEED_INTERNSHIP_CASES,
   SEED_INTERNSHIP_REPORTS,
@@ -216,6 +227,36 @@ interface InternshipContextValue {
     targetId: string
   ) => void;
 
+  // Scorable grid administrations (click-based engine).
+  scorableAdmins: ScorableGridAdministration[];
+  createScorableAdmin: (input: {
+    caseId: string;
+    templateId: string;
+    date?: string;
+    evaluator?: string;
+    context?: string;
+    sessionLabel?: string;
+    linkedTestId?: string;
+  }) => ScorableGridAdministration;
+  scoreScorableItem: (
+    adminId: string,
+    itemId: string,
+    score: CapabilityScore,
+    extra?: { note?: string; evidence?: string }
+  ) => void;
+  clearScorableItem: (adminId: string, itemId: string) => void;
+  patchScorableAdmin: (
+    id: string,
+    patch: Partial<
+      Omit<ScorableGridAdministration, "id" | "createdAt" | "caseId" | "scores">
+    >
+  ) => void;
+  removeScorableAdmin: (id: string) => void;
+  // Convenience: build a daily report or grid-summary simple report
+  // from a scored administration in one click.
+  createDailyFromScorableAdmin: (adminId: string) => InternshipReport | null;
+  createGridSummaryReport: (adminId: string) => InternshipReport | null;
+
   // Files.
   createFile: (input: {
     caseId: string;
@@ -246,6 +287,9 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
     []
   );
   const [files, setFiles] = useState<InternshipFile[]>([]);
+  const [scorableAdmins, setScorableAdmins] = useState<
+    ScorableGridAdministration[]
+  >([]);
   const [seedAccepted, setSeedAccepted] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -276,6 +320,10 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
         INTERNSHIP_STORAGE_KEYS.files,
         []
       );
+      const storedScorable = loadFromStorage<ScorableGridAdministration[]>(
+        INTERNSHIP_STORAGE_KEYS.scorableAdmins,
+        []
+      );
       const accepted = loadFromStorage<boolean>(
         INTERNSHIP_SEED_ACCEPTED_KEY,
         false
@@ -299,6 +347,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
         setReports(storedReports);
         setSupervision(storedSupervision);
         setFiles(storedFiles);
+        setScorableAdmins(storedScorable);
       }
       setSeedAccepted(accepted);
     } catch {
@@ -333,6 +382,10 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
     if (!ready) return;
     saveToStorage(INTERNSHIP_STORAGE_KEYS.files, files);
   }, [files, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    saveToStorage(INTERNSHIP_STORAGE_KEYS.scorableAdmins, scorableAdmins);
+  }, [scorableAdmins, ready]);
 
   // ─── Cases ───────────────────────────────────────────────
   const createCase = useCallback(
@@ -612,6 +665,95 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  // ─── Scorable grid administrations ────────────────────────
+  const createScorableAdmin = useCallback(
+    (input: {
+      caseId: string;
+      templateId: string;
+      date?: string;
+      evaluator?: string;
+      context?: string;
+      sessionLabel?: string;
+      linkedTestId?: string;
+    }) => {
+      const a = newAdministration(input);
+      setScorableAdmins((list) => [a, ...list]);
+      return a;
+    },
+    []
+  );
+  const scoreScorableItem = useCallback(
+    (
+      adminId: string,
+      itemId: string,
+      score: CapabilityScore,
+      extra: { note?: string; evidence?: string } = {}
+    ) =>
+      setScorableAdmins((list) =>
+        scoreItemFn(list, adminId, itemId, score, extra)
+      ),
+    []
+  );
+  const clearScorableItem = useCallback(
+    (adminId: string, itemId: string) =>
+      setScorableAdmins((list) => clearItemScoreFn(list, adminId, itemId)),
+    []
+  );
+  const patchScorableAdmin = useCallback(
+    (
+      id: string,
+      patch: Partial<
+        Omit<ScorableGridAdministration, "id" | "createdAt" | "caseId" | "scores">
+      >
+    ) => setScorableAdmins((list) => patchAdminFn(list, id, patch)),
+    []
+  );
+  const removeScorableAdmin = useCallback(
+    (id: string) =>
+      setScorableAdmins((list) => removeAdminFn(list, id)),
+    []
+  );
+  const createDailyFromScorableAdmin = useCallback(
+    (adminId: string): InternshipReport | null => {
+      const admin = scorableAdmins.find((a) => a.id === adminId);
+      if (!admin) return null;
+      const template = findScorableTemplate(admin.templateId);
+      if (!template) return null;
+      const sections = buildDailyFromGrid(admin, template);
+      const r = newDailyReport({
+        caseId: admin.caseId,
+        date: admin.date,
+        initial: sections,
+      });
+      // Attach a structured back-link to the test that prompted the
+      // grid so the report card surfaces it.
+      const withLink = admin.linkedTestId
+        ? { ...r, linkedTestIds: [admin.linkedTestId] }
+        : r;
+      setReports((list) => [withLink, ...list]);
+      return withLink;
+    },
+    [scorableAdmins]
+  );
+  const createGridSummaryReport = useCallback(
+    (adminId: string): InternshipReport | null => {
+      const admin = scorableAdmins.find((a) => a.id === adminId);
+      if (!admin) return null;
+      const template = findScorableTemplate(admin.templateId);
+      if (!template) return null;
+      const body = buildGridSummaryReportBody(admin, template);
+      const r = newSimpleReport({
+        caseId: admin.caseId,
+        kind: "grid-summary",
+        title: `${template.name} · ${admin.date}`,
+        body,
+      });
+      setReports((list) => [r, ...list]);
+      return r;
+    },
+    [scorableAdmins]
+  );
+
   // ─── Files ───────────────────────────────────────────────
   const createFile = useCallback(
     (input: {
@@ -646,6 +788,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
     setSupervision(SEED_INTERNSHIP_SUPERVISION);
     setGrids([]);
     setFiles([]);
+    setScorableAdmins([]);
   }, []);
 
   const value = useMemo<InternshipContextValue>(
@@ -689,6 +832,14 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       unlinkSupervision,
       createFile,
       removeFile,
+      scorableAdmins,
+      createScorableAdmin,
+      scoreScorableItem,
+      clearScorableItem,
+      patchScorableAdmin,
+      removeScorableAdmin,
+      createDailyFromScorableAdmin,
+      createGridSummaryReport,
       seedAccepted,
       acceptSeed,
       resetSeed,
@@ -733,6 +884,14 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       unlinkSupervision,
       createFile,
       removeFile,
+      scorableAdmins,
+      createScorableAdmin,
+      scoreScorableItem,
+      clearScorableItem,
+      patchScorableAdmin,
+      removeScorableAdmin,
+      createDailyFromScorableAdmin,
+      createGridSummaryReport,
       seedAccepted,
       acceptSeed,
       resetSeed,

@@ -21,6 +21,9 @@ function isImmersiveRoute(pathname: string | null): boolean {
   if (pathname === "/welcome") return true;
   if (pathname.startsWith("/login/")) return true;
   if (pathname === "/client" || pathname.startsWith("/client/")) return true;
+  // Print views render without app chrome so they can be sent
+  // straight to a printer or saved as PDF.
+  if (pathname.startsWith("/internship/grid-print/")) return true;
   return false;
 }
 
