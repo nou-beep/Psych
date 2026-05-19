@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useT } from "@/contexts/LocaleContext";
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
 import { loadFromStorage, saveToStorage } from "@/lib/store";
 import { LogOut, Sparkles, Command } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,19 +14,16 @@ import { portalForRoute, type Portal } from "@/lib/auth";
 
 const SIDEBAR_GROUPS_STORAGE_KEY = "psych-sidebar-groups-v1";
 
-const PORTAL_BADGE: Record<Portal, { label: string; tint: string; ink: string }> = {
+const PORTAL_BADGE: Record<Portal, { tint: string; ink: string }> = {
   formation: {
-    label: "Formation",
     tint: "rgba(140,100,200,0.14)",
     ink: "#5B36A8",
   },
   therapist: {
-    label: "Therapist",
     tint: "rgba(199,125,170,0.16)",
     ink: "#9F1239",
   },
   client: {
-    label: "Client",
     tint: "rgba(140,100,200,0.14)",
     ink: "#7C4FB3",
   },
@@ -35,6 +34,7 @@ export function Sidebar() {
   const router = useRouter();
   const { activeCases, goals } = useApp();
   const { session, signOut } = useAuth();
+  const t = useT();
   const detectedPortal: Portal = useMemo(
     () => portalForRoute(pathname ?? "") ?? session?.portal ?? "therapist",
     [pathname, session?.portal]
@@ -127,7 +127,7 @@ export function Sidebar() {
               color: portalBadge.ink,
             }}
           >
-            {portalBadge.label}
+            {t(`common.portalLabel.${detectedPortal}`)}
           </span>
         </div>
       </div>
@@ -151,7 +151,7 @@ export function Sidebar() {
           }}
         >
           <Command size={11} />
-          <span className="flex-1 text-left">Quick search…</span>
+          <span className="flex-1 text-left">{t("sidebar.quickSearch")}</span>
           <kbd
             className="text-[9px] px-1 py-0.5 rounded border font-mono"
             style={{ borderColor: "var(--psych-border)" }}
@@ -191,13 +191,14 @@ export function Sidebar() {
                   strokeLinejoin="round"
                 />
               </svg>
-              {group.label}
+              {group.labelKey ? t(group.labelKey) : group.label}
             </button>
             {open && (
             <div className="space-y-0.5">
-              {group.items.map(({ href, label, icon: Icon }) => {
+              {group.items.map(({ href, label, labelKey, icon: Icon }) => {
                 const active = isActive(href);
                 const badge = badges[href];
+                const displayLabel = labelKey ? t(labelKey) : label;
                 return (
                   <Link
                     key={`${href}::${label}`}
@@ -229,7 +230,7 @@ export function Sidebar() {
                     }}
                   >
                     <Icon size={16} strokeWidth={active ? 2.2 : 1.8} />
-                    <span className="flex-1">{label}</span>
+                    <span className="flex-1">{displayLabel}</span>
                     {badge !== null && badge !== undefined && badge > 0 && (
                       <span
                         className="text-[9px] px-1.5 py-0.5 rounded-full font-bold"
@@ -260,18 +261,17 @@ export function Sidebar() {
         </nav>
       </div>
 
-      {/* Footer — session + sign out */}
+      {/* Footer — session + sign out + language toggle */}
       <div
         className="px-4 py-3 border-t relative text-xs"
         style={{ borderColor: "var(--psych-border)", color: "var(--psych-muted)" }}
       >
         {session && (
           <div className="mb-2 truncate" style={{ color: "var(--psych-text)" }}>
-            <span className="opacity-70">Signed in · </span>
             <span className="font-medium">{session.email}</span>
           </div>
         )}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => {
               signOut();
@@ -282,9 +282,9 @@ export function Sidebar() {
               borderColor: "var(--psych-border)",
               color: "var(--psych-muted)",
             }}
-            aria-label="Sign out"
+            aria-label={t("common.signOut")}
           >
-            <LogOut size={11} /> Sign out
+            <LogOut size={11} /> {t("common.signOut")}
           </button>
           <Link
             href="/"
@@ -294,8 +294,9 @@ export function Sidebar() {
               color: "var(--psych-muted)",
             }}
           >
-            Switch portal
+            {t("common.switchPortal")}
           </Link>
+          <LanguageToggle size="sm" variant="solid" />
         </div>
       </div>
     </aside>

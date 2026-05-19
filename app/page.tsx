@@ -16,15 +16,17 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useT } from "@/contexts/LocaleContext";
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
 import { setPortalPreference } from "@/lib/client/portal-store";
 import { homePathFor, loginPathFor, type Portal } from "@/lib/auth";
 
 interface PortalCard {
   id: Portal;
-  title: string;
-  blurb: string;
-  bullets: string[];
-  cta: string;
+  titleKey: string;
+  blurbKey: string;
+  bulletKeys: [string, string, string, string];
+  ctaKey: string;
   icon: typeof Stethoscope;
   iconGradient: string;
   cardGradient: string;
@@ -37,16 +39,15 @@ interface PortalCard {
 const CARDS: PortalCard[] = [
   {
     id: "formation",
-    title: "Formation Portal",
-    blurb:
-      "Thesis, internship, supervised practice, research, reports, tests and grids. The academic + clinical-training workspace.",
-    bullets: [
-      "Thesis Studio + Writer",
-      "Internship Studio + grids",
-      "Tests & assessment shells",
-      "Supervision prep + exports",
+    titleKey: "auth.gateway.formation.title",
+    blurbKey: "auth.gateway.formation.blurb",
+    bulletKeys: [
+      "auth.gateway.formation.bullets.a",
+      "auth.gateway.formation.bullets.b",
+      "auth.gateway.formation.bullets.c",
+      "auth.gateway.formation.bullets.d",
     ],
-    cta: "Continue as Trainee",
+    ctaKey: "auth.gateway.formation.cta",
     icon: GraduationCap,
     iconGradient: "linear-gradient(135deg, #B49AE2, #8E72CC)",
     cardGradient:
@@ -58,16 +59,15 @@ const CARDS: PortalCard[] = [
   },
   {
     id: "therapist",
-    title: "Therapist Portal",
-    blurb:
-      "Cases, structured interviews, MSE, formulations, longitudinal tracking, reports, supervision — built for documentation and clinical reasoning.",
-    bullets: [
-      "Cases + clinical tools",
-      "Assessments + reports",
-      "Sessions + calendar",
-      "Worksheets + resources",
+    titleKey: "auth.gateway.therapist.title",
+    blurbKey: "auth.gateway.therapist.blurb",
+    bulletKeys: [
+      "auth.gateway.therapist.bullets.a",
+      "auth.gateway.therapist.bullets.b",
+      "auth.gateway.therapist.bullets.c",
+      "auth.gateway.therapist.bullets.d",
     ],
-    cta: "Continue as Therapist",
+    ctaKey: "auth.gateway.therapist.cta",
     icon: Stethoscope,
     iconGradient: "linear-gradient(135deg, #F9A8D4, #D67B9E)",
     cardGradient:
@@ -79,16 +79,15 @@ const CARDS: PortalCard[] = [
   },
   {
     id: "client",
-    title: "Client Portal",
-    blurb:
-      "A clinically grounded companion for therapy work — assigned worksheets, assessments, appointments, reflections. Quieter, structured, lower cognitive load.",
-    bullets: [
-      "Assigned work + worksheets",
-      "Assessments + reflections",
-      "Calendar + reminders",
-      "Resources + progress",
+    titleKey: "auth.gateway.client.title",
+    blurbKey: "auth.gateway.client.blurb",
+    bulletKeys: [
+      "auth.gateway.client.bullets.a",
+      "auth.gateway.client.bullets.b",
+      "auth.gateway.client.bullets.c",
+      "auth.gateway.client.bullets.d",
     ],
-    cta: "Continue as Client",
+    ctaKey: "auth.gateway.client.cta",
     icon: Heart,
     iconGradient: "linear-gradient(135deg, #C7B2E0, #D6A4D6)",
     cardGradient:
@@ -103,6 +102,7 @@ const CARDS: PortalCard[] = [
 export default function GatewayPage() {
   const router = useRouter();
   const { session, signOut } = useAuth();
+  const t = useT();
 
   // Soft prefetch — no auto-redirect. The user must choose.
   useEffect(() => {
@@ -154,6 +154,15 @@ export default function GatewayPage() {
           padding: "4rem 1.5rem 3rem",
         }}
       >
+        <div
+          style={{
+            position: "absolute",
+            top: "1.5rem",
+            right: "1.5rem",
+          }}
+        >
+          <LanguageToggle size="md" variant="soft" />
+        </div>
         <div style={{ textAlign: "center", marginBottom: "3rem" }}>
           <div
             style={{
@@ -171,7 +180,7 @@ export default function GatewayPage() {
               textTransform: "uppercase",
             }}
           >
-            <Sparkles size={11} /> Eyla · Three-Portal Workspace
+            <Sparkles size={11} /> {t("auth.gateway.brand")}
           </div>
           <h1
             style={{
@@ -183,7 +192,7 @@ export default function GatewayPage() {
               lineHeight: 1.15,
             }}
           >
-            Choose your portal.
+            {t("auth.gateway.heading")}
           </h1>
           <p
             style={{
@@ -196,10 +205,7 @@ export default function GatewayPage() {
               lineHeight: 1.55,
             }}
           >
-            Three workspaces, one platform. Formation is the academic and
-            training workspace. Therapist is the professional clinical
-            workspace. Client is the companion for assigned therapy work
-            between sessions.
+            {t("auth.gateway.lede")}
           </p>
 
           {session && (
@@ -217,8 +223,10 @@ export default function GatewayPage() {
                 color: "#5C4870",
               }}
             >
-              Signed in as <strong>{session.email}</strong> · portal{" "}
-              <strong>{session.portal}</strong>
+              {t("common.signedInAs", { email: session.email })} ·{" "}
+              {t("common.signedInPortal", {
+                portal: t(`common.portalLabel.${session.portal}`),
+              })}
               <button
                 onClick={signOut}
                 style={{
@@ -232,7 +240,7 @@ export default function GatewayPage() {
                   textDecoration: "underline",
                 }}
               >
-                <LogOut size={11} /> Sign out
+                <LogOut size={11} /> {t("common.signOut")}
               </button>
             </div>
           )}
@@ -299,7 +307,7 @@ export default function GatewayPage() {
                     color: "#1F1733",
                   }}
                 >
-                  {card.title}
+                  {t(card.titleKey)}
                 </h2>
                 <p
                   style={{
@@ -309,7 +317,7 @@ export default function GatewayPage() {
                     lineHeight: 1.6,
                   }}
                 >
-                  {card.blurb}
+                  {t(card.blurbKey)}
                 </p>
                 <ul
                   style={{
@@ -321,8 +329,8 @@ export default function GatewayPage() {
                     lineHeight: 1.7,
                   }}
                 >
-                  {card.bullets.map((b) => (
-                    <li key={b}>· {b}</li>
+                  {card.bulletKeys.map((bk) => (
+                    <li key={bk}>· {t(bk)}</li>
                   ))}
                 </ul>
                 <div
@@ -336,7 +344,7 @@ export default function GatewayPage() {
                     color: card.accent,
                   }}
                 >
-                  {card.cta} <ArrowRight size={14} />
+                  {t(card.ctaKey)} <ArrowRight size={14} />
                 </div>
               </button>
             );
@@ -351,7 +359,7 @@ export default function GatewayPage() {
             color: "#7A6090",
           }}
         >
-          You can switch portals any time from the sidebar footer.
+          {t("auth.gateway.footer")}
         </p>
       </div>
     </div>

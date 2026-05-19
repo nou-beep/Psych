@@ -1,8 +1,101 @@
-# Eyla ✦ — Three-Portal Psychology Workspace
+# Eyla ✦ — Three-Portal Bilingual Psychology Workspace
 
 A clinical psychology workspace organised around three portals:
 **Formation** (academic + training), **Therapist** (clinical
-casework), and **Client** (assigned work + appointments).
+casework), and **Client** (assigned work + appointments). Fully
+bilingual — French (default) and English — with instant switching
+from a persistent toggle.
+
+---
+
+## Bilingual architecture (FR / EN)
+
+Eyla ships with a custom i18n layer designed for academic French
+quality. No runtime dependency — translation lookup is a pure
+function.
+
+### Folder structure
+
+```
+lib/i18n/
+  index.ts                  · t(), readLocale(), writeLocale(),
+                              formatDate / formatNumber / formatRelative
+  dictionaries/
+    en.ts                   · canonical English dictionary
+    fr.ts                   · French dictionary, structurally identical
+contexts/LocaleContext.tsx  · React provider, useLocale(), useT()
+components/shared/
+  LanguageToggle.tsx        · EN/FR pill, persists via LocaleContext
+```
+
+### Translation key convention
+
+Namespaced dot-separated keys: `auth.login.title`,
+`formation.dashboard.stats.gridsPending`, `thesis.chapters.methodology`.
+Vars interpolate via `{name}` syntax — `t("count.tests", { n: 3 })`.
+
+### Usage pattern
+
+```tsx
+"use client";
+import { useT } from "@/contexts/LocaleContext";
+
+export function Greeting() {
+  const t = useT();
+  return <h1>{t("formation.dashboard.hero.greetingMorning")}</h1>;
+}
+```
+
+For sidebar / nav entries, both `label` (English fallback) and an
+optional `labelKey` are stored — components prefer the key when
+present, so a single config drives both locales:
+
+```ts
+{ href: "/formation/thesis", label: "Overview",
+  labelKey: "sidebar.items.thesisOverview", icon: GraduationCap }
+```
+
+### Locale-aware formatting
+
+`useLocale()` exposes `formatDate`, `formatNumber`, `formatRelative`
+backed by `Intl.*` — French gets *juin 2026* / *1 234,5*, English
+gets *June 2026* / *1,234.5*.
+
+### Persistence + hydration
+
+Active locale lives at `eyla-locale-v1` in localStorage. The
+`LocaleProvider` boots with the SSR-safe default (`fr`), reads the
+persisted choice in a `useEffect`, and syncs `<html lang>` so screen
+readers and the browser pick up the right language. Switching the
+toggle rerenders every subscribed component without a page reload.
+
+### Academic French quality
+
+French translations use the canonical academic register:
+
+| EN | FR |
+|---|---|
+| Thesis | Mémoire (the PFE is a Master's-level work) |
+| Literature Review | Revue de littérature |
+| Methodology | Méthodologie |
+| Findings / Results | Résultats |
+| Supervisor | Encadrant |
+| References | Références bibliographiques |
+| Client (portal) | Patient |
+| Therapist | Thérapeute |
+| Sign out | Se déconnecter |
+
+A test (`test/lib/i18n.test.ts`) asserts that FR and EN expose
+**exactly the same set of keys**, that no FR entry is empty, and
+that critical phrases are not accidentally identical to their
+English version. 998 tests pass at the time of writing.
+
+### Adding a new locale
+
+1. Add the code to `LOCALES` in `lib/i18n/index.ts`.
+2. Drop a `dictionaries/<code>.ts` file mirroring the EN structure.
+3. Add the option to `LanguageToggle`'s rendered options.
+4. Optional: add a locale tag in `LOCALE_TAG` for `Intl.*` formatting.
 
 ---
 

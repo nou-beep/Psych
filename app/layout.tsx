@@ -10,6 +10,7 @@ import { PsyGraphProvider } from "@/contexts/PsyGraphContext";
 import { InternshipProvider } from "@/contexts/InternshipContext";
 import { WorkspaceModeProvider } from "@/contexts/WorkspaceModeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LocaleProvider } from "@/contexts/LocaleContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ChromeGate } from "@/components/shared/ChromeGate";
 import { RequireAuth } from "@/components/auth/RequireAuth";
@@ -17,14 +18,14 @@ import { PWARegister } from "@/components/shared/PWARegister";
 import { AccessibilityShell } from "@/components/shared/AccessibilityShell";
 
 export const metadata: Metadata = {
-  title: "Psych — Clinical Psychology Workspace",
+  title: "Eyla — Bilingual Academic & Clinical Workspace",
   description:
-    "A vibrant, whimsical workspace for psychology students, interns, therapists, researchers, and supervisors.",
+    "An academic and clinical workspace for psychology students, interns, therapists, researchers, supervisors — bilingual (FR / EN).",
   manifest: "/manifest.json",
-  applicationName: "Psych",
+  applicationName: "Eyla",
   appleWebApp: {
     capable: true,
-    title: "Psych",
+    title: "Eyla",
     statusBarStyle: "default",
   },
   icons: {
@@ -45,8 +46,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning>
       <body>
+        <LocaleProvider>
         <ThemeProvider>
           <SettingsProvider>
           <AuthProvider>
@@ -75,6 +77,7 @@ export default function RootLayout({
           </AuthProvider>
           </SettingsProvider>
         </ThemeProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

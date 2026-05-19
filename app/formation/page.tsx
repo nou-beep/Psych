@@ -25,27 +25,30 @@ import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
 import { useThesis } from "@/contexts/ThesisContext";
 import { useInternship } from "@/contexts/InternshipContext";
+import { useLocale, useT } from "@/contexts/LocaleContext";
 
-const today = new Date();
-const displayDate = today.toLocaleDateString("fr-FR", {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
-
-const quickActions = [
-  { label: "Thesis Overview", icon: GraduationCap, href: "/formation/thesis", tint: "#8E72CC" },
-  { label: "Thesis Writer", icon: FileText, href: "/formation/thesis/writer", tint: "#5B36A8" },
-  { label: "Internship Overview", icon: Briefcase, href: "/formation/internship", tint: "#9F1239" },
-  { label: "Tests & Grids", icon: Grid3X3, href: "/formation/internship/tests-grids", tint: "#3B82F6" },
-  { label: "Supervision", icon: UserCheck, href: "/formation/internship/supervision", tint: "#10B981" },
-  { label: "Literature", icon: BookMarked, href: "/formation/thesis/literature", tint: "#F59E0B" },
+const quickActionConfig = [
+  { labelKey: "formation.dashboard.quickActions.thesisOverview", icon: GraduationCap, href: "/formation/thesis", tint: "#8E72CC" },
+  { labelKey: "formation.dashboard.quickActions.thesisWriter", icon: FileText, href: "/formation/thesis/writer", tint: "#5B36A8" },
+  { labelKey: "formation.dashboard.quickActions.internshipOverview", icon: Briefcase, href: "/formation/internship", tint: "#9F1239" },
+  { labelKey: "formation.dashboard.quickActions.testsGrids", icon: Grid3X3, href: "/formation/internship/tests-grids", tint: "#3B82F6" },
+  { labelKey: "formation.dashboard.quickActions.supervision", icon: UserCheck, href: "/formation/internship/supervision", tint: "#10B981" },
+  { labelKey: "formation.dashboard.quickActions.literature", icon: BookMarked, href: "/formation/thesis/literature", tint: "#F59E0B" },
 ];
 
 export default function FormationDashboardPage() {
   const thesis = useThesis();
   const internship = useInternship();
+  const t = useT();
+  const { formatDate } = useLocale();
+
+  const today = new Date();
+  const displayDate = formatDate(today, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   const activeCases = internship.cases.filter((c) => !c.archived);
   const recentCases = activeCases.slice(0, 4);
@@ -54,10 +57,10 @@ export default function FormationDashboardPage() {
     (g) => g.entries.length === 0
   ).length;
   const testsAwaitingScore = internship.tests.filter(
-    (t) =>
-      t.status === "planned" ||
-      t.status === "administered" ||
-      t.status === "awaiting-scoring"
+    (test) =>
+      test.status === "planned" ||
+      test.status === "administered" ||
+      test.status === "awaiting-scoring"
   ).length;
   const reportsToFinalize = internship.reports.filter((r) => r.draft).length;
   const supervisionNotes = internship.supervision.length;
@@ -72,10 +75,10 @@ export default function FormationDashboardPage() {
   const greetingHour = today.getHours();
   const greeting =
     greetingHour < 12
-      ? "Bonjour"
+      ? t("formation.dashboard.hero.greetingMorning")
       : greetingHour < 17
-        ? "Bon après-midi"
-        : "Bonsoir";
+        ? t("formation.dashboard.hero.greetingAfternoon")
+        : t("formation.dashboard.hero.greetingEvening");
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
@@ -132,8 +135,7 @@ export default function FormationDashboardPage() {
             {greeting}, Nouhaila ✦
           </h1>
           <p className="text-sm" style={{ color: "var(--psych-muted)" }}>
-            Formation Portal · thesis + internship + supervision in one
-            workspace
+            {t("formation.dashboard.hero.subtitle")}
           </p>
         </div>
       </div>
@@ -141,44 +143,51 @@ export default function FormationDashboardPage() {
       {/* Stat cards — formation-specific */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard
-          label="Internship cases"
+          label={t("formation.dashboard.stats.internshipCases")}
           value={String(activeCases.length)}
           icon={<Briefcase size={16} />}
           color="#9F1239"
-          subtext={`${activeCases.length === 0 ? "none yet" : "active in studio"}`}
+          subtext={
+            activeCases.length === 0
+              ? t("formation.dashboard.stats.internshipCasesNone")
+              : t("formation.dashboard.stats.internshipCasesActive")
+          }
           delay={0}
         />
         <StatCard
-          label="Grids pending"
+          label={t("formation.dashboard.stats.gridsPending")}
           value={String(pendingGrids)}
           icon={<Grid3X3 size={16} />}
           color="#3B82F6"
-          subtext={`${testsAwaitingScore} tests to score`}
+          subtext={t("formation.dashboard.stats.gridsPendingSub", { count: testsAwaitingScore })}
           delay={50}
         />
         <StatCard
-          label="Reports to finalize"
+          label={t("formation.dashboard.stats.reportsToFinalize")}
           value={String(reportsToFinalize)}
           icon={<FileText size={16} />}
           color="#F59E0B"
-          subtext="daily · weekly · final"
+          subtext={t("formation.dashboard.stats.reportsToFinalizeSub")}
           delay={100}
         />
         <StatCard
-          label="Thesis participants"
+          label={t("formation.dashboard.stats.thesisParticipants")}
           value={String(thesisComplete)}
           icon={<FlaskConical size={16} />}
           color="#8E72CC"
-          subtext={`${thesisMissing} missing data`}
+          subtext={t("formation.dashboard.stats.thesisParticipantsSub", { count: thesisMissing })}
           delay={150}
         />
       </div>
 
       {/* Quick actions */}
-      <SectionCard title="Quick actions" className="animate-fade-up delay-2">
+      <SectionCard
+        title={t("formation.dashboard.quickActions.title")}
+        className="animate-fade-up delay-2"
+      >
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-          {quickActions.map((action) => (
-            <Link key={action.label} href={action.href}>
+          {quickActionConfig.map((action) => (
+            <Link key={action.labelKey} href={action.href}>
               <div
                 className="flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all hover:scale-105 cursor-pointer text-center"
                 style={{
@@ -208,7 +217,7 @@ export default function FormationDashboardPage() {
                   className="text-[11px] font-medium leading-tight"
                   style={{ color: "var(--psych-text)" }}
                 >
-                  {action.label}
+                  {t(action.labelKey)}
                 </span>
               </div>
             </Link>
@@ -220,11 +229,11 @@ export default function FormationDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Thesis */}
         <SectionCard
-          title="Thesis"
+          title={t("formation.dashboard.thesis.title")}
           action={
             <Link href="/formation/thesis">
               <Button variant="ghost" size="sm">
-                Open <ArrowRight size={12} />
+                {t("common.open")} <ArrowRight size={12} />
               </Button>
             </Link>
           }
@@ -232,45 +241,45 @@ export default function FormationDashboardPage() {
           <div className="space-y-3">
             <ThesisRow
               icon={<FlaskConical size={14} />}
-              label="Complete participants"
+              label={t("formation.dashboard.thesis.completeParticipants")}
               value={String(thesisComplete)}
-              hint={`${thesisMissing} missing data`}
+              hint={t("formation.dashboard.thesis.completeParticipantsHint", { missing: thesisMissing })}
               tint="#8E72CC"
             />
             <ThesisRow
               icon={<FileText size={14} />}
-              label="Report sections drafted"
+              label={t("formation.dashboard.thesis.reportSections")}
               value={String(reportSectionCount)}
-              hint="thesis writer"
+              hint={t("formation.dashboard.thesis.reportSectionsHint")}
               tint="#5B36A8"
             />
             <ThesisRow
               icon={<ScrollText size={14} />}
-              label="Notes"
+              label={t("formation.dashboard.thesis.notes")}
               value={String(noteCount)}
-              hint="quote bank · literature"
+              hint={t("formation.dashboard.thesis.notesHint")}
               tint="#7C4FB3"
             />
             <ThesisRow
               icon={<BookMarked size={14} />}
-              label="Variables in design"
+              label={t("formation.dashboard.thesis.variables")}
               value={String(
                 thesis.design.independentVariables.length +
                   thesis.design.dependentVariables.length +
                   thesis.design.controlVariables.length
               )}
-              hint="methodology"
+              hint={t("formation.dashboard.thesis.variablesHint")}
               tint="#3B82F6"
             />
             <div className="pt-2 flex gap-2">
               <Link href="/formation/thesis" className="flex-1">
                 <Button size="sm" variant="outline" className="w-full">
-                  Dashboard
+                  {t("formation.dashboard.thesis.openDashboard")}
                 </Button>
               </Link>
               <Link href="/formation/thesis/writer" className="flex-1">
                 <Button size="sm" className="w-full">
-                  <FileText size={12} /> Writer
+                  <FileText size={12} /> {t("formation.dashboard.thesis.openWriter")}
                 </Button>
               </Link>
             </div>
@@ -279,11 +288,11 @@ export default function FormationDashboardPage() {
 
         {/* Internship */}
         <SectionCard
-          title="Internship"
+          title={t("formation.dashboard.internship.title")}
           action={
             <Link href="/formation/internship">
               <Button variant="ghost" size="sm">
-                Open <ArrowRight size={12} />
+                {t("common.open")} <ArrowRight size={12} />
               </Button>
             </Link>
           }
@@ -299,11 +308,11 @@ export default function FormationDashboardPage() {
                 className="text-xs"
                 style={{ color: "var(--psych-muted)" }}
               >
-                No internship cases yet
+                {t("formation.dashboard.internship.none")}
               </p>
               <Link href="/formation/internship">
                 <Button size="sm" className="mt-3">
-                  <Plus size={13} /> Open Internship Studio
+                  <Plus size={13} /> {t("formation.dashboard.internship.openStudio")}
                 </Button>
               </Link>
             </div>
@@ -341,7 +350,7 @@ export default function FormationDashboardPage() {
                         className="text-xs truncate"
                         style={{ color: "var(--psych-muted)" }}
                       >
-                        {c.identification.age ?? "Âge non précisé"}
+                        {c.identification.age ?? t("formation.dashboard.internship.ageMissing")}
                         {c.identification.diagnosticContext
                           ? ` · ${c.identification.diagnosticContext}`
                           : ""}
@@ -357,7 +366,7 @@ export default function FormationDashboardPage() {
                     variant="outline"
                     className="w-full"
                   >
-                    <Grid3X3 size={12} /> Tests & Grids
+                    <Grid3X3 size={12} /> {t("formation.dashboard.internship.testsGrids")}
                   </Button>
                 </Link>
                 <Link href="/formation/internship/supervision" className="flex-1">
@@ -366,7 +375,7 @@ export default function FormationDashboardPage() {
                     variant="outline"
                     className="w-full"
                   >
-                    <UserCheck size={12} /> Supervision
+                    <UserCheck size={12} /> {t("formation.dashboard.internship.supervision")}
                   </Button>
                 </Link>
               </div>
@@ -379,11 +388,11 @@ export default function FormationDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <SectionCard
-            title="Recent supervision notes"
+            title={t("formation.dashboard.supervision.title")}
             action={
               <Link href="/formation/internship/supervision">
                 <Button variant="ghost" size="sm">
-                  All notes
+                  {t("formation.dashboard.supervision.allNotes")}
                 </Button>
               </Link>
             }
@@ -399,7 +408,7 @@ export default function FormationDashboardPage() {
                   className="text-xs"
                   style={{ color: "var(--psych-muted)" }}
                 >
-                  No supervision notes yet
+                  {t("formation.dashboard.supervision.none")}
                 </p>
               </div>
             ) : (
@@ -429,7 +438,7 @@ export default function FormationDashboardPage() {
                       >
                         {note.clinicalQuestions ??
                           note.casesDiscussed ??
-                          "Note de supervision"}
+                          t("formation.dashboard.supervision.fallbackLabel")}
                       </p>
                       <p
                         className="text-xs truncate"
@@ -451,11 +460,11 @@ export default function FormationDashboardPage() {
         {/* Upcoming */}
         <div>
           <SectionCard
-            title="Upcoming"
+            title={t("formation.dashboard.upcoming.title")}
             action={
               <Link href="/formation/calendar">
                 <Button variant="ghost" size="sm">
-                  Calendar
+                  {t("formation.dashboard.upcoming.viewCalendar")}
                 </Button>
               </Link>
             }
@@ -463,20 +472,20 @@ export default function FormationDashboardPage() {
             <div className="space-y-3 text-xs">
               <UpcomingRow
                 icon={<CalendarRange size={12} />}
-                label="Next supervisor meeting"
-                hint="add to calendar"
+                label={t("formation.dashboard.upcoming.nextSupervisor")}
+                hint={t("formation.dashboard.upcoming.nextSupervisorHint")}
                 tint="#10B981"
               />
               <UpcomingRow
                 icon={<ClipboardCheck size={12} />}
-                label="Weekly synthesis due"
-                hint="every Sunday"
+                label={t("formation.dashboard.upcoming.weeklySynthesis")}
+                hint={t("formation.dashboard.upcoming.weeklySynthesisHint")}
                 tint="#3B82F6"
               />
               <UpcomingRow
                 icon={<FileText size={12} />}
-                label="Final internship report"
-                hint="end of placement"
+                label={t("formation.dashboard.upcoming.finalReport")}
+                hint={t("formation.dashboard.upcoming.finalReportHint")}
                 tint="#F59E0B"
               />
             </div>
