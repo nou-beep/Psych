@@ -137,26 +137,26 @@ export default function ThesisExportsPage() {
       case "descriptive-statistics": {
         c = addSection(c, {
           id: "desc",
-          heading: "1. Statistiques descriptives (n=52)",
+          heading: "1. Statistiques descriptives — protocole (n planifié = 50)",
           rows: REAL_DESCRIPTIVES.map((d) => ({
             label: `${d.acronym}`,
-            value: `M = ${d.mean}, SD = ${d.sd}, min = ${d.min}, max = ${d.max}`,
-            note: d.instrument,
+            value: `n planifié = ${d.plannedN} · étendue ${d.scoreRange}`,
+            note: `${d.instrument} — ${d.status}`,
           })),
         });
         c = addSection(c, {
           id: "corr",
-          heading: "2. Corrélations",
+          heading: "2. Corrélations prévues (H1 & H2)",
           rows: REAL_CORRELATIONS.map((co) => ({
-            label: `${co.variableA} × ${co.variableB}`,
-            value: `r(${co.n - 2}) = ${co.r}, p ${co.p}`,
-            note: co.interpretation,
+            label: `${co.hypothesis} : ${co.variableA} × ${co.variableB}`,
+            value: `${co.test} · ${co.alphaThreshold}`,
+            note: `Attendu : ${co.expected}. ${co.status}`,
           })),
         });
         c = addSection(c, {
           id: "reg",
-          heading: "3. Régression linéaire multiple",
-          body: `${REGRESSION_FINDING.detail}\n\n${REGRESSION_FINDING.keyResult}`,
+          heading: "3. Régression linéaire multiple (H3)",
+          body: `Variable dépendante : ${REGRESSION_FINDING.outcome}\nPrédicteurs : ${REGRESSION_FINDING.predictors.join(" · ")}\nCovariables : ${REGRESSION_FINDING.covariates.join(" · ")}\nMéthode : ${REGRESSION_FINDING.method}\n\nPostulats vérifiés : ${REGRESSION_FINDING.postulatesChecks.join(" ; ")}.\n\nAttendu : ${REGRESSION_FINDING.expected}\n\n${REGRESSION_FINDING.status}`,
         });
         break;
       }

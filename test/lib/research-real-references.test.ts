@@ -5,28 +5,49 @@ import {
 } from "@/lib/research/real-references";
 
 describe("real references catalogue", () => {
-  it("ships the core authors the user asked for", () => {
+  it("ships every author cited in the PFE bibliography", () => {
     const authors = REAL_REFERENCES.map((r) => r.authors).join(" | ");
     for (const expected of [
-      "Sierra, M.",
       "Sierra, M., & Berrios",
       "Medford, N.",
-      "Phillips, M. L.",
-      "Porges, S. W.",
-      "Roth, M.",
-      "Schilder, P.",
+      "Phillips, M. L., Medford",
       "Minkowski, E.",
       "Levis, B., Benedetti",
       "Mansell, W., Harvey",
       "Michal, M.",
+      "Hunter, E. C. M., Sierra",
+      "Holmes, E. A.",
+      "Aldao, A.",
+      "Gross, J. J., & Thompson",
+      "Zahavi, D.",
+      "Kroenke, K.",
+      "Spielberger, C. D.",
+      "Ciaunica, A.",
+      "Lev-Ran, S.",
     ]) {
       expect(authors).toContain(expected);
     }
   });
 
-  it("no reference fabricates a DOI — each carries the needs-verification flag", () => {
+  it("ships the full 78-entry PFE bibliography", () => {
+    expect(REAL_REFERENCES.length).toBe(78);
+  });
+
+  it("references with DOIs are not flagged for verification", () => {
     for (const r of REAL_REFERENCES) {
-      expect(r.needsVerification).toBe(true);
+      if (r.doi) {
+        expect(r.needsVerification).not.toBe(true);
+        expect(r.doi).toMatch(/^10\./);
+        expect(r.url).toContain("https://doi.org/");
+      }
+    }
+  });
+
+  it("every reference with a DOI has a matching url", () => {
+    for (const r of REAL_REFERENCES) {
+      if (r.doi) {
+        expect(r.url).toBe(`https://doi.org/${r.doi}`);
+      }
     }
   });
 

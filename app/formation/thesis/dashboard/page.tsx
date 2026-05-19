@@ -10,14 +10,19 @@ import { useEffect, useState } from "react";
 import {
   ANALYSIS_PLAN,
   METHODOLOGY_SECTIONS,
+  PFE_TABLES,
+  REAL_CHAPTER_PROGRESS,
   REAL_CORRELATIONS,
   REAL_DESCRIPTIVES,
   REAL_THESIS_DESIGN,
   REGRESSION_FINDING,
+  THESIS_ABSTRACT_EN,
+  THESIS_ABSTRACT_FR,
   THESIS_AIM,
   THESIS_CONCEPTS,
   THESIS_FR_TITLE,
   THESIS_KEYWORDS,
+  THESIS_OBJECTIVES,
   THESIS_OWNER,
   THESIS_PROBLEM,
   THESIS_TOPIC_SUMMARY,
@@ -56,12 +61,12 @@ export default function ThesisDashboardPage() {
         }
         action={
           <div className="flex items-center gap-2">
-            <Link href="/thesis/import">
+            <Link href="/formation/thesis/import">
               <Button size="sm" variant="secondary">
                 Import participant data
               </Button>
             </Link>
-            <Link href="/thesis/writer">
+            <Link href="/formation/thesis/writer">
               <Button size="sm">Open writer</Button>
             </Link>
           </div>
@@ -70,15 +75,23 @@ export default function ThesisDashboardPage() {
 
       {/* Overview */}
       <SectionCard
-        title="Overview"
-        description={`${THESIS_OWNER.author} · ${THESIS_OWNER.supervisor} · ${THESIS_OWNER.academicYear}`}
+        title="Vue d'ensemble"
+        description={`${THESIS_OWNER.author} · ${THESIS_OWNER.supervisor} · ${THESIS_OWNER.academicYear} · ${THESIS_OWNER.defenceDate}`}
       >
         <p className="text-sm mb-3" style={{ color: "var(--psych-text)" }}>
-          <strong>Aim. </strong>
+          <strong>Programme. </strong>
+          {THESIS_OWNER.programme} · {THESIS_OWNER.module}
+          <br />
+          <span style={{ color: "var(--psych-muted)" }}>
+            {THESIS_OWNER.laboratory}
+          </span>
+        </p>
+        <p className="text-sm mb-3" style={{ color: "var(--psych-text)" }}>
+          <strong>Objectif. </strong>
           {THESIS_AIM}
         </p>
         <p className="text-sm mb-3" style={{ color: "var(--psych-text)" }}>
-          <strong>Problem. </strong>
+          <strong>Problématique. </strong>
           {THESIS_PROBLEM}
         </p>
         <p className="text-sm mb-3" style={{ color: "var(--psych-muted)" }}>
@@ -100,16 +113,133 @@ export default function ThesisDashboardPage() {
         </div>
       </SectionCard>
 
+      {/* Abstract — French + English */}
+      <SectionCard
+        title="Résumé / Abstract"
+        description="Versions française et anglaise extraites du PFE."
+        className="mt-4"
+      >
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs"
+          style={{ color: "var(--psych-text)" }}
+        >
+          <div
+            className="rounded-lg border p-3"
+            style={{ borderColor: "var(--psych-border)" }}
+          >
+            <div
+              className="text-[10px] uppercase tracking-widest mb-1"
+              style={{ color: "var(--psych-accent)" }}
+            >
+              Résumé · FR
+            </div>
+            <p className="whitespace-pre-line">{THESIS_ABSTRACT_FR}</p>
+          </div>
+          <div
+            className="rounded-lg border p-3"
+            style={{ borderColor: "var(--psych-border)" }}
+          >
+            <div
+              className="text-[10px] uppercase tracking-widest mb-1"
+              style={{ color: "var(--psych-accent)" }}
+            >
+              Abstract · EN
+            </div>
+            <p className="whitespace-pre-line">{THESIS_ABSTRACT_EN}</p>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Four objectives */}
+      <SectionCard
+        title="Objectifs du travail"
+        description="Quatre objectifs articulant les dimensions théorique, analytique, intégrative et empirique."
+        className="mt-4"
+      >
+        <ol
+          className="space-y-2 list-decimal list-inside text-sm"
+          style={{ color: "var(--psych-text)" }}
+        >
+          {THESIS_OBJECTIVES.map((o, i) => (
+            <li key={i} className="leading-relaxed">
+              {o}
+            </li>
+          ))}
+        </ol>
+      </SectionCard>
+
+      {/* Chapter progress tracker */}
+      <SectionCard
+        title="Avancement par chapitre"
+        description="État du brouillon — pourcentages estimés à partir du draft PFE."
+        className="mt-4"
+      >
+        <div className="space-y-2">
+          {REAL_CHAPTER_PROGRESS.map((ch) => {
+            const tint =
+              ch.status === "drafted"
+                ? "#10B981"
+                : ch.status === "in-progress"
+                  ? "#3B82F6"
+                  : ch.status === "outline"
+                    ? "#F59E0B"
+                    : ch.status === "complete"
+                      ? "#5B36A8"
+                      : "#94a3b8";
+            return (
+              <div
+                key={ch.chapterId}
+                className="rounded-lg border p-3"
+                style={{ borderColor: "var(--psych-border)" }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <div
+                    className="text-sm font-medium"
+                    style={{ color: "var(--psych-text)" }}
+                  >
+                    {ch.label}
+                  </div>
+                  <div
+                    className="text-xs font-mono"
+                    style={{ color: tint }}
+                  >
+                    {ch.percent}%
+                  </div>
+                </div>
+                <div
+                  className="w-full h-1.5 rounded-full"
+                  style={{ background: "var(--psych-bg)" }}
+                >
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${ch.percent}%`,
+                      background: tint,
+                    }}
+                  />
+                </div>
+                <p
+                  className="text-[11px] mt-1"
+                  style={{ color: "var(--psych-muted)" }}
+                >
+                  {ch.note}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </SectionCard>
+
       {/* Descriptive statistics */}
       <SectionCard
-        title="Descriptive statistics (n=52)"
-        description="Values reported by the author. Re-computed automatically if participant-level data is imported."
+        title="Statistiques descriptives — protocole (n planifié = 50)"
+        description="Collecte de données non commencée. Les valeurs seront calculées après la passation."
         className="mt-4"
       >
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
             gap: 10,
           }}
         >
@@ -134,28 +264,30 @@ export default function ThesisDashboardPage() {
               >
                 {d.instrument}
               </div>
-              <table className="w-full text-xs">
+              <table className="w-full text-xs mb-2">
                 <tbody>
                   <tr>
-                    <td style={{ color: "var(--psych-muted)" }}>M</td>
-                    <td className="text-right font-mono">{d.mean}</td>
+                    <td style={{ color: "var(--psych-muted)" }}>n planifié</td>
+                    <td className="text-right font-mono">{d.plannedN}</td>
                   </tr>
                   <tr>
-                    <td style={{ color: "var(--psych-muted)" }}>SD</td>
-                    <td className="text-right font-mono">{d.sd}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ color: "var(--psych-muted)" }}>Min – Max</td>
-                    <td className="text-right font-mono">
-                      {d.min} – {d.max}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style={{ color: "var(--psych-muted)" }}>n</td>
-                    <td className="text-right font-mono">{d.n}</td>
+                    <td style={{ color: "var(--psych-muted)" }}>Étendue</td>
+                    <td className="text-right font-mono">{d.scoreRange}</td>
                   </tr>
                 </tbody>
               </table>
+              <p
+                className="text-[11px] mt-2"
+                style={{ color: "var(--psych-muted)" }}
+              >
+                {d.status}
+              </p>
+              <p
+                className="text-[10px] mt-1"
+                style={{ color: "var(--psych-muted)", opacity: 0.7 }}
+              >
+                {d.pfeSection}
+              </p>
             </div>
           ))}
         </div>
@@ -163,17 +295,23 @@ export default function ThesisDashboardPage() {
 
       {/* Correlations */}
       <SectionCard
-        title="Pearson correlations"
-        description="Reported by the author"
+        title="Corrélations prévues (H1 & H2)"
+        description="Tests à conduire après la collecte. Cadre statistique défini au §5.5.2."
         className="mt-4"
       >
         <ul className="space-y-2">
           {REAL_CORRELATIONS.map((c) => (
             <li
-              key={`${c.variableA}-${c.variableB}`}
+              key={c.hypothesis}
               className="rounded-xl border p-3"
               style={{ borderColor: "var(--psych-border)" }}
             >
+              <div
+                className="text-[10px] uppercase tracking-widest mb-1"
+                style={{ color: "var(--psych-accent)" }}
+              >
+                {c.hypothesis}
+              </div>
               <div
                 className="text-sm font-medium"
                 style={{ color: "var(--psych-text)" }}
@@ -184,11 +322,19 @@ export default function ThesisDashboardPage() {
                 className="text-xs mt-1"
                 style={{ color: "var(--psych-muted)" }}
               >
-                r = <strong style={{ color: "var(--psych-text)" }}>{c.r}</strong> · p {c.p} ·
-                n = {c.n}
+                {c.test}
               </div>
-              <p className="text-xs mt-1" style={{ color: "var(--psych-muted)" }}>
-                {c.interpretation}
+              <div
+                className="text-xs"
+                style={{ color: "var(--psych-muted)" }}
+              >
+                Seuil : {c.alphaThreshold} · Attendu : {c.expected}
+              </div>
+              <p
+                className="text-[11px] mt-1 italic"
+                style={{ color: "var(--psych-muted)" }}
+              >
+                {c.status}
               </p>
             </li>
           ))}
@@ -197,8 +343,8 @@ export default function ThesisDashboardPage() {
 
       {/* Regression */}
       <SectionCard
-        title="Regression finding"
-        description="Reported by the author"
+        title="Régression linéaire multiple — H3"
+        description="Spécification du modèle. Estimation à conduire après la collecte (§5.5.3)."
         className="mt-4"
       >
         <div
@@ -212,7 +358,7 @@ export default function ThesisDashboardPage() {
             className="text-[10px] uppercase tracking-wider"
             style={{ color: "var(--psych-muted)" }}
           >
-            Outcome
+            Variable dépendante
           </div>
           <div className="text-sm font-medium" style={{ color: "var(--psych-text)" }}>
             {REGRESSION_FINDING.outcome}
@@ -221,22 +367,57 @@ export default function ThesisDashboardPage() {
             className="text-[10px] uppercase tracking-wider mt-2"
             style={{ color: "var(--psych-muted)" }}
           >
-            Predictors
+            Prédicteurs
           </div>
           <div className="text-xs" style={{ color: "var(--psych-text)" }}>
             {REGRESSION_FINDING.predictors.join(" · ")}
           </div>
+          <div
+            className="text-[10px] uppercase tracking-wider mt-2"
+            style={{ color: "var(--psych-muted)" }}
+          >
+            Covariables
+          </div>
+          <div className="text-xs" style={{ color: "var(--psych-text)" }}>
+            {REGRESSION_FINDING.covariates.join(" · ")}
+          </div>
+          <div
+            className="text-[10px] uppercase tracking-wider mt-2"
+            style={{ color: "var(--psych-muted)" }}
+          >
+            Méthode
+          </div>
+          <div className="text-xs" style={{ color: "var(--psych-text)" }}>
+            {REGRESSION_FINDING.method}
+          </div>
+          <div
+            className="text-[10px] uppercase tracking-wider mt-2"
+            style={{ color: "var(--psych-muted)" }}
+          >
+            Postulats vérifiés
+          </div>
+          <ul className="text-xs list-disc pl-5" style={{ color: "var(--psych-text)" }}>
+            {REGRESSION_FINDING.postulatesChecks.map((p) => (
+              <li key={p}>{p}</li>
+            ))}
+          </ul>
           <p
             className="text-sm mt-2 italic"
             style={{ color: "var(--psych-text)" }}
           >
-            {REGRESSION_FINDING.keyResult}
+            Hypothèse {REGRESSION_FINDING.hypothesis} : {REGRESSION_FINDING.expected}
           </p>
           <p
             className="text-[11px] mt-2"
             style={{ color: "var(--psych-muted)" }}
           >
-            {REGRESSION_FINDING.note}
+            Indicateurs rapportés : {REGRESSION_FINDING.reportedIndicators}
+          </p>
+          <p
+            className="text-[11px] mt-1 italic"
+            style={{ color: "var(--psych-muted)" }}
+          >
+            {REGRESSION_FINDING.status}
           </p>
         </div>
       </SectionCard>
@@ -273,7 +454,7 @@ export default function ThesisDashboardPage() {
               No raw data points are generated until you import your CSV
               (CDS / STAI-Y / PHQ-9 per participant).
             </p>
-            <Link href="/thesis/import">
+            <Link href="/formation/thesis/import">
               <Button size="sm" className="mt-3">
                 Import participant-level data
               </Button>
@@ -318,6 +499,72 @@ export default function ThesisDashboardPage() {
             </li>
           ))}
         </ul>
+      </SectionCard>
+
+      {/* Tableaux du PFE */}
+      <SectionCard
+        title="Tableaux du PFE"
+        description="Variables, plan d'analyse et correspondance hypothèses ↔ tests (chapitre 5)."
+        className="mt-4"
+      >
+        <div className="space-y-5">
+          {PFE_TABLES.map((t) => (
+            <div key={t.id}>
+              <div
+                className="text-xs font-semibold mb-1"
+                style={{ color: "var(--psych-text)" }}
+              >
+                Tableau {t.number} — {t.caption}
+              </div>
+              <div className="overflow-x-auto">
+                <table
+                  className="w-full text-xs border-collapse"
+                  style={{ color: "var(--psych-text)" }}
+                >
+                  <thead>
+                    <tr>
+                      {t.columns.map((col) => (
+                        <th
+                          key={col}
+                          className="text-left p-2 font-medium border-b"
+                          style={{
+                            borderColor: "var(--psych-border)",
+                            background: "var(--psych-bg)",
+                          }}
+                        >
+                          {col}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {t.rows.map((row, ri) => (
+                      <tr key={ri}>
+                        {row.map((cell, ci) => (
+                          <td
+                            key={ci}
+                            className="p-2 border-b align-top"
+                            style={{
+                              borderColor: "var(--psych-border)",
+                            }}
+                          >
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p
+                className="text-[10px] mt-1 italic"
+                style={{ color: "var(--psych-muted)" }}
+              >
+                Note. {t.note}
+              </p>
+            </div>
+          ))}
+        </div>
       </SectionCard>
 
       {/* Analysis plan */}
