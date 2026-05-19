@@ -35,12 +35,12 @@ const displayDate = today.toLocaleDateString("fr-FR", {
 });
 
 const quickActions = [
-  { label: "Thesis Studio", icon: GraduationCap, href: "/thesis", tint: "#8E72CC" },
-  { label: "Thesis Writer", icon: FileText, href: "/thesis/writer", tint: "#5B36A8" },
-  { label: "Internship Studio", icon: Briefcase, href: "/internship", tint: "#9F1239" },
-  { label: "Tests & Grids", icon: Grid3X3, href: "/grids", tint: "#3B82F6" },
-  { label: "Supervision", icon: UserCheck, href: "/supervision", tint: "#10B981" },
-  { label: "Literature", icon: BookMarked, href: "/research/literature", tint: "#F59E0B" },
+  { label: "Thesis Overview", icon: GraduationCap, href: "/formation/thesis", tint: "#8E72CC" },
+  { label: "Thesis Writer", icon: FileText, href: "/formation/thesis/writer", tint: "#5B36A8" },
+  { label: "Internship Overview", icon: Briefcase, href: "/formation/internship", tint: "#9F1239" },
+  { label: "Tests & Grids", icon: Grid3X3, href: "/formation/internship/tests-grids", tint: "#3B82F6" },
+  { label: "Supervision", icon: UserCheck, href: "/formation/internship/supervision", tint: "#10B981" },
+  { label: "Literature", icon: BookMarked, href: "/formation/thesis/literature", tint: "#F59E0B" },
 ];
 
 export default function FormationDashboardPage() {
@@ -222,7 +222,7 @@ export default function FormationDashboardPage() {
         <SectionCard
           title="Thesis"
           action={
-            <Link href="/thesis">
+            <Link href="/formation/thesis">
               <Button variant="ghost" size="sm">
                 Open <ArrowRight size={12} />
               </Button>
@@ -263,12 +263,12 @@ export default function FormationDashboardPage() {
               tint="#3B82F6"
             />
             <div className="pt-2 flex gap-2">
-              <Link href="/thesis" className="flex-1">
+              <Link href="/formation/thesis" className="flex-1">
                 <Button size="sm" variant="outline" className="w-full">
                   Dashboard
                 </Button>
               </Link>
-              <Link href="/thesis/writer" className="flex-1">
+              <Link href="/formation/thesis/writer" className="flex-1">
                 <Button size="sm" className="w-full">
                   <FileText size={12} /> Writer
                 </Button>
@@ -281,7 +281,7 @@ export default function FormationDashboardPage() {
         <SectionCard
           title="Internship"
           action={
-            <Link href="/internship">
+            <Link href="/formation/internship">
               <Button variant="ghost" size="sm">
                 Open <ArrowRight size={12} />
               </Button>
@@ -301,7 +301,7 @@ export default function FormationDashboardPage() {
               >
                 No internship cases yet
               </p>
-              <Link href="/internship">
+              <Link href="/formation/internship">
                 <Button size="sm" className="mt-3">
                   <Plus size={13} /> Open Internship Studio
                 </Button>
@@ -312,7 +312,7 @@ export default function FormationDashboardPage() {
               {recentCases.map((c) => (
                 <Link
                   key={c.id}
-                  href={`/internship/cases/${c.id}`}
+                  href={`/formation/internship/cases/${c.id}`}
                 >
                   <div
                     className="flex items-center gap-3 p-3 rounded-xl border transition-all hover:scale-[1.01] cursor-pointer"
@@ -351,7 +351,7 @@ export default function FormationDashboardPage() {
                 </Link>
               ))}
               <div className="pt-2 flex gap-2">
-                <Link href="/grids" className="flex-1">
+                <Link href="/formation/internship/tests-grids" className="flex-1">
                   <Button
                     size="sm"
                     variant="outline"
@@ -360,7 +360,7 @@ export default function FormationDashboardPage() {
                     <Grid3X3 size={12} /> Tests & Grids
                   </Button>
                 </Link>
-                <Link href="/supervision" className="flex-1">
+                <Link href="/formation/internship/supervision" className="flex-1">
                   <Button
                     size="sm"
                     variant="outline"
@@ -381,7 +381,7 @@ export default function FormationDashboardPage() {
           <SectionCard
             title="Recent supervision notes"
             action={
-              <Link href="/supervision">
+              <Link href="/formation/internship/supervision">
                 <Button variant="ghost" size="sm">
                   All notes
                 </Button>
@@ -453,7 +453,7 @@ export default function FormationDashboardPage() {
           <SectionCard
             title="Upcoming"
             action={
-              <Link href="/calendar">
+              <Link href="/formation/calendar">
                 <Button variant="ghost" size="sm">
                   Calendar
                 </Button>

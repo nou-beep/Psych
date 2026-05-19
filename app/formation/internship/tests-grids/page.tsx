@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { GridTemplate } from "@/components/grids/GridTemplate";
-import { GRID_DEFINITIONS } from "@/app/grids/grid-definitions";
+import { GRID_DEFINITIONS } from "./grid-definitions";
 import { mockCases } from "@/lib/mock-data";
 import { Printer, Eye, ArrowLeft } from "lucide-react";
 

@@ -3,7 +3,7 @@
 // On screen: shows a preview with theme colors.
 // When printing: clean A4-friendly table with empty rows for handwriting.
 
-import { type GridDefinition } from "@/app/grids/grid-definitions";
+import { type GridDefinition } from "@/app/formation/internship/tests-grids/grid-definitions";
 
 interface GridTemplateProps {
   grid: GridDefinition;

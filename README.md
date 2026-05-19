@@ -53,13 +53,47 @@ The active-portal badge in the sidebar header (`Formation`,
 |---|---|
 | `/`, `/welcome`, `/login/*` | public (no portal) |
 | `/client`, `/client/*` | client |
-| `/formation`, `/thesis`, `/internship`, `/research`, `/transcripts`, `/supervision`, `/grids` | formation |
+| `/formation/*` (canonical) — also legacy `/thesis`, `/internship`, `/research`, `/transcripts`, `/supervision`, `/grids`, `/material` (all redirected) | formation |
 | everything else (`/cases`, `/assessments`, `/reports`, `/clinical`, `/checkins`, `/goals`, …) | therapist |
 
-Old thesis/internship routes keep their current paths (`/thesis`,
-`/internship/cases/[id]`, etc.) — they are *owned* by the Formation
-portal via prefix detection. No physical route migration was needed
-to deliver the portal feeling; deep links continue to work.
+**Canonical Formation route tree:**
+
+```
+/formation                              · dashboard
+/formation/calendar                     · shared calendar surface
+/formation/open-work                    · shared open-loops surface
+/formation/settings                     · internship-settings entry
+
+/formation/thesis                       · thesis overview
+/formation/thesis/writer                · thesis writer
+/formation/thesis/dashboard             · thesis dashboard
+/formation/thesis/stats                 · dataset + analytics
+/formation/thesis/literature            · literature bank
+/formation/thesis/articles              · articles
+/formation/thesis/apa                   · APA tools
+/formation/thesis/quotes                · quote bank
+/formation/thesis/audio-sync            · audio sync
+/formation/thesis/exports               · exports
+/formation/thesis/import                · import
+
+/formation/internship                   · internship studio
+/formation/internship/cases             · cases list
+/formation/internship/cases/[id]        · case workspace
+/formation/internship/tests-grids       · grid templates + print
+/formation/internship/reports           · reports list
+/formation/internship/supervision       · supervision notes
+/formation/internship/grid-print/[adminId]
+/formation/internship/report-print/[reportId]
+
+/formation/materials/worksheets         · shared worksheets surface
+/formation/materials/transcripts        · transcripts
+/formation/materials/resources          · resources
+```
+
+Legacy paths (`/thesis`, `/internship`, `/research`, `/supervision`,
+`/grids`, `/transcripts`, `/material` plus their subroutes) are
+permanent redirects defined in `next.config.mjs` — bookmarks and
+existing internal links continue to land on the right page.
 
 ### Formation Portal — `/formation`
 

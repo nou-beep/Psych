@@ -22,7 +22,12 @@ function isImmersiveRoute(pathname: string | null): boolean {
   if (pathname.startsWith("/login/")) return true;
   if (pathname === "/client" || pathname.startsWith("/client/")) return true;
   // Print views render without app chrome so they can be sent
-  // straight to a printer or saved as PDF.
+  // straight to a printer or saved as PDF. Formation-Portal canonical
+  // print routes live under /formation/internship; the legacy
+  // /internship/* paths still match while their next.config redirects
+  // resolve.
+  if (pathname.startsWith("/formation/internship/grid-print/")) return true;
+  if (pathname.startsWith("/formation/internship/report-print/")) return true;
   if (pathname.startsWith("/internship/grid-print/")) return true;
   if (pathname.startsWith("/internship/report-print/")) return true;
   return false;
