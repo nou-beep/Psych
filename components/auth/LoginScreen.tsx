@@ -37,19 +37,14 @@ export function LoginScreen({ portal }: Props) {
     }, 350);
   }
 
-  const isTherapist = portal === "therapist";
-  const accent = isTherapist ? "#9F1239" : "#7C4FB3";
-  const accentBg = isTherapist ? "#F9A8D4" : "#C7B2E0";
-  const accentBgEnd = isTherapist ? "#D67B9E" : "#D6A4D6";
+  const palette = paletteFor(portal);
 
   return (
     <div
       style={{
         minHeight: "100vh",
         position: "relative",
-        background: isTherapist
-          ? "linear-gradient(155deg, #FFF1F5 0%, #F4ECF7 100%)"
-          : "linear-gradient(155deg, #F0E4F2 0%, #E2D9F0 100%)",
+        background: palette.pageBg,
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
@@ -60,11 +55,11 @@ export function LoginScreen({ portal }: Props) {
       <div className="cp-ambient" aria-hidden>
         <div
           className="cp-orb cp-orb-1"
-          style={{ background: isTherapist ? "#F0B5C9" : "#C5B5DC", opacity: 0.35 }}
+          style={{ background: palette.orbA, opacity: 0.35 }}
         />
         <div
           className="cp-orb cp-orb-3"
-          style={{ background: isTherapist ? "#DBC0DA" : "#D8C4E8", opacity: 0.25 }}
+          style={{ background: palette.orbB, opacity: 0.25 }}
         />
       </div>
 
@@ -89,7 +84,7 @@ export function LoginScreen({ portal }: Props) {
             width: 44,
             height: 44,
             borderRadius: 14,
-            background: `linear-gradient(135deg, ${accentBg}, ${accentBgEnd})`,
+            background: `linear-gradient(135deg, ${palette.accentBg}, ${palette.accentBgEnd})`,
             color: "white",
             display: "flex",
             alignItems: "center",
@@ -109,7 +104,7 @@ export function LoginScreen({ portal }: Props) {
             letterSpacing: "-0.01em",
           }}
         >
-          {isTherapist ? "Therapist sign in" : "Client sign in"}
+          {palette.title}
         </h1>
         <p
           style={{
@@ -119,9 +114,7 @@ export function LoginScreen({ portal }: Props) {
             lineHeight: 1.5,
           }}
         >
-          {isTherapist
-            ? "Continue to the clinical workspace."
-            : "A quieter companion for your therapy work."}
+          {palette.subtitle}
         </p>
 
         <label
@@ -192,7 +185,7 @@ export function LoginScreen({ portal }: Props) {
             padding: "0.7rem 1rem",
             borderRadius: 14,
             border: "none",
-            background: accent,
+            background: palette.accent,
             color: "white",
             fontSize: "0.92rem",
             fontWeight: 500,
@@ -236,15 +229,74 @@ export function LoginScreen({ portal }: Props) {
             ← Back to gateway
           </Link>
           <Link
-            href={isTherapist ? "/login/client" : "/login/therapist"}
-            style={{ color: accent, textDecoration: "none" }}
+            href={palette.otherHref}
+            style={{ color: palette.accent, textDecoration: "none" }}
           >
-            {isTherapist ? "Client sign-in" : "Therapist sign-in"} →
+            {palette.otherLabel} →
           </Link>
         </div>
       </form>
     </div>
   );
+}
+
+interface Palette {
+  title: string;
+  subtitle: string;
+  pageBg: string;
+  orbA: string;
+  orbB: string;
+  accent: string;
+  accentBg: string;
+  accentBgEnd: string;
+  otherHref: string;
+  otherLabel: string;
+}
+
+function paletteFor(portal: Portal): Palette {
+  if (portal === "formation") {
+    return {
+      title: "Formation sign in",
+      subtitle:
+        "Continue to the academic & training workspace — thesis, internship, supervision.",
+      pageBg:
+        "linear-gradient(155deg, #ECE2F7 0%, #DCD0F0 100%)",
+      orbA: "#B49AE2",
+      orbB: "#C5B5DC",
+      accent: "#5B36A8",
+      accentBg: "#B49AE2",
+      accentBgEnd: "#8E72CC",
+      otherHref: "/login/therapist",
+      otherLabel: "Therapist sign-in",
+    };
+  }
+  if (portal === "client") {
+    return {
+      title: "Client sign in",
+      subtitle: "A quieter companion for your therapy work.",
+      pageBg: "linear-gradient(155deg, #F0E4F2 0%, #E2D9F0 100%)",
+      orbA: "#C5B5DC",
+      orbB: "#D8C4E8",
+      accent: "#7C4FB3",
+      accentBg: "#C7B2E0",
+      accentBgEnd: "#D6A4D6",
+      otherHref: "/login/therapist",
+      otherLabel: "Therapist sign-in",
+    };
+  }
+  // therapist
+  return {
+    title: "Therapist sign in",
+    subtitle: "Continue to the clinical workspace.",
+    pageBg: "linear-gradient(155deg, #FFF1F5 0%, #F4ECF7 100%)",
+    orbA: "#F0B5C9",
+    orbB: "#DBC0DA",
+    accent: "#9F1239",
+    accentBg: "#F9A8D4",
+    accentBgEnd: "#D67B9E",
+    otherHref: "/login/formation",
+    otherLabel: "Formation sign-in",
+  };
 }
 
 function inputStyle(): React.CSSProperties {

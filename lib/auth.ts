@@ -4,7 +4,7 @@
 
 import { loadFromStorage, saveToStorage } from "@/lib/store";
 
-export type Portal = "therapist" | "client";
+export type Portal = "formation" | "therapist" | "client";
 
 export interface Session {
   portal: Portal;
@@ -35,7 +35,8 @@ export function writeSession(s: Session | null): void {
 export function isValidSession(value: unknown): value is Session {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
-  if (v.portal !== "therapist" && v.portal !== "client") return false;
+  if (v.portal !== "therapist" && v.portal !== "client" && v.portal !== "formation")
+    return false;
   if (typeof v.email !== "string" || v.email.length === 0) return false;
   if (typeof v.signedInAt !== "string") return false;
   return true;
@@ -43,12 +44,16 @@ export function isValidSession(value: unknown): value is Session {
 
 // Returns the route a user should land on after they sign in.
 export function homePathFor(portal: Portal): string {
-  return portal === "client" ? "/client" : "/therapist";
+  if (portal === "client") return "/client";
+  if (portal === "formation") return "/formation";
+  return "/therapist";
 }
 
 // Returns the route a user should be sent to if no session for that portal.
 export function loginPathFor(portal: Portal): string {
-  return portal === "client" ? "/login/client" : "/login/therapist";
+  if (portal === "client") return "/login/client";
+  if (portal === "formation") return "/login/formation";
+  return "/login/therapist";
 }
 
 // Routes that must NOT require an auth session: the gateway, the legacy
@@ -61,10 +66,31 @@ export function isPublicRoute(pathname: string): boolean {
   return false;
 }
 
+// Route prefixes that belong to the Formation Portal. Listed here as the
+// single source of truth for sidebar selection, dashboard ownership, and
+// chrome decisions.
+const FORMATION_PREFIXES = [
+  "/formation",
+  "/thesis",
+  "/internship",
+  "/research",
+  "/transcripts",
+  "/supervision",
+  "/grids",
+];
+
+function startsWithPrefix(pathname: string, prefix: string): boolean {
+  if (pathname === prefix) return true;
+  return pathname.startsWith(prefix + "/");
+}
+
 // Returns the portal that owns a route, or null for public routes.
 export function portalForRoute(pathname: string): Portal | null {
   if (isPublicRoute(pathname)) return null;
-  if (pathname === "/client" || pathname.startsWith("/client/")) return "client";
+  if (startsWithPrefix(pathname, "/client")) return "client";
+  for (const prefix of FORMATION_PREFIXES) {
+    if (startsWithPrefix(pathname, prefix)) return "formation";
+  }
   // Everything else is the therapist workspace.
   return "therapist";
 }

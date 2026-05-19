@@ -16,13 +16,17 @@ export const CLIENT_STORE_KEYS = {
   CLIENT_AUDIO: "psych-client-audio-v1",
 } as const;
 
-export type PortalPreference = "therapist" | "client" | null;
+export type PortalPreference =
+  | "formation"
+  | "therapist"
+  | "client"
+  | null;
 
 export function readPortalPreference(): PortalPreference {
   if (typeof window === "undefined") return null;
   try {
     const v = window.localStorage.getItem(CLIENT_STORE_KEYS.PORTAL_PREF);
-    if (v === "therapist" || v === "client") return v;
+    if (v === "therapist" || v === "client" || v === "formation") return v;
     return null;
   } catch {
     return null;
@@ -46,6 +50,7 @@ export function setPortalPreference(pref: PortalPreference): void {
 // welcome screen and any "switch portal" actions.
 export function homePathForPortal(pref: PortalPreference): string {
   if (pref === "client") return "/client";
-  if (pref === "therapist") return "/";
-  return "/welcome";
+  if (pref === "therapist") return "/therapist";
+  if (pref === "formation") return "/formation";
+  return "/";
 }

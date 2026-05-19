@@ -210,47 +210,47 @@ describe("anonymized seed case", () => {
 });
 
 // ────────────────────────────────────────────────────────────────
-// Sidebar nav structure
+// Sidebar nav structure — three-portal architecture
 // ────────────────────────────────────────────────────────────────
 
 describe("sidebar navigation cleanup", () => {
-  // We assert against the navGroups export indirectly by reading
-  // the module. Importing here keeps the test environment honest
-  // about what the user actually sees.
-
-  it("does not include the standalone /audio route", async () => {
-    const fs = await import("fs/promises");
-    const path = await import("path");
-    const src = await fs.readFile(
-      path.resolve(process.cwd(), "components/layout/Sidebar.tsx"),
-      "utf8"
-    );
-    expect(/"\/audio"/.test(src)).toBe(false);
+  it("does not include the standalone /audio route in any portal nav", async () => {
+    const mod = await import("@/components/layout/sidebar-nav");
+    const allHrefs = [
+      ...mod.FORMATION_NAV,
+      ...mod.THERAPIST_NAV,
+      ...mod.CLIENT_NAV,
+    ].flatMap((g) => g.items.map((i) => i.href));
+    expect(allHrefs).not.toContain("/audio");
   });
 
-  it("has exactly five top-level groups", async () => {
-    const fs = await import("fs/promises");
-    const path = await import("path");
-    const src = await fs.readFile(
-      path.resolve(process.cwd(), "components/layout/Sidebar.tsx"),
-      "utf8"
+  it("Internship Studio is reachable from the Formation sidebar", async () => {
+    const { FORMATION_NAV } = await import(
+      "@/components/layout/sidebar-nav"
     );
-    // Count top-level group labels — they live at the start of an
-    // object literal, so we match the indentation pattern to avoid
-    // confusing a group label with an item label that shares a name.
-    const labelMatches = src.match(
-      /\n {4}label: "(Home|Clinical Work|Research|Materials|System)"/g
+    const allHrefs = FORMATION_NAV.flatMap((g) =>
+      g.items.map((i) => i.href)
     );
-    expect(labelMatches?.length).toBe(5);
+    expect(allHrefs).toContain("/internship");
   });
 
-  it("Internship Studio is reachable from the sidebar", async () => {
-    const fs = await import("fs/promises");
-    const path = await import("path");
-    const src = await fs.readFile(
-      path.resolve(process.cwd(), "components/layout/Sidebar.tsx"),
-      "utf8"
+  it("Internship Studio is NOT in the Therapist sidebar", async () => {
+    const { THERAPIST_NAV } = await import(
+      "@/components/layout/sidebar-nav"
     );
-    expect(src).toMatch(/"\/internship"/);
+    const allHrefs = THERAPIST_NAV.flatMap((g) =>
+      g.items.map((i) => i.href)
+    );
+    expect(allHrefs).not.toContain("/internship");
+  });
+
+  it("Thesis Studio is NOT in the Therapist sidebar", async () => {
+    const { THERAPIST_NAV } = await import(
+      "@/components/layout/sidebar-nav"
+    );
+    const allHrefs = THERAPIST_NAV.flatMap((g) =>
+      g.items.map((i) => i.href)
+    );
+    expect(allHrefs).not.toContain("/thesis");
   });
 });

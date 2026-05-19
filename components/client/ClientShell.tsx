@@ -9,31 +9,31 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   Library,
-  Notebook,
   ClipboardList,
   LineChart,
   BookOpen,
-  Compass,
   Mail,
-  Heart,
-  Sparkles,
+  CalendarRange,
+  CheckCircle,
   Settings as SettingsIcon,
 } from "lucide-react";
 import { useClientPortal } from "@/contexts/ClientPortalContext";
 import { AftercareOverlay } from "@/components/client/AftercareOverlay";
 import { CrisisOverlay } from "@/components/client/CrisisOverlay";
 
+// Simpler client nav per the three-portal architecture: structured,
+// lower cognitive load, no wellness-app drift. Deep routes (body map,
+// threads, grounding, reflections) remain accessible via Home and
+// deep links — they just don't crowd the always-visible nav.
 const NAV_ITEMS = [
   { href: "/client", label: "Home", icon: Home },
-  { href: "/client/body", label: "Body map", icon: Heart },
-  { href: "/client/threads", label: "Threads", icon: Sparkles },
-  { href: "/client/workbooks", label: "Workbooks", icon: Library },
-  { href: "/client/reflections", label: "Reflections", icon: Notebook },
+  { href: "/client/calendar", label: "Calendar", icon: CalendarRange },
+  { href: "/client/assigned", label: "Assigned", icon: CheckCircle },
   { href: "/client/assessments", label: "Assessments", icon: ClipboardList },
-  { href: "/client/progress", label: "Progress", icon: LineChart },
+  { href: "/client/workbooks", label: "Worksheets", icon: Library },
   { href: "/client/resources", label: "Resources", icon: BookOpen },
-  { href: "/client/grounding", label: "Grounding", icon: Compass },
-  { href: "/client/notes", label: "Therapist notes", icon: Mail },
+  { href: "/client/notes", label: "Notes", icon: Mail },
+  { href: "/client/progress", label: "Progress", icon: LineChart },
   { href: "/client/settings", label: "Settings", icon: SettingsIcon },
 ];
 
