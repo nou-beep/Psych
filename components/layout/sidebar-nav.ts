@@ -14,7 +14,6 @@ import {
   ScrollText,
   GraduationCap,
   BookMarked,
-  Languages,
   ShieldCheck,
   Database,
   Stethoscope,
@@ -42,50 +41,52 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-// Formation Portal — academic & training workspace. Thesis, internship,
-// research, and the shared Tests & Grids area sit here. The therapist
-// clinical workspace is intentionally absent.
+// Formation Portal — academic & supervised practice. Thesis,
+// internship, supervision, and the shared Tests & Grids area live
+// under /formation/*. The clinical workspace (cases, assessments,
+// reports, clinical tools) and general therapist navigation are
+// intentionally absent.
 export const FORMATION_NAV: NavGroup[] = [
   {
     label: "Home",
     items: [
-      { href: "/formation", label: "Formation Dashboard", icon: LayoutDashboard },
-      { href: "/calendar", label: "Calendar", icon: CalendarRange },
-      { href: "/open-loops", label: "Open Work", icon: AlertCircle },
+      { href: "/formation", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/formation/calendar", label: "Calendar", icon: CalendarRange },
+      { href: "/formation/open-work", label: "Open Work", icon: AlertCircle },
     ],
   },
   {
     label: "Thesis",
     items: [
-      { href: "/thesis", label: "Thesis Studio", icon: GraduationCap },
-      { href: "/thesis/writer", label: "Thesis Writer", icon: FileText },
-      { href: "/research", label: "Dataset / Analytics", icon: FlaskConical },
-      { href: "/research/literature", label: "Literature", icon: BookMarked },
-      { href: "/thesis/exports", label: "Exports", icon: Database },
+      { href: "/formation/thesis", label: "Overview", icon: GraduationCap },
+      { href: "/formation/thesis/writer", label: "Writer", icon: FileText },
+      { href: "/formation/thesis/stats", label: "Dataset / Stats", icon: FlaskConical },
+      { href: "/formation/thesis/literature", label: "Literature", icon: BookMarked },
+      { href: "/formation/thesis/exports", label: "Exports", icon: Database },
     ],
   },
   {
     label: "Internship",
     items: [
-      { href: "/internship", label: "Internship Studio", icon: Briefcase },
-      { href: "/grids", label: "Tests & Grids", icon: Grid3X3 },
-      { href: "/supervision", label: "Supervision", icon: UserCheck },
+      { href: "/formation/internship", label: "Overview", icon: Briefcase },
+      { href: "/formation/internship/cases", label: "Cases", icon: FolderOpen },
+      { href: "/formation/internship/tests-grids", label: "Tests & Grids", icon: Grid3X3 },
+      { href: "/formation/internship/reports", label: "Reports", icon: ClipboardCheck },
+      { href: "/formation/internship/supervision", label: "Supervision", icon: UserCheck },
     ],
   },
   {
-    label: "Materials",
+    label: "Print / Materials",
     items: [
-      { href: "/clinical/worksheets", label: "Worksheets", icon: ClipboardCheck },
-      { href: "/transcripts", label: "Transcripts", icon: ScrollText },
-      { href: "/material", label: "Resources", icon: Layers },
-      { href: "/dictionary", label: "Dictionary", icon: Languages },
+      { href: "/formation/materials/worksheets", label: "Worksheets", icon: ClipboardCheck },
+      { href: "/formation/materials/transcripts", label: "Transcripts", icon: ScrollText },
+      { href: "/formation/materials/resources", label: "Resources", icon: Layers },
     ],
   },
   {
     label: "System",
     items: [
-      { href: "/settings", label: "Settings", icon: Settings },
-      { href: "/backup", label: "Backup", icon: Database },
+      { href: "/formation/settings", label: "Settings", icon: Settings },
     ],
   },
 ];
@@ -115,7 +116,6 @@ export const THERAPIST_NAV: NavGroup[] = [
     label: "Materials",
     items: [
       { href: "/clinical/worksheets", label: "Worksheets", icon: ClipboardCheck },
-      { href: "/transcripts", label: "Transcripts", icon: ScrollText },
       { href: "/material", label: "Resources", icon: Layers },
     ],
   },

@@ -66,17 +66,25 @@ export function isPublicRoute(pathname: string): boolean {
   return false;
 }
 
-// Route prefixes that belong to the Formation Portal. Listed here as the
-// single source of truth for sidebar selection, dashboard ownership, and
-// chrome decisions.
+// Route prefixes that belong to the Formation Portal. Single source
+// of truth for sidebar selection, dashboard ownership, and chrome
+// decisions. After the Formation cleanup pass, Formation work lives
+// physically under /formation/* — the legacy /thesis, /internship,
+// /research, /supervision, /grids, /transcripts, /material paths are
+// permanent redirects defined in next.config.mjs. The legacy
+// prefixes are still listed here so that during the redirect hop
+// (or in unit tests asserting old paths) the portal resolves
+// consistently.
 const FORMATION_PREFIXES = [
   "/formation",
+  // Legacy aliases — redirected by next.config.mjs.
   "/thesis",
   "/internship",
   "/research",
   "/transcripts",
   "/supervision",
   "/grids",
+  "/material",
 ];
 
 function startsWithPrefix(pathname: string, prefix: string): boolean {

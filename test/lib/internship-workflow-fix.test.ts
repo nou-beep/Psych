@@ -224,17 +224,17 @@ describe("sidebar navigation cleanup", () => {
     expect(allHrefs).not.toContain("/audio");
   });
 
-  it("Internship Studio is reachable from the Formation sidebar", async () => {
+  it("Internship overview is reachable from the Formation sidebar", async () => {
     const { FORMATION_NAV } = await import(
       "@/components/layout/sidebar-nav"
     );
     const allHrefs = FORMATION_NAV.flatMap((g) =>
       g.items.map((i) => i.href)
     );
-    expect(allHrefs).toContain("/internship");
+    expect(allHrefs).toContain("/formation/internship");
   });
 
-  it("Internship Studio is NOT in the Therapist sidebar", async () => {
+  it("Internship is NOT in the Therapist sidebar (any href)", async () => {
     const { THERAPIST_NAV } = await import(
       "@/components/layout/sidebar-nav"
     );
@@ -242,9 +242,10 @@ describe("sidebar navigation cleanup", () => {
       g.items.map((i) => i.href)
     );
     expect(allHrefs).not.toContain("/internship");
+    expect(allHrefs).not.toContain("/formation/internship");
   });
 
-  it("Thesis Studio is NOT in the Therapist sidebar", async () => {
+  it("Thesis is NOT in the Therapist sidebar (any href)", async () => {
     const { THERAPIST_NAV } = await import(
       "@/components/layout/sidebar-nav"
     );
@@ -252,5 +253,6 @@ describe("sidebar navigation cleanup", () => {
       g.items.map((i) => i.href)
     );
     expect(allHrefs).not.toContain("/thesis");
+    expect(allHrefs).not.toContain("/formation/thesis");
   });
 });
