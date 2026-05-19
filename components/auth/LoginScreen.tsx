@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useT } from "@/contexts/LocaleContext";
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
 import { homePathFor, type Portal } from "@/lib/auth";
 
 interface Props {
@@ -16,6 +18,7 @@ interface Props {
 export function LoginScreen({ portal }: Props) {
   const { signIn } = useAuth();
   const router = useRouter();
+  const t = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -24,7 +27,7 @@ export function LoginScreen({ portal }: Props) {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      setError("Enter an email and a password to continue.");
+      setError(t("auth.login.missingFields"));
       return;
     }
     setError(null);
@@ -37,7 +40,7 @@ export function LoginScreen({ portal }: Props) {
     }, 350);
   }
 
-  const palette = paletteFor(portal);
+  const palette = paletteFor(portal, t);
 
   return (
     <div
@@ -61,6 +64,17 @@ export function LoginScreen({ portal }: Props) {
           className="cp-orb cp-orb-3"
           style={{ background: palette.orbB, opacity: 0.25 }}
         />
+      </div>
+
+      <div
+        style={{
+          position: "absolute",
+          top: "1.25rem",
+          right: "1.25rem",
+          zIndex: 2,
+        }}
+      >
+        <LanguageToggle size="sm" variant="soft" />
       </div>
 
       <form
@@ -127,7 +141,7 @@ export function LoginScreen({ portal }: Props) {
             marginBottom: 4,
           }}
         >
-          Email
+          {t("auth.login.email")}
         </label>
         <input
           id="email"
@@ -135,7 +149,7 @@ export function LoginScreen({ portal }: Props) {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
+          placeholder={t("auth.login.emailPlaceholder")}
           style={inputStyle()}
         />
 
@@ -149,7 +163,7 @@ export function LoginScreen({ portal }: Props) {
             marginBottom: 4,
           }}
         >
-          Password
+          {t("auth.login.password")}
         </label>
         <input
           id="password"
@@ -157,7 +171,7 @@ export function LoginScreen({ portal }: Props) {
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="•••••••"
+          placeholder={t("auth.login.passwordPlaceholder")}
           style={inputStyle()}
         />
 
@@ -197,7 +211,7 @@ export function LoginScreen({ portal }: Props) {
           }}
         >
           {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
-          {submitting ? "Signing in…" : "Continue"}
+          {submitting ? t("auth.login.submitting") : t("auth.login.submit")}
           {!submitting && <ArrowRight size={14} />}
         </button>
 
@@ -209,7 +223,7 @@ export function LoginScreen({ portal }: Props) {
             textAlign: "center",
           }}
         >
-          Demo mode — any credentials sign you in.
+          {t("auth.login.demoNote")}
         </p>
 
         <div
@@ -226,7 +240,7 @@ export function LoginScreen({ portal }: Props) {
             href="/"
             style={{ color: "#7A6090", textDecoration: "none" }}
           >
-            ← Back to gateway
+            {t("auth.login.backToGateway")}
           </Link>
           <Link
             href={palette.otherHref}
@@ -253,12 +267,13 @@ interface Palette {
   otherLabel: string;
 }
 
-function paletteFor(portal: Portal): Palette {
+type TFn = (key: string, vars?: Record<string, string | number>) => string;
+
+function paletteFor(portal: Portal, t: TFn): Palette {
   if (portal === "formation") {
     return {
-      title: "Formation sign in",
-      subtitle:
-        "Continue to the academic & training workspace — thesis, internship, supervision.",
+      title: t("auth.login.titleFormation"),
+      subtitle: t("auth.login.subtitleFormation"),
       pageBg:
         "linear-gradient(155deg, #ECE2F7 0%, #DCD0F0 100%)",
       orbA: "#B49AE2",
@@ -267,13 +282,13 @@ function paletteFor(portal: Portal): Palette {
       accentBg: "#B49AE2",
       accentBgEnd: "#8E72CC",
       otherHref: "/login/therapist",
-      otherLabel: "Therapist sign-in",
+      otherLabel: t("auth.login.otherTherapist"),
     };
   }
   if (portal === "client") {
     return {
-      title: "Client sign in",
-      subtitle: "A quieter companion for your therapy work.",
+      title: t("auth.login.titleClient"),
+      subtitle: t("auth.login.subtitleClient"),
       pageBg: "linear-gradient(155deg, #F0E4F2 0%, #E2D9F0 100%)",
       orbA: "#C5B5DC",
       orbB: "#D8C4E8",
@@ -281,13 +296,13 @@ function paletteFor(portal: Portal): Palette {
       accentBg: "#C7B2E0",
       accentBgEnd: "#D6A4D6",
       otherHref: "/login/therapist",
-      otherLabel: "Therapist sign-in",
+      otherLabel: t("auth.login.otherTherapist"),
     };
   }
   // therapist
   return {
-    title: "Therapist sign in",
-    subtitle: "Continue to the clinical workspace.",
+    title: t("auth.login.titleTherapist"),
+    subtitle: t("auth.login.subtitleTherapist"),
     pageBg: "linear-gradient(155deg, #FFF1F5 0%, #F4ECF7 100%)",
     orbA: "#F0B5C9",
     orbB: "#DBC0DA",
@@ -295,7 +310,7 @@ function paletteFor(portal: Portal): Palette {
     accentBg: "#F9A8D4",
     accentBgEnd: "#D67B9E",
     otherHref: "/login/formation",
-    otherLabel: "Formation sign-in",
+    otherLabel: t("auth.login.otherFormation"),
   };
 }
 

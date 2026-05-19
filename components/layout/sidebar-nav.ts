@@ -32,12 +32,17 @@ import type { Portal } from "@/lib/auth";
 
 export interface NavItem {
   href: string;
+  /** Static label (kept for fallback). */
   label: string;
+  /** Optional i18n key — components prefer this when present. */
+  labelKey?: string;
   icon: LucideIcon;
 }
 
 export interface NavGroup {
   label: string;
+  /** Optional i18n key for the group label. */
+  labelKey?: string;
   items: NavItem[];
 }
 
@@ -49,44 +54,49 @@ export interface NavGroup {
 export const FORMATION_NAV: NavGroup[] = [
   {
     label: "Home",
+    labelKey: "sidebar.groups.home",
     items: [
-      { href: "/formation", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/formation/calendar", label: "Calendar", icon: CalendarRange },
-      { href: "/formation/open-work", label: "Open Work", icon: AlertCircle },
+      { href: "/formation", label: "Dashboard", labelKey: "sidebar.items.dashboard", icon: LayoutDashboard },
+      { href: "/formation/calendar", label: "Calendar", labelKey: "sidebar.items.calendar", icon: CalendarRange },
+      { href: "/formation/open-work", label: "Open Work", labelKey: "sidebar.items.openWork", icon: AlertCircle },
     ],
   },
   {
     label: "Thesis",
+    labelKey: "sidebar.groups.thesis",
     items: [
-      { href: "/formation/thesis", label: "Overview", icon: GraduationCap },
-      { href: "/formation/thesis/writer", label: "Writer", icon: FileText },
-      { href: "/formation/thesis/stats", label: "Dataset / Stats", icon: FlaskConical },
-      { href: "/formation/thesis/literature", label: "Literature", icon: BookMarked },
-      { href: "/formation/thesis/exports", label: "Exports", icon: Database },
+      { href: "/formation/thesis", label: "Overview", labelKey: "sidebar.items.thesisOverview", icon: GraduationCap },
+      { href: "/formation/thesis/writer", label: "Writer", labelKey: "sidebar.items.thesisWriter", icon: FileText },
+      { href: "/formation/thesis/stats", label: "Dataset / Stats", labelKey: "sidebar.items.thesisStats", icon: FlaskConical },
+      { href: "/formation/thesis/literature", label: "Literature", labelKey: "sidebar.items.thesisLiterature", icon: BookMarked },
+      { href: "/formation/thesis/exports", label: "Exports", labelKey: "sidebar.items.thesisExports", icon: Database },
     ],
   },
   {
     label: "Internship",
+    labelKey: "sidebar.groups.internship",
     items: [
-      { href: "/formation/internship", label: "Overview", icon: Briefcase },
-      { href: "/formation/internship/cases", label: "Cases", icon: FolderOpen },
-      { href: "/formation/internship/tests-grids", label: "Tests & Grids", icon: Grid3X3 },
-      { href: "/formation/internship/reports", label: "Reports", icon: ClipboardCheck },
-      { href: "/formation/internship/supervision", label: "Supervision", icon: UserCheck },
+      { href: "/formation/internship", label: "Overview", labelKey: "sidebar.items.internshipOverview", icon: Briefcase },
+      { href: "/formation/internship/cases", label: "Cases", labelKey: "sidebar.items.internshipCases", icon: FolderOpen },
+      { href: "/formation/internship/tests-grids", label: "Tests & Grids", labelKey: "sidebar.items.testsGrids", icon: Grid3X3 },
+      { href: "/formation/internship/reports", label: "Reports", labelKey: "sidebar.items.reports", icon: ClipboardCheck },
+      { href: "/formation/internship/supervision", label: "Supervision", labelKey: "sidebar.items.supervision", icon: UserCheck },
     ],
   },
   {
     label: "Print / Materials",
+    labelKey: "sidebar.groups.printMaterials",
     items: [
-      { href: "/formation/materials/worksheets", label: "Worksheets", icon: ClipboardCheck },
-      { href: "/formation/materials/transcripts", label: "Transcripts", icon: ScrollText },
-      { href: "/formation/materials/resources", label: "Resources", icon: Layers },
+      { href: "/formation/materials/worksheets", label: "Worksheets", labelKey: "sidebar.items.worksheets", icon: ClipboardCheck },
+      { href: "/formation/materials/transcripts", label: "Transcripts", labelKey: "sidebar.items.transcripts", icon: ScrollText },
+      { href: "/formation/materials/resources", label: "Resources", labelKey: "sidebar.items.resources", icon: Layers },
     ],
   },
   {
     label: "System",
+    labelKey: "sidebar.groups.system",
     items: [
-      { href: "/formation/settings", label: "Settings", icon: Settings },
+      { href: "/formation/settings", label: "Settings", labelKey: "sidebar.items.settings", icon: Settings },
     ],
   },
 ];
@@ -96,35 +106,39 @@ export const FORMATION_NAV: NavGroup[] = [
 export const THERAPIST_NAV: NavGroup[] = [
   {
     label: "Home",
+    labelKey: "sidebar.groups.home",
     items: [
-      { href: "/therapist", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/calendar", label: "Calendar", icon: CalendarRange },
-      { href: "/inbox", label: "Inbox", icon: AlertCircle },
+      { href: "/therapist", label: "Dashboard", labelKey: "sidebar.items.dashboard", icon: LayoutDashboard },
+      { href: "/calendar", label: "Calendar", labelKey: "sidebar.items.calendar", icon: CalendarRange },
+      { href: "/inbox", label: "Inbox", labelKey: "sidebar.items.inbox", icon: AlertCircle },
     ],
   },
   {
     label: "Clinical",
+    labelKey: "sidebar.groups.clinical",
     items: [
-      { href: "/cases", label: "Cases", icon: FolderOpen },
-      { href: "/assessments", label: "Assessments", icon: Brain },
-      { href: "/reports", label: "Reports", icon: FileText },
-      { href: "/checkins", label: "Sessions", icon: ClipboardCheck },
-      { href: "/clinical", label: "Clinical Tools", icon: Stethoscope },
+      { href: "/cases", label: "Cases", labelKey: "sidebar.items.cases", icon: FolderOpen },
+      { href: "/assessments", label: "Assessments", labelKey: "sidebar.items.assessments", icon: Brain },
+      { href: "/reports", label: "Reports", labelKey: "sidebar.items.reports", icon: FileText },
+      { href: "/checkins", label: "Sessions", labelKey: "sidebar.items.sessions", icon: ClipboardCheck },
+      { href: "/clinical", label: "Clinical Tools", labelKey: "sidebar.items.clinicalTools", icon: Stethoscope },
     ],
   },
   {
     label: "Materials",
+    labelKey: "sidebar.groups.materials",
     items: [
-      { href: "/clinical/worksheets", label: "Worksheets", icon: ClipboardCheck },
-      { href: "/material", label: "Resources", icon: Layers },
+      { href: "/clinical/worksheets", label: "Worksheets", labelKey: "sidebar.items.worksheets", icon: ClipboardCheck },
+      { href: "/material", label: "Resources", labelKey: "sidebar.items.resources", icon: Layers },
     ],
   },
   {
     label: "Admin",
+    labelKey: "sidebar.groups.admin",
     items: [
-      { href: "/ethics", label: "Ethics", icon: ShieldCheck },
-      { href: "/settings", label: "Settings", icon: Settings },
-      { href: "/backup", label: "Backup", icon: Database },
+      { href: "/ethics", label: "Ethics", labelKey: "sidebar.items.ethics", icon: ShieldCheck },
+      { href: "/settings", label: "Settings", labelKey: "sidebar.items.settings", icon: Settings },
+      { href: "/backup", label: "Backup", labelKey: "sidebar.items.backup", icon: Database },
     ],
   },
 ];
@@ -134,16 +148,17 @@ export const THERAPIST_NAV: NavGroup[] = [
 export const CLIENT_NAV: NavGroup[] = [
   {
     label: "Home",
+    labelKey: "sidebar.groups.home",
     items: [
-      { href: "/client", label: "Home", icon: Heart },
-      { href: "/client/calendar", label: "Calendar", icon: CalendarRange },
-      { href: "/client/assigned", label: "Assigned Work", icon: CheckCircle },
-      { href: "/client/assessments", label: "Assessments", icon: Brain },
-      { href: "/client/workbooks", label: "Worksheets", icon: ClipboardCheck },
-      { href: "/client/resources", label: "Resources", icon: Layers },
-      { href: "/client/notes", label: "Notes", icon: ScrollText },
-      { href: "/client/progress", label: "Progress", icon: TrendingUp },
-      { href: "/client/settings", label: "Settings", icon: Settings },
+      { href: "/client", label: "Home", labelKey: "sidebar.items.home", icon: Heart },
+      { href: "/client/calendar", label: "Calendar", labelKey: "sidebar.items.calendar", icon: CalendarRange },
+      { href: "/client/assigned", label: "Assigned Work", labelKey: "sidebar.items.assigned", icon: CheckCircle },
+      { href: "/client/assessments", label: "Assessments", labelKey: "sidebar.items.assessments", icon: Brain },
+      { href: "/client/workbooks", label: "Worksheets", labelKey: "sidebar.items.worksheets", icon: ClipboardCheck },
+      { href: "/client/resources", label: "Resources", labelKey: "sidebar.items.resources", icon: Layers },
+      { href: "/client/notes", label: "Notes", labelKey: "sidebar.items.notes", icon: ScrollText },
+      { href: "/client/progress", label: "Progress", labelKey: "sidebar.items.progress", icon: TrendingUp },
+      { href: "/client/settings", label: "Settings", labelKey: "sidebar.items.settings", icon: Settings },
     ],
   },
 ];
