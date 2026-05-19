@@ -674,17 +674,40 @@ them.
 → low, < 50% observability → not-observable. The same status
 drives the same follow-up suggestion logic across every schema.
 
+### ScoreSet UI surface
+
+`components/internship/ScoreSetSection.tsx` exposes the new
+engine inside the case Évaluation tab, sitting next to the
+existing `ScorableGridSection`. It is fully schema-driven —
+`SchemaButtonGroup` renders one button per `schema.values`
+entry, picking colour from the value's `tone`
+(`calm` · `neutral` · `warm` · `warning` · `alarm`), so the
+exact same component scores acquisition grids, frequency
+journals, Likert ratings and severity logs without any
+hard-coded buttons. Persistence flows through
+`InternshipContext`:
+`scoreSetAdmins`, `createScoreSetAdmin`, `scoreScoreSetItem`,
+`clearScoreSetItem`, `patchScoreSetAdmin`, `removeScoreSetAdmin`
+— all writing to `psych-internship-score-set-admins-v1`.
+
+The two non-acquisition templates seeded by PR #16
+(`SCORE_SET_RATING_ENGAGEMENT` Likert 1–5,
+`SCORE_SET_TRIGGER_LOG` severity) are now reachable through the
+UI — pick one, click values, get the per-domain breakdown and
+follow-up suggestions for free. The 26 legacy templates keep
+their existing UI; nothing is migrated yet, both paths read the
+same underlying scoring math through the adapters.
+
 ### Click-based test shells (deferred)
 
 The brief asked for click-based scoring for 7 official test
 shells (CARS-2 ratings, M-CHAT-R/F Y/N, Sensory quadrants,
-Adaptive support levels, Communication / Social / ABC). Each of
-those needs a different score model than the A/EC/NA/NO engine
-(1.0–4.0 ratings, yes/no/observed, four sensory patterns,
-support gradient). This is a clean architectural extension —
-the engine can be generalised to take a custom `ScoreSet` per
-template — and is honestly deferred to the next PR rather than
-half-built here.
+Adaptive support levels, Communication / Social / ABC). With
+the ScoreSet UI surface in place the remaining work is purely
+template authoring — each official shell becomes a
+`ScoreSetDefinition` on the appropriate built-in schema and
+renders through `ScoreSetSection` with no UI changes. Honestly
+deferred to the next PR.
 
 ### Navigation cleanup shipped with this pass
 

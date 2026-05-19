@@ -9,6 +9,8 @@ export const INTERNSHIP_STORAGE_KEYS = {
   supervision: "psych-internship-supervision-v1",
   files: "psych-internship-files-v1",
   scorableAdmins: "psych-internship-scorable-grids-v1",
+  // Generic ScoreSet administrations (any schema beyond acquisition).
+  scoreSetAdmins: "psych-internship-score-set-admins-v1",
 } as const;
 
 export type InternshipStorageKey =

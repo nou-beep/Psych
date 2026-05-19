@@ -71,6 +71,7 @@ import {
   type ResponseQuality,
 } from "@/components/ui/structured";
 import { ScorableGridSection } from "@/components/internship/ScorableGridSection";
+import { ScoreSetSection } from "@/components/internship/ScoreSetSection";
 import { StructuredProfileForm } from "@/components/internship/StructuredProfileForm";
 
 interface PageProps {
@@ -283,7 +284,10 @@ export default function InternshipCasePage({ params }: PageProps) {
 
         {/* ═════════════════ EVALUATION ═════════════════ */}
         <TabsContent value="evaluation">
-          <ScorableGridSection caseId={caseData.id} />
+          <div className="space-y-6">
+            <ScorableGridSection caseId={caseData.id} />
+            <ScoreSetSection caseId={caseData.id} />
+          </div>
         </TabsContent>
 
         {/* ═════════════════ TESTS ═════════════════ */}

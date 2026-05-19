@@ -67,6 +67,13 @@ import {
   type CapabilityScore,
   type ScorableGridAdministration,
 } from "@/lib/internship/scorable-grids";
+import {
+  clearScoreSetItem as clearScoreSetItemFn,
+  newScoreSetAdministration,
+  patchScoreSetAdministration as patchScoreSetAdminFn,
+  scoreScoreSetItem as scoreScoreSetItemFn,
+  type ScoreSetAdministration,
+} from "@/lib/internship/score-set";
 import { buildDailyFromGrid, buildGridSummaryReportBody } from "@/lib/internship/scorable-text";
 import { findScorableTemplate } from "@/lib/internship/scorable-templates";
 import {
@@ -274,6 +281,35 @@ interface InternshipContextValue {
     >
   ) => void;
   removeScorableAdmin: (id: string) => void;
+  // ScoreSet administrations — the generic schema-driven engine
+  // that supersedes the A/EC/NA/N-O-only scorable system. Handles
+  // Likert / frequency / severity / support level / binary, etc.
+  scoreSetAdmins: ScoreSetAdministration<string>[];
+  createScoreSetAdmin: (input: {
+    caseId: string;
+    templateId: string;
+    date?: string;
+    evaluator?: string;
+    context?: string;
+    sessionLabel?: string;
+  }) => ScoreSetAdministration<string>;
+  scoreScoreSetItem: (
+    adminId: string,
+    itemId: string,
+    value: string,
+    extra?: { note?: string; evidence?: string }
+  ) => void;
+  clearScoreSetItem: (adminId: string, itemId: string) => void;
+  patchScoreSetAdmin: (
+    id: string,
+    patch: Partial<
+      Omit<
+        ScoreSetAdministration<string>,
+        "id" | "createdAt" | "caseId" | "results"
+      >
+    >
+  ) => void;
+  removeScoreSetAdmin: (id: string) => void;
   // Convenience: build a daily report or grid-summary simple report
   // from a scored administration in one click.
   createDailyFromScorableAdmin: (adminId: string) => InternshipReport | null;
@@ -319,6 +355,9 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
   const [scorableAdmins, setScorableAdmins] = useState<
     ScorableGridAdministration[]
   >([]);
+  const [scoreSetAdmins, setScoreSetAdmins] = useState<
+    ScoreSetAdministration<string>[]
+  >([]);
   const [seedAccepted, setSeedAccepted] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -353,6 +392,9 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
         INTERNSHIP_STORAGE_KEYS.scorableAdmins,
         []
       );
+      const storedScoreSet = loadFromStorage<
+        ScoreSetAdministration<string>[]
+      >(INTERNSHIP_STORAGE_KEYS.scoreSetAdmins, []);
       const accepted = loadFromStorage<boolean>(
         INTERNSHIP_SEED_ACCEPTED_KEY,
         false
@@ -379,6 +421,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
         setFiles(storedFiles);
         setScorableAdmins(storedScorable);
       }
+      setScoreSetAdmins(storedScoreSet);
       setSeedAccepted(accepted);
     } catch {
       // localStorage unavailable — keep empty state.
@@ -416,6 +459,10 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
     if (!ready) return;
     saveToStorage(INTERNSHIP_STORAGE_KEYS.scorableAdmins, scorableAdmins);
   }, [scorableAdmins, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    saveToStorage(INTERNSHIP_STORAGE_KEYS.scoreSetAdmins, scoreSetAdmins);
+  }, [scoreSetAdmins, ready]);
 
   // ─── Cases ───────────────────────────────────────────────
   const createCase = useCallback(
@@ -815,6 +862,61 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       setScorableAdmins((list) => removeAdminFn(list, id)),
     []
   );
+
+  // ─── ScoreSet administrations (generic engine) ──────────
+  const createScoreSetAdmin = useCallback(
+    (input: {
+      caseId: string;
+      templateId: string;
+      date?: string;
+      evaluator?: string;
+      context?: string;
+      sessionLabel?: string;
+    }) => {
+      const a = newScoreSetAdministration<string>(input);
+      setScoreSetAdmins((list) => [a, ...list]);
+      return a;
+    },
+    []
+  );
+  const scoreScoreSetItem = useCallback(
+    (
+      adminId: string,
+      itemId: string,
+      value: string,
+      extra: { note?: string; evidence?: string } = {}
+    ) =>
+      setScoreSetAdmins((list) =>
+        scoreScoreSetItemFn(list, adminId, itemId, value, extra)
+      ),
+    []
+  );
+  const clearScoreSetItem = useCallback(
+    (adminId: string, itemId: string) =>
+      setScoreSetAdmins((list) =>
+        clearScoreSetItemFn(list, adminId, itemId)
+      ),
+    []
+  );
+  const patchScoreSetAdmin = useCallback(
+    (
+      id: string,
+      patch: Partial<
+        Omit<
+          ScoreSetAdministration<string>,
+          "id" | "createdAt" | "caseId" | "results"
+        >
+      >
+    ) =>
+      setScoreSetAdmins((list) => patchScoreSetAdminFn(list, id, patch)),
+    []
+  );
+  const removeScoreSetAdmin = useCallback(
+    (id: string) =>
+      setScoreSetAdmins((list) => list.filter((a) => a.id !== id)),
+    []
+  );
+
   const createDailyFromScorableAdmin = useCallback(
     (adminId: string): InternshipReport | null => {
       const admin = scorableAdmins.find((a) => a.id === adminId);
@@ -934,6 +1036,7 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
     setReports(SEED_INTERNSHIP_REPORTS);
     setSupervision(SEED_INTERNSHIP_SUPERVISION);
     setScorableAdmins(SEED_INTERNSHIP_SCORABLE);
+    setScoreSetAdmins([]);
     setGrids([]);
     setFiles([]);
   }, []);
@@ -988,6 +1091,12 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       clearScorableItem,
       patchScorableAdmin,
       removeScorableAdmin,
+      scoreSetAdmins,
+      createScoreSetAdmin,
+      scoreScoreSetItem,
+      clearScoreSetItem,
+      patchScoreSetAdmin,
+      removeScoreSetAdmin,
       createDailyFromScorableAdmin,
       createGridSummaryReport,
       addScorableAdminToWeekly,
@@ -1045,6 +1154,12 @@ export function InternshipProvider({ children }: { children: ReactNode }) {
       clearScorableItem,
       patchScorableAdmin,
       removeScorableAdmin,
+      scoreSetAdmins,
+      createScoreSetAdmin,
+      scoreScoreSetItem,
+      clearScoreSetItem,
+      patchScoreSetAdmin,
+      removeScoreSetAdmin,
       createDailyFromScorableAdmin,
       createGridSummaryReport,
       addScorableAdminToWeekly,
