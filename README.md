@@ -628,6 +628,52 @@ Closes the three motor-domain suggestion-engine gaps from PR #12.
 The structured profile's suggestion engine now points to
 templates that actually exist when the motor domain reads weak.
 
+### Universal ScoreSet engine
+
+`lib/internship/score-set.ts` ships a generic scoring architecture
+that supersedes the A/EC/NA/N-O-specific `ScorableGrid` system.
+The engine is schema-driven: a `ScoreSchema<TValue>` describes the
+valid values, their display labels, and a `weightOf` function that
+returns each value's contribution (0–1 or `null` for "not
+observed"). `domainBreakdown` and `scoreSetBreakdown` work
+identically across every schema.
+
+**Seven built-in schemas** (`lib/internship/score-set-schemas.ts`):
+
+| Schema | Values | Weights |
+|---|---|---|
+| `acquisition` | A · EC · NA · N/O | 1 / 0.5 / 0 / null |
+| `binary-yn` | Oui · Non · N/O | 1 / 0 / null |
+| `likert-1-4` | 1–4 (atypicité) | 1 → 0; lower is better |
+| `likert-1-5` | 1–5 (qualité) | 0 → 1; higher is better |
+| `frequency` | Jamais → Très souvent · N/O | 0 → 1 · null |
+| `support-level` | Sans aide → Guidance totale · N/O | 1 → 0 · null |
+| `severity` | Faible → Très élevée · N/O | 1 → 0 · null; higher is worse |
+
+**Backward compatibility** — `lib/internship/score-set-adapters.ts`
+exposes pure conversions: `scorableGridToScoreSet()` re-views any
+of the 26 existing templates as a `ScoreSetDefinition` on the
+acquisition schema. `scorableAdminToScoreSetAdmin()` does the same
+for administration records. The reverse `scoreSetAdminToScorable()`
+roundtrips when the schema is acquisition (returns `null`
+otherwise). No data migration needed — the 26 legacy templates
+keep working through their existing UI; the new engine can read
+them.
+
+**Two new ScoreSet templates** demonstrate non-acquisition schemas:
+
+- **Rating clinique d'engagement** — Likert 1–5 (1 = absent, 5 =
+  généralisé). Domains: arrivée / engagement / clôture.
+- **Journal des déclencheurs (sévérité)** — Severity scale
+  (faible → très élevée), with the right semantics for trigger
+  tracking (high severity drives follow-up suggestions).
+
+**Status mapping** — the engine produces a schema-agnostic
+`ScoreSetDomainStatus`: `top` / `mid` / `low` /
+`not-observable`. Thresholds: ≥ 75% → top, 40–74% → mid, < 40%
+→ low, < 50% observability → not-observable. The same status
+drives the same follow-up suggestion logic across every schema.
+
 ### Click-based test shells (deferred)
 
 The brief asked for click-based scoring for 7 official test
