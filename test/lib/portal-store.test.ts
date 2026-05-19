@@ -20,6 +20,8 @@ describe("portal preference", () => {
     expect(readPortalPreference()).toBe("client");
     setPortalPreference("therapist");
     expect(readPortalPreference()).toBe("therapist");
+    setPortalPreference("formation");
+    expect(readPortalPreference()).toBe("formation");
   });
 
   it("setting null removes the key", () => {
@@ -39,7 +41,8 @@ describe("portal preference", () => {
 describe("homePathForPortal", () => {
   it("maps each portal to its home", () => {
     expect(homePathForPortal("client")).toBe("/client");
-    expect(homePathForPortal("therapist")).toBe("/");
-    expect(homePathForPortal(null)).toBe("/welcome");
+    expect(homePathForPortal("therapist")).toBe("/therapist");
+    expect(homePathForPortal("formation")).toBe("/formation");
+    expect(homePathForPortal(null)).toBe("/");
   });
 });

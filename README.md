@@ -1,22 +1,128 @@
-# Psych ✦ — Clinical Psychology Workspace
+# Eyla ✦ — Three-Portal Psychology Workspace
 
-A vibrant, whimsical, and professional workspace for psychology students, interns, therapists, researchers, and supervisors.
+A clinical psychology workspace organised around three portals:
+**Formation** (academic + training), **Therapist** (clinical
+casework), and **Client** (assigned work + appointments).
 
 ---
 
-## What is Psych?
+## What is Eyla?
 
-Psych is a **Next.js web application** built for clinical psychology work. It helps you manage:
+Eyla (formerly "Psych") is a **Next.js web application** that serves
+three distinct audiences without mixing their workflows:
 
-- Clinical cases, internship cases, child follow-ups, and adult cases
-- Autism internship tracking
-- Supervision notes and reflections
-- Research participant summaries and qualitative memos
-- Assessments and scoring grids
-- Printable clinical grids (8 templates)
-- Reports: daily, weekly, monthly, one-page, two-page, assessment grid, and final long report structure
+- **Formation Portal** — Thesis, internship, supervised practice,
+  research, reports, tests, grids, academic exports. The trainee
+  workspace.
+- **Therapist Portal** — Cases, structured interviews, MSE,
+  formulations, longitudinal tracking, reports, supervision —
+  documentation and clinical reasoning for professional casework.
+- **Client Portal** — Assigned worksheets, assessments, appointments,
+  reflections, calendar, progress. A quieter companion for the work
+  between sessions.
 
-Psych is designed to be beautiful and calming — soft pink gradients, rounded cards, sparkle accents — while staying professional enough for university internship submissions and supervisor review.
+Each portal has its own login screen, dashboard, sidebar, and visual
+density. Shared engines (ScoreSet, Worksheet, Reports, Calendar,
+Print, Structured input) live under both — no duplicated logic, only
+portal-level presentation.
+
+---
+
+## Three-portal architecture
+
+### Entry gateway → `/`
+
+The entry gateway shows three cards (Formation · Therapist · Client).
+Each routes to its own mock-auth login screen at `/login/formation`,
+`/login/therapist`, `/login/client`. Any credentials sign you in; the
+session stores `{ portal, email, signedInAt }` in localStorage.
+
+### Portal-aware sidebar
+
+`components/layout/sidebar-nav.ts` exposes three nav configs —
+`FORMATION_NAV`, `THERAPIST_NAV`, `CLIENT_NAV` — and a `navForPortal`
+selector. The sidebar component (`components/layout/Sidebar.tsx`)
+detects the current portal from the route prefix via
+`portalForRoute()` in `lib/auth.ts` and renders the right config.
+The active-portal badge in the sidebar header (`Formation`,
+`Therapist`, or `Client`) confirms which workspace you're in.
+
+**Route → portal mapping** (`portalForRoute` in `lib/auth.ts`):
+
+| Prefix | Portal |
+|---|---|
+| `/`, `/welcome`, `/login/*` | public (no portal) |
+| `/client`, `/client/*` | client |
+| `/formation`, `/thesis`, `/internship`, `/research`, `/transcripts`, `/supervision`, `/grids` | formation |
+| everything else (`/cases`, `/assessments`, `/reports`, `/clinical`, `/checkins`, `/goals`, …) | therapist |
+
+Old thesis/internship routes keep their current paths (`/thesis`,
+`/internship/cases/[id]`, etc.) — they are *owned* by the Formation
+portal via prefix detection. No physical route migration was needed
+to deliver the portal feeling; deep links continue to work.
+
+### Formation Portal — `/formation`
+
+Dashboard surfaces thesis progress (participants, missing data,
+report sections, notes, variables), internship caseload (active
+cases, pending grids, tests awaiting score, reports to finalize),
+and a recent-supervision-notes feed. Quick actions launch Thesis
+Studio, Thesis Writer, Internship Studio, Tests & Grids,
+Supervision, and Literature.
+
+Sidebar groups: **Home** · **Thesis** · **Internship** ·
+**Materials** · **System**. The clinical workspace
+(`/cases`, `/assessments`, `/reports`, `/clinical`) is intentionally
+absent — those live in the Therapist Portal.
+
+### Therapist Portal — `/therapist`
+
+Sidebar groups: **Home** · **Clinical** · **Materials** · **Admin**.
+Thesis, Internship, Research, Grids, Supervision are no longer in
+the therapist sidebar — they moved to Formation. The therapist
+dashboard now focuses on cases, check-ins, goals, assessments and
+session/calendar widgets.
+
+### Client Portal — `/client`
+
+Sidebar (bottom-nav pill on mobile) is the simpler structured set:
+Home · Calendar · Assigned · Assessments · Worksheets · Resources ·
+Notes · Progress · Settings. Removed from always-visible nav: Body
+map, Threads, Reflections, Grounding — they remain accessible via
+Home and deep links, just no longer crowding the pill.
+
+**New routes:**
+- `/client/calendar` — therapist-assigned material + upcoming
+  sessions for the next 30 days, grouped by day. Reads from the
+  shared calendar engine, filtered to client-relevant categories
+  (`session`, `intake`, `assessment-due`, `workbook-review`,
+  `worksheet-due`, `follow-up`).
+- `/client/assigned` — focused list of pending therapist
+  assignments with `Mark done` action and a completed-items section.
+
+### Shared engines (one source, every portal)
+
+- **ScoreSet engine** — `lib/internship/score-set.ts` +
+  `score-set-schemas.ts` + adapters. Used by Formation (internship
+  grids, tests) and reachable from Therapist (Assessments) and
+  Client (delivered assessments). See "Universal ScoreSet engine"
+  below.
+- **Worksheet engine** — `lib/clinical/worksheets-library.ts`.
+  Authored once, surfaced in Therapist Worksheets and Client
+  Workbooks.
+- **Calendar engine** — `lib/clinical/calendar.ts`. Single event
+  store; each portal filters by category for its surface.
+- **Reports engine** — `lib/internship/final-report-builder.ts` +
+  `lib/report-assembly.ts`. Shared by formation final reports and
+  therapist clinical reports.
+- **Print system** — `@media print` CSS + immersive route
+  recognition in `ChromeGate`. Same A4 print pipeline serves grid
+  prints, report prints, and any future printable surface.
+- **Structured input primitives** — `components/ui/structured/*`.
+  ChipSelect / SegmentedScore / RatingScale work identically across
+  the three portals.
+
+---
 
 ---
 
@@ -972,6 +1078,13 @@ The psychological architecture adds 40 new unit tests across
 
 ## Navigation & sidebar architecture
 
+The sidebar is **portal-aware**. Its nav config is selected by
+`portalForRoute(pathname)` from `lib/auth.ts`, which maps the current
+route prefix to `"formation" | "therapist" | "client" | null` and
+picks the right `NavGroup[]` from `components/layout/sidebar-nav.ts`.
+The visible portal is also surfaced as a small badge in the sidebar
+header so you always see which workspace you're in.
+
 ### Sidebar (desktop)
 
 The sidebar is `position: fixed` at `h-screen` (full viewport height —
@@ -1075,38 +1188,42 @@ subtle hand-marked annotation feel:
 
 ---
 
-## Dual-portal architecture
+## Three-portal architecture — extended
 
-Psych is split into two distinct ecosystems that share the same local
-data layer but feel intentionally different.
+Eyla splits into three distinct ecosystems sharing the same local
+data layer but with intentionally different chrome and density.
 
 ```
-                       /  (entry gateway)
-                       │
-              ┌────────┴────────┐
-              ▼                 ▼
-   /login/therapist     /login/client
-              │                 │
-              ▼                 ▼
-   /therapist + /cases,  /client + /client/*
-   /clinical, /reports,
-   /thesis, /supervision …
+                          /  (entry gateway · 3 cards)
+                          │
+            ┌─────────────┼─────────────┐
+            ▼             ▼             ▼
+   /login/formation /login/therapist /login/client
+            │             │             │
+            ▼             ▼             ▼
+   /formation      /therapist      /client
+   + /thesis/*     + /cases/*      + /client/*
+   + /internship/* + /assessments  (own bottom-nav
+   + /research/*   + /reports         pill chrome)
+   + /supervision  + /clinical
+   + /grids
 ```
 
-- **Gateway** at `/` — full-screen split-entry. The app NEVER auto-opens
-  the therapist dashboard; the user always chooses a portal.
-- **Therapist portal** — workspace, cases, clinical tools, reports,
-  research. Lives at `/therapist` (dashboard) plus all the existing
-  routes (`/cases`, `/clinical/*`, `/reports/*`, …). Higher information
-  density, advanced tools, supervision and research surfaces.
-- **Client portal** — quieter companion for between-session work.
-  Therapist-guided, lower cognitive load, simpler navigation.
-- **Mock auth** — `/login/therapist` and `/login/client` accept any
-  credentials. The session lives in `localStorage` under
-  `psych-session-v1`. `RequireAuth` (a client-side guard wrapping the
-  app) bounces unauthenticated users to the right login screen.
-  `lib/auth.ts` exports `homePathFor`, `loginPathFor`, `isPublicRoute`,
-  `portalForRoute`.
+- **Gateway** at `/` — full-screen three-card entry. Never auto-opens
+  any dashboard; the user always chooses a portal.
+- **Formation portal** — academic & training workspace. Sidebar
+  groups Thesis · Internship · Materials · System. Dashboard at
+  `/formation` surfaces both thesis and internship progress.
+- **Therapist portal** — professional clinical casework. Sidebar
+  groups Clinical · Materials · Admin. Thesis/internship intentionally
+  removed.
+- **Client portal** — assigned-work companion. Bottom-nav pill with
+  9 items, lower density, no wellness-app drift.
+- **Mock auth** — `/login/formation`, `/login/therapist`,
+  `/login/client` all accept any credentials. Session lives in
+  `localStorage` under `psych-session-v1` with the chosen `portal`.
+  `lib/auth.ts` exports `homePathFor`, `loginPathFor`,
+  `isPublicRoute`, `portalForRoute`.
 
 ### Client portal philosophy
 
@@ -1122,11 +1239,19 @@ in favour of:
 - Psychoeducation viewer with reading-level variants
 - Grounding / stabilization tools
 
-The simplified client navigation has nine items only: **Home, Workbooks,
-Reflections, Assessments, Progress, Resources, Grounding, Therapist
-notes, Settings**. Legacy client routes (cards, journeys, comfort,
-audio, safe-people, the "I can't explain it" canvas) still exist for
-users who want them but are no longer in the primary nav.
+The client navigation has nine items only — **Home · Calendar ·
+Assigned · Assessments · Worksheets · Resources · Notes · Progress ·
+Settings** — driven by `NAV_ITEMS` in `components/client/ClientShell.tsx`.
+Legacy client routes (cards, journeys, comfort, audio, safe-people,
+body map, threads, reflections, grounding, the "I can't explain it"
+canvas) still exist for users who want them, but are no longer in
+the always-visible nav.
+
+The new `/client/calendar` route reads from the shared calendar
+engine, filters to client-relevant categories, groups events by day
+across a 30-day horizon, and surfaces therapist-assigned material at
+the bottom. `/client/assigned` is a dedicated focus surface for
+pending vs. completed assignments with a `Mark done` action.
 
 ### Therapist ↔ client workflow
 
@@ -1204,21 +1329,18 @@ The clinical layer adds 82 new unit tests covering:
 
 ---
 
-## Two portals
+## Client portal — extended detail
 
-Psych now ships as **two parallel experiences** that share the same data
-layer but feel completely different:
+Eyla's client portal is one of three (alongside Formation and
+Therapist). It lives at `/client/*` with its own immersive layout
+(no global sidebar — it owns its bottom-nav pill chrome) and a
+calmer visual palette.
 
-- **Therapist / Clinician workspace** — at `/` and all existing routes.
-  Structured, documentation-focused.
-- **Client portal** — at `/client/*`. Emotionally safe, soft, immersive.
-  Its own ambient layout (no sidebar/header), its own themes, its own
-  navigation.
-
-A split-entry welcome page at `/welcome` lets users pick on first visit.
-The preference is stored in `localStorage`; either portal can switch from
-its own settings page. `components/shared/ChromeGate` swaps layout chrome
-based on the current route — no rewrite required to the therapist UI.
+A three-card entry gateway at `/` lets users pick a portal on first
+visit. The preference is stored in `localStorage`; either portal can
+switch from its own settings page. `components/shared/ChromeGate`
+swaps layout chrome based on the current route — no rewrite required
+to the therapist UI.
 
 ### Client portal highlights
 

@@ -1,94 +1,49 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { loadFromStorage, saveToStorage } from "@/lib/store";
-import {
-  LogOut,
-  LayoutDashboard,
-  FolderOpen,
-  ClipboardCheck,
-  Brain,
-  FileText,
-  FlaskConical,
-  Settings,
-  Sparkles,
-  ScrollText,
-  Command,
-  GraduationCap,
-  BookMarked,
-  Languages,
-  ShieldCheck,
-  Database,
-  Stethoscope,
-  CalendarRange,
-  AlertCircle,
-  Layers,
-  Briefcase,
-} from "lucide-react";
+import { LogOut, Sparkles, Command } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/contexts/AppContext";
-
-// Sidebar reduced per the user brief — five top-level groups, with
-// deep/duplicate routes hidden from nav. The page files stay alive
-// (deep links keep working) but Reports / Clinical tools / Thesis
-// Studio are now the canonical entry points for what used to be
-// many duplicate sidebar items.
-const navGroups = [
-  {
-    label: "Home",
-    items: [
-      { href: "/therapist", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/calendar", label: "Calendar", icon: CalendarRange },
-      { href: "/inbox", label: "Inbox", icon: AlertCircle },
-      { href: "/open-loops", label: "Open Loops", icon: AlertCircle },
-    ],
-  },
-  {
-    label: "Clinical Work",
-    items: [
-      { href: "/cases", label: "Cases", icon: FolderOpen },
-      { href: "/internship", label: "Internship Studio ✦", icon: Briefcase },
-      { href: "/assessments", label: "Assessments", icon: Brain },
-      { href: "/reports", label: "Reports", icon: FileText },
-      { href: "/clinical", label: "Clinical Tools", icon: Stethoscope },
-    ],
-  },
-  {
-    label: "Research",
-    items: [
-      { href: "/thesis", label: "Thesis Studio", icon: GraduationCap },
-      { href: "/research", label: "Research", icon: FlaskConical },
-      { href: "/transcripts", label: "Transcripts", icon: ScrollText },
-      { href: "/research/literature", label: "Literature", icon: BookMarked },
-    ],
-  },
-  {
-    label: "Materials",
-    items: [
-      { href: "/clinical/worksheets", label: "Worksheets", icon: ClipboardCheck },
-      { href: "/material", label: "Resources", icon: Layers },
-      { href: "/dictionary", label: "Dictionary", icon: Languages },
-    ],
-  },
-  {
-    label: "System",
-    items: [
-      { href: "/ethics", label: "Ethics", icon: ShieldCheck },
-      { href: "/backup", label: "Backup", icon: Database },
-      { href: "/settings", label: "Settings", icon: Settings },
-    ],
-  },
-];
+import { navForPortal } from "./sidebar-nav";
+import { portalForRoute, type Portal } from "@/lib/auth";
 
 const SIDEBAR_GROUPS_STORAGE_KEY = "psych-sidebar-groups-v1";
+
+const PORTAL_BADGE: Record<Portal, { label: string; tint: string; ink: string }> = {
+  formation: {
+    label: "Formation",
+    tint: "rgba(140,100,200,0.14)",
+    ink: "#5B36A8",
+  },
+  therapist: {
+    label: "Therapist",
+    tint: "rgba(199,125,170,0.16)",
+    ink: "#9F1239",
+  },
+  client: {
+    label: "Client",
+    tint: "rgba(140,100,200,0.14)",
+    ink: "#7C4FB3",
+  },
+};
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { activeCases, goals } = useApp();
   const { session, signOut } = useAuth();
+  const detectedPortal: Portal = useMemo(
+    () => portalForRoute(pathname ?? "") ?? session?.portal ?? "therapist",
+    [pathname, session?.portal]
+  );
+  const navGroups = useMemo(
+    () => navForPortal(detectedPortal),
+    [detectedPortal]
+  );
+  const portalBadge = PORTAL_BADGE[detectedPortal];
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [ready, setReady] = useState(false);
 
@@ -108,9 +63,14 @@ export function Sidebar() {
   }
 
   function isActive(href: string) {
+    if (!pathname) return false;
     if (href === "/") return pathname === "/";
-    if (href === "/therapist") return pathname === "/therapist";
-    return pathname.startsWith(href);
+    // Dashboard-style hrefs (/therapist, /formation, /client) must only
+    // match exactly — otherwise every nested route would highlight them.
+    if (href === "/therapist" || href === "/formation" || href === "/client") {
+      return pathname === href;
+    }
+    return pathname === href || pathname.startsWith(href + "/");
   }
 
   const badges: Record<string, number | null> = {
@@ -132,7 +92,7 @@ export function Sidebar() {
         style={{ opacity: 0.15 }}
       />
 
-      {/* Logo */}
+      {/* Logo + active portal badge */}
       <div
         className="flex items-center gap-2.5 px-5 py-5 border-b relative"
         style={{ borderColor: "var(--psych-border)" }}
@@ -145,18 +105,30 @@ export function Sidebar() {
         >
           ✦
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-1.5">
+            <span
+              className="text-lg font-bold tracking-tight"
+              style={{ color: "var(--psych-text)" }}
+            >
+              Eyla
+            </span>
+            <Sparkles
+              size={11}
+              className="animate-sparkle"
+              style={{ color: "var(--psych-primary)" }}
+            />
+          </div>
           <span
-            className="text-lg font-bold tracking-tight"
-            style={{ color: "var(--psych-text)" }}
+            data-portal-badge={detectedPortal}
+            className="text-[9px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded-md self-start"
+            style={{
+              backgroundColor: portalBadge.tint,
+              color: portalBadge.ink,
+            }}
           >
-            Psych
+            {portalBadge.label}
           </span>
-          <Sparkles
-            size={11}
-            className="animate-sparkle"
-            style={{ color: "var(--psych-primary)" }}
-          />
         </div>
       </div>
 
@@ -228,7 +200,7 @@ export function Sidebar() {
                 const badge = badges[href];
                 return (
                   <Link
-                    key={href}
+                    key={`${href}::${label}`}
                     href={href}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
