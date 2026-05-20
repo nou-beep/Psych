@@ -443,4 +443,42 @@ export const FR_DICT: AppDictionary = {
     assessments: "Aucune évaluation pour le moment",
     supervision: "Aucune note de supervision pour le moment",
   },
+
+  today: {
+    title: "Aujourd'hui",
+    empty: "Rien d'urgent pour l'instant — eaux calmes.",
+    count: "{n} élément(s)",
+  },
+
+  memory: {
+    rail: {
+      title: "Mémoire de travail",
+      empty: "Aucun élément épinglé",
+      count: "{n} épinglé(s)",
+    },
+    empty: {
+      title: "La barre est silencieuse.",
+      hint:
+        "Épinglez ici observations, extraits, hypothèses et citations au fil du travail — ils restent avec vous tout au long de la séance.",
+    },
+    kinds: {
+      observation: "Observations",
+      excerpt: "Extraits",
+      hypothesis: "Hypothèses",
+      quote: "Citations",
+      fragment: "Fragments",
+      supervision: "Supervision",
+      reference: "Références",
+      paragraph: "Paragraphes",
+      sensory: "Notes sensorielles",
+      pattern: "Schémas",
+    },
+    actions: {
+      copy: "Copier dans le presse-papiers",
+      recolor: "Changer la couleur",
+      archive: "Archiver",
+      remove: "Supprimer",
+      pin: "Épingler à la mémoire",
+    },
+  },
 };

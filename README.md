@@ -1,10 +1,105 @@
-# Eyla ✦ — Three-Portal Bilingual Psychology Workspace
+# Eyla ✦ — Psychologically-Native Bilingual Workspace
 
-A clinical psychology workspace organised around three portals:
-**Formation** (academic + training), **Therapist** (clinical
-casework), and **Client** (assigned work + appointments). Fully
-bilingual — French (default) and English — with instant switching
-from a persistent toggle.
+Eyla is organised around three portals — **Formation** (academic +
+training), **Therapist** (clinical casework), **Client** (assigned
+work + appointments) — and is built to feel *psychologically native*
+rather than *software with psychology features*. Bilingual (French
+default + English) with instant toggle.
+
+---
+
+## Psychologically-native workspace philosophy
+
+Eyla is being progressively reshaped along five axes:
+
+| Anti-pattern | Eyla's answer |
+|---|---|
+| Giant always-visible forms | `FocusBlock` — progressive disclosure with persistent open state |
+| Hard route hops for every action | `SideSheet` — non-routing drawers for worksheets, grids, reports |
+| Database-oriented surfaces | Session-based workflows + `TodayPanel` per portal |
+| Reports manually assembled from scratch | Contextual generation (from session / grids / transcript / supervision) |
+| Losing fragments between contexts | `MemoryRail` — persistent working-memory layer across the session |
+| Everything visually equal | Visual priority system: critical / high / normal / low |
+
+### Building blocks (`components/workspace/`)
+
+- **`TodayPanel`** — a small ordered list of next-action items per
+  portal. Driven by pure helpers in `lib/clinical/today.ts`
+  (`computeFormationToday`, `computeTherapistToday`,
+  `computeClientToday`) that read the data each portal already owns
+  and surface what matters today, capped at 5–6 items, sorted by
+  priority. No fake AI — just observation of the user's state.
+- **`MemoryRail`** — the persistent working-memory layer. Pin
+  observations, transcript excerpts, hypotheses, quotes, supervision
+  ideas, sensory notes, references and generated paragraphs.
+  Survives reloads via `lib/clinical/session-memory.ts` (pure store)
+  and `SessionMemoryProvider`. Items group by kind, can be
+  recoloured, archived, copied. Designed to dock on the right of a
+  Session Workspace or render standalone.
+- **`FocusBlock`** — collapsible disclosure with optional summary,
+  icon, action slot, and three emphasis tiers (low / normal / high).
+  Persists open state per stable `id`. Replaces giant 12-section
+  forms with a calm scroll of unfolding blocks.
+- **`SideSheet`** — non-routing drawer rendered into `document.body`.
+  Right or left anchor, Esc + click-outside to close, header /
+  footer slots. Use it whenever opening something shouldn't break
+  the user's place.
+
+### Today layer
+
+Each portal home now shows a Today card before the rest of the
+dashboard. Formation Today surfaces draft reports, tests awaiting
+scoring, grids waiting for entries, thesis sections to continue,
+supervision-prep nudges. Therapist Today flags cases needing review,
+pending assessments, and the day's first check-in. Client Today
+surfaces pending assignments, the next session, and a gentle
+reflection nudge. Everything is computed from existing data — no
+new persistence layer.
+
+### Working memory rail
+
+A psychologist holds a constant stream of observations, hypotheses,
+contradictions, quotes and fragments in working memory. The rail
+makes that stream a first-class object the UI can pin to:
+
+```ts
+import { useSessionMemory } from "@/contexts/SessionMemoryContext";
+
+const memory = useSessionMemory();
+memory.pin({
+  sessionId: caseId,
+  kind: "observation",
+  body: "M. évite le contact visuel mais répond aux prénoms familiers.",
+  source: { kind: "case", refId: caseId, label: "INT-AP-001 · session 3" },
+});
+```
+
+Items render in the rail grouped by kind (Observations / Hypotheses /
+Patterns / Excerpts / Quotes / Fragments / Sensory / Paragraphs /
+Supervision / References) and persist in `localStorage` under
+`eyla-session-memory-v1`.
+
+### What is NOT in this pass
+
+The brief covers 19 sections; this PR delivers the foundation
+(MemoryRail, Today, FocusBlock, SideSheet). Subsequent passes
+extend:
+
+- Full **Session Workspace shell** (left/center/right/bottom slots)
+- **Session Timeline** aggregating sessions / observations / reports
+  / grids / tests / transcripts / sensory events / interventions
+- **Contextual generation** rewrite — every "Generate Report" CTA
+  becomes "Generate from grids / session / transcript / worksheet /
+  supervision / observations" with explicit source attribution
+- **Print overhaul** — editorial margins, intelligent page breaks,
+  metadata footers, evaluator signatures
+- Migrating each portal's existing forms to `FocusBlock` and each
+  worksheet/grid into a `SideSheet`
+
+These follow the same primitives — the next pass is mostly
+application, not new architecture.
+
+---
 
 ---
 

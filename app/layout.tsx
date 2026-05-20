@@ -11,6 +11,7 @@ import { InternshipProvider } from "@/contexts/InternshipContext";
 import { WorkspaceModeProvider } from "@/contexts/WorkspaceModeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LocaleProvider } from "@/contexts/LocaleContext";
+import { SessionMemoryProvider } from "@/contexts/SessionMemoryContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ChromeGate } from "@/components/shared/ChromeGate";
 import { RequireAuth } from "@/components/auth/RequireAuth";
@@ -59,6 +60,7 @@ export default function RootLayout({
             <PsyGraphProvider>
             <InternshipProvider>
             <WorkspaceModeProvider>
+            <SessionMemoryProvider>
             <ToastProvider>
               <AccessibilityShell>
                 <RequireAuth>
@@ -67,6 +69,7 @@ export default function RootLayout({
                 <PWARegister />
               </AccessibilityShell>
             </ToastProvider>
+            </SessionMemoryProvider>
             </WorkspaceModeProvider>
             </InternshipProvider>
             </PsyGraphProvider>

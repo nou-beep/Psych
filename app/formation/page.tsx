@@ -23,9 +23,12 @@ import {
 import { StatCard } from "@/components/shared/StatCard";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
+import { TodayPanel } from "@/components/workspace/TodayPanel";
+import { MemoryRail } from "@/components/workspace/MemoryRail";
 import { useThesis } from "@/contexts/ThesisContext";
 import { useInternship } from "@/contexts/InternshipContext";
 import { useLocale, useT } from "@/contexts/LocaleContext";
+import { computeFormationToday } from "@/lib/clinical/today";
 
 const quickActionConfig = [
   { labelKey: "formation.dashboard.quickActions.thesisOverview", icon: GraduationCap, href: "/formation/thesis", tint: "#8E72CC" },
@@ -79,6 +82,17 @@ export default function FormationDashboardPage() {
       : greetingHour < 17
         ? t("formation.dashboard.hero.greetingAfternoon")
         : t("formation.dashboard.hero.greetingEvening");
+
+  const todayItems = computeFormationToday({
+    draftReportCount: reportsToFinalize,
+    pendingGridCount: pendingGrids,
+    testsAwaitingScore,
+    supervisionNoteCount: supervisionNotes,
+    thesisMissingDataCount: thesisMissing,
+    thesisReportSectionsDrafted: reportSectionCount,
+    activeInternshipCases: activeCases.length,
+    todayISO: today.toISOString().split("T")[0],
+  });
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
@@ -137,6 +151,14 @@ export default function FormationDashboardPage() {
           <p className="text-sm" style={{ color: "var(--psych-muted)" }}>
             {t("formation.dashboard.hero.subtitle")}
           </p>
+        </div>
+      </div>
+
+      {/* Today layer + Memory Rail — psychologically-native frame */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4">
+        <TodayPanel items={todayItems} />
+        <div style={{ minHeight: 220 }}>
+          <MemoryRail density="comfortable" />
         </div>
       </div>
 
