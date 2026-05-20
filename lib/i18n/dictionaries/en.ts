@@ -446,4 +446,42 @@ export const EN_DICT: AppDictionary = {
     assessments: "No assessments yet",
     supervision: "No supervision notes yet",
   },
+
+  today: {
+    title: "Today",
+    empty: "Nothing on deck right now — calm waters.",
+    count: "{n} item(s)",
+  },
+
+  memory: {
+    rail: {
+      title: "Working memory",
+      empty: "No pins yet",
+      count: "{n} pinned",
+    },
+    empty: {
+      title: "The rail is quiet.",
+      hint:
+        "Pin observations, excerpts, hypotheses and quotes here as you work — they stay with you across the session.",
+    },
+    kinds: {
+      observation: "Observations",
+      excerpt: "Excerpts",
+      hypothesis: "Hypotheses",
+      quote: "Quotes",
+      fragment: "Fragments",
+      supervision: "Supervision",
+      reference: "References",
+      paragraph: "Paragraphs",
+      sensory: "Sensory notes",
+      pattern: "Patterns",
+    },
+    actions: {
+      copy: "Copy to clipboard",
+      recolor: "Change colour",
+      archive: "Archive",
+      remove: "Remove",
+      pin: "Pin to memory",
+    },
+  },
 };
