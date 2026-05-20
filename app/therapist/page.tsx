@@ -18,6 +18,9 @@ import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useApp } from "@/contexts/AppContext";
+import { TodayPanel } from "@/components/workspace/TodayPanel";
+import { MemoryRail } from "@/components/workspace/MemoryRail";
+import { computeTherapistToday } from "@/lib/clinical/today";
 import { WorkingOn } from "@/components/clinical/WorkingOn";
 import { CalendarDashboardWidgets } from "@/components/clinical/CalendarDashboardWidgets";
 import { QuickAccessRail } from "@/components/clinical/QuickAccessRail";
@@ -51,6 +54,14 @@ export default function DashboardPage() {
   const achievedGoals = goals.filter((g) => !g.isArchived && g.status === "achieved");
   const recentCases = cases.filter((c) => !c.isArchived).slice(0, 3);
   const pendingAssessments = assessments.filter((a) => a.scoreStatus === "Not started").length;
+
+  const todayItems = computeTherapistToday({
+    activeCases: activeCases.length,
+    todayCheckIns: todayCheckIns.length,
+    pendingAssessments,
+    goalsInProgress: activeGoals.length,
+    needsReviewCount: needsReview.length,
+  });
 
   const avgProgress =
     activeGoals.length > 0
@@ -90,6 +101,14 @@ export default function DashboardPage() {
             {activeCases.length} active cases · {activeGoals.length} goals in progress
             {needsReview.length > 0 && ` · ${needsReview.length} need review`}
           </p>
+        </div>
+      </div>
+
+      {/* Today + Working memory */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4">
+        <TodayPanel items={todayItems} />
+        <div style={{ minHeight: 220 }}>
+          <MemoryRail density="comfortable" />
         </div>
       </div>
 

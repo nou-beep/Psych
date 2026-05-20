@@ -5,7 +5,7 @@
 // every component subscribed to useLocale() rerenders immediately.
 
 import { useLocale } from "@/contexts/LocaleContext";
-import type { Locale } from "@/lib/i18n";
+import { EXPOSED_LOCALES, type Locale } from "@/lib/i18n";
 
 interface Props {
   /** Visual size. `sm` for the sidebar footer, `md` for the gateway. */
@@ -18,6 +18,7 @@ interface Props {
 const LABEL: Record<Locale, string> = {
   en: "EN",
   fr: "FR",
+  ar: "AR",
 };
 
 export function LanguageToggle({
@@ -58,7 +59,7 @@ export function LanguageToggle({
         fontWeight: 500,
       }}
     >
-      {(["en", "fr"] as const).map((opt) => {
+      {EXPOSED_LOCALES.map((opt) => {
         const active = locale === opt;
         return (
           <button
