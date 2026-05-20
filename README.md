@@ -189,8 +189,52 @@ English version. 998 tests pass at the time of writing.
 
 1. Add the code to `LOCALES` in `lib/i18n/index.ts`.
 2. Drop a `dictionaries/<code>.ts` file mirroring the EN structure.
-3. Add the option to `LanguageToggle`'s rendered options.
-4. Optional: add a locale tag in `LOCALE_TAG` for `Intl.*` formatting.
+3. Add the locale tag in `LOCALE_TAG` for `Intl.*` formatting.
+4. Add the code to `EXPOSED_LOCALES` once translations are ready.
+
+`LanguageToggle` reads from `EXPOSED_LOCALES` automatically, so
+scaffolded locales (currently Arabic) stay available
+programmatically without surfacing in the toggle until ready.
+
+### Arabic scaffold
+
+The Arabic locale (`ar`, tag `ar-MA`) is scaffolded but not
+exposed. The dictionary at `lib/i18n/dictionaries/ar.ts` re-exports
+`FR_DICT` as-is, so an Arabic user falls through to French strings
+rather than English — matching the Maghreb bilingual context. The
+`t()` fallback chain is **active → fr (if active is ar) → en → key**.
+
+### Terminology dictionary (FR)
+
+Eyla follows a single canonical French terminology throughout —
+no `client`/`patient` / `report`/`rapport` mixing within a screen.
+
+| English | French |
+|---|---|
+| Formation Portal | Espace Formation |
+| Therapist Portal | Espace Thérapeute |
+| Client Portal | Espace Client |
+| Case | Dossier |
+| Internship Case | Dossier de stage |
+| Assessment | Évaluation |
+| Grid | Grille |
+| Worksheet | Fiche de travail |
+| Report | Rapport |
+| Transcript | Transcription |
+| Open Work | Travail en cours |
+| Settings | Paramètres |
+| Print | Imprimer |
+| Export | Exporter |
+| Thesis | Mémoire |
+| Literature Review | Revue de littérature |
+| Methodology | Méthodologie |
+| Supervisor | Encadrant |
+| References | Références bibliographiques |
+| Sign out | Se déconnecter |
+
+A test (`test/lib/i18n-consolidation.test.ts`) pins these terms so
+future changes don't accidentally regress to "Compte rendu" or
+"Patient".
 
 ---
 

@@ -20,8 +20,8 @@ describe("i18n core", () => {
     }
   });
 
-  it("supports en + fr locales with fr as default", () => {
-    expect(LOCALES).toEqual(["en", "fr"]);
+  it("supports en + fr + ar locales with fr as default", () => {
+    expect(LOCALES).toEqual(["en", "fr", "ar"]);
     expect(DEFAULT_LOCALE).toBe("fr");
   });
 
@@ -162,9 +162,9 @@ describe("Academic terminology in FR", () => {
     );
   });
 
-  it("uses Patient / Thérapeute in the FR portal labels", () => {
+  it("uses Client / Thérapeute in the FR portal labels (per terminology dictionary)", () => {
     expect(t("common.portalLabel.therapist", "fr")).toBe("Thérapeute");
-    expect(t("common.portalLabel.client", "fr")).toBe("Patient");
+    expect(t("common.portalLabel.client", "fr")).toBe("Client");
     expect(t("common.portalLabel.formation", "fr")).toBe("Formation");
   });
 });

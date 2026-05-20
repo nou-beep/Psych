@@ -37,11 +37,11 @@ export const FR_DICT: AppDictionary = {
     signOut: "Se déconnecter",
     switchPortal: "Changer de portail",
     signedInAs: "Connecté(e) en tant que {email}",
-    signedInPortal: "portail {portal}",
+    signedInPortal: "espace {portal}",
     portalLabel: {
       formation: "Formation",
       therapist: "Thérapeute",
-      client: "Patient",
+      client: "Client",
     },
     optional: "Facultatif",
     required: "Obligatoire",
@@ -66,7 +66,7 @@ export const FR_DICT: AppDictionary = {
       footer:
         "Vous pouvez changer de portail à tout moment depuis le pied de la barre latérale.",
       formation: {
-        title: "Portail Formation",
+        title: "Espace Formation",
         blurb:
           "Mémoire, stage, pratique supervisée, recherche, comptes rendus, tests et grilles. L'espace universitaire et de formation clinique.",
         bullets: {
@@ -78,7 +78,7 @@ export const FR_DICT: AppDictionary = {
         cta: "Continuer en tant qu'étudiant(e)",
       },
       therapist: {
-        title: "Portail Thérapeute",
+        title: "Espace Thérapeute",
         blurb:
           "Dossiers, entretiens structurés, EEM, formulations, suivi longitudinal, comptes rendus, supervision — conçu pour la documentation et le raisonnement clinique.",
         bullets: {
@@ -90,7 +90,7 @@ export const FR_DICT: AppDictionary = {
         cta: "Continuer en tant que thérapeute",
       },
       client: {
-        title: "Portail Patient",
+        title: "Espace Client",
         blurb:
           "Un compagnon clinique ancré pour le travail thérapeutique — fiches assignées, évaluations, rendez-vous, retours réflexifs. Plus calme, structuré, charge cognitive réduite.",
         bullets: {
@@ -99,7 +99,7 @@ export const FR_DICT: AppDictionary = {
           c: "Agenda + rappels",
           d: "Ressources + progression",
         },
-        cta: "Continuer en tant que patient(e)",
+        cta: "Continuer en tant que client(e)",
       },
     },
     login: {
@@ -153,7 +153,7 @@ export const FR_DICT: AppDictionary = {
       internshipOverview: "Vue d'ensemble",
       internshipCases: "Dossiers",
       testsGrids: "Tests & grilles",
-      reports: "Comptes rendus",
+      reports: "Rapports",
       supervision: "Supervision",
       worksheets: "Fiches de travail",
       transcripts: "Transcriptions",
@@ -182,7 +182,7 @@ export const FR_DICT: AppDictionary = {
         greetingAfternoon: "Bon après-midi",
         greetingEvening: "Bonsoir",
         subtitle:
-          "Portail Formation · mémoire + stage + supervision dans un seul espace",
+          "Espace Formation · mémoire + stage + supervision dans un seul espace",
       },
       stats: {
         internshipCases: "Dossiers de stage",
@@ -190,7 +190,7 @@ export const FR_DICT: AppDictionary = {
         internshipCasesNone: "aucun pour l'instant",
         gridsPending: "Grilles en attente",
         gridsPendingSub: "{count} tests à coter",
-        reportsToFinalize: "Comptes rendus à finaliser",
+        reportsToFinalize: "Rapports à finaliser",
         reportsToFinalizeSub: "journalier · hebdomadaire · final",
         thesisParticipants: "Participants au mémoire",
         thesisParticipantsSub: "{count} données manquantes",
@@ -269,7 +269,7 @@ export const FR_DICT: AppDictionary = {
         newGoal: "Nouvel objectif",
         transcript: "Transcription",
         printGrid: "Imprimer une grille",
-        report: "Compte rendu",
+        report: "Rapport",
       },
       sections: {
         recentCases: "Dossiers récents",
@@ -416,14 +416,14 @@ export const FR_DICT: AppDictionary = {
       ageMissing: "Âge non précisé",
     },
     reports: {
-      title: "Comptes rendus de stage",
+      title: "Rapports de stage",
       pageDesc:
         "Observations quotidiennes, synthèse hebdomadaire, résumés de supervision et rapport final de stage — assemblés à partir de vos données de dossier structurées.",
       drafts: "Brouillons ({count})",
       finalized: "Finalisés ({count})",
       emptyDrafts:
-        "Aucun brouillon de compte rendu. Générez-en un depuis un dossier du Studio Stage.",
-      generateInStudio: "Générer des comptes rendus en Studio",
+        "Aucun brouillon de rapport. Générez-en un depuis un dossier du Studio Stage.",
+      generateInStudio: "Générer des rapports en Studio",
       statusDraft: "Brouillon",
       statusFinalized: "Finalisé",
     },

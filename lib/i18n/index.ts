@@ -14,9 +14,31 @@
 
 import { EN_DICT } from "./dictionaries/en";
 import { FR_DICT } from "./dictionaries/fr";
+import { AR_DICT } from "./dictionaries/ar";
 
-export type Locale = "en" | "fr";
-export const LOCALES: readonly Locale[] = ["en", "fr"] as const;
+/**
+ * Supported UI locales.
+ *
+ * - "fr" — default, fully translated, academic French.
+ * - "en" — fully translated, US English.
+ * - "ar" — scaffold only. The Arabic dictionary currently mirrors
+ *   the French content as a starting point; toggle exposure is
+ *   gated behind `EXPOSED_LOCALES` until proper translations land.
+ *
+ * Adding a new locale is two steps: add it to `LOCALES`, add a
+ * dictionary file to `dictionaries/<code>.ts`. The translator
+ * fallback chain already handles missing keys.
+ */
+export type Locale = "en" | "fr" | "ar";
+export const LOCALES: readonly Locale[] = ["en", "fr", "ar"] as const;
+
+/**
+ * Subset of `LOCALES` that the LanguageToggle UI shows to users.
+ * Scaffolded locales stay accessible programmatically (the URL,
+ * settings, tests) but don't surface in the toggle until ready.
+ */
+export const EXPOSED_LOCALES: readonly Locale[] = ["en", "fr"] as const;
+
 export const DEFAULT_LOCALE: Locale = "fr";
 
 export const LOCALE_STORAGE_KEY = "eyla-locale-v1";
@@ -26,10 +48,11 @@ export type Dictionary = typeof EN_DICT;
 const DICTS: Record<Locale, Dictionary> = {
   en: EN_DICT,
   fr: FR_DICT,
+  ar: AR_DICT,
 };
 
 export function isValidLocale(value: unknown): value is Locale {
-  return value === "en" || value === "fr";
+  return value === "en" || value === "fr" || value === "ar";
 }
 
 export function readLocale(): Locale {
@@ -80,21 +103,37 @@ function interpolate(
 }
 
 /**
- * Translate a namespaced key. Falls back to EN if FR misses it, then
- * to the key itself so missing entries are visible to developers.
+ * Translate a namespaced key. Fallback chain:
+ * - active locale →
+ * - "fr" if active is "ar" (Maghreb context) →
+ * - "en" universal fallback →
+ * - the key itself so missing entries are visible to developers.
  */
 export function t(
   key: string,
   locale: Locale,
   vars?: Record<string, string | number>
 ): string {
-  const primary =
-    lookup(DICTS[locale] as Record<string, unknown>, key) ??
-    (locale === "en"
-      ? undefined
-      : lookup(DICTS.en as Record<string, unknown>, key)) ??
-    key;
-  return interpolate(primary, vars);
+  const direct = lookup(DICTS[locale] as Record<string, unknown>, key);
+  if (direct !== undefined) return interpolate(direct, vars);
+
+  if (locale === "ar") {
+    const frFallback = lookup(
+      DICTS.fr as Record<string, unknown>,
+      key
+    );
+    if (frFallback !== undefined) return interpolate(frFallback, vars);
+  }
+
+  if (locale !== "en") {
+    const enFallback = lookup(
+      DICTS.en as Record<string, unknown>,
+      key
+    );
+    if (enFallback !== undefined) return interpolate(enFallback, vars);
+  }
+
+  return interpolate(key, vars);
 }
 
 /**
@@ -111,6 +150,7 @@ export function dictFor(locale: Locale): Dictionary {
 const LOCALE_TAG: Record<Locale, string> = {
   en: "en-US",
   fr: "fr-FR",
+  ar: "ar-MA",
 };
 
 export function formatDate(

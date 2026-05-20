@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { ClientShell } from "@/components/client/ClientShell";
 import { SessionRecapVisual } from "@/components/psy/SessionRecapVisual";
+import { TodayPanel } from "@/components/workspace/TodayPanel";
+import { computeClientToday } from "@/lib/clinical/today";
 import { useClientPortal } from "@/contexts/ClientPortalContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
@@ -96,6 +98,11 @@ export default function ClientHomePage() {
     return null;
   }
 
+  const todayItems = computeClientToday({
+    pendingAssignments: unreadAssignments.length,
+    todayHasCheckIn: Boolean(todayEntry),
+  });
+
   return (
     <ClientShell
       title="Welcome back."
@@ -105,6 +112,11 @@ export default function ClientHomePage() {
           : "A quieter companion for the work between sessions."
       }
     >
+      {todayItems.length > 0 && (
+        <div style={{ marginBottom: "1.5rem" }}>
+          <TodayPanel items={todayItems} />
+        </div>
+      )}
       {/* Today's check-in */}
       <section className="cp-card cp-fade-in" style={{ marginBottom: "1.25rem" }}>
         <div
