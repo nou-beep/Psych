@@ -12,6 +12,7 @@ import { WorkspaceModeProvider } from "@/contexts/WorkspaceModeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LocaleProvider } from "@/contexts/LocaleContext";
 import { SessionMemoryProvider } from "@/contexts/SessionMemoryContext";
+import { ThesisDatasetProvider } from "@/contexts/ThesisDatasetContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ChromeGate } from "@/components/shared/ChromeGate";
 import { RequireAuth } from "@/components/auth/RequireAuth";
@@ -55,6 +56,7 @@ export default function RootLayout({
           <AuthProvider>
           <AppProvider>
             <ThesisProvider>
+            <ThesisDatasetProvider>
             <ClinicalProvider>
             <ClientPortalProvider>
             <PsyGraphProvider>
@@ -75,6 +77,7 @@ export default function RootLayout({
             </PsyGraphProvider>
             </ClientPortalProvider>
             </ClinicalProvider>
+            </ThesisDatasetProvider>
             </ThesisProvider>
           </AppProvider>
           </AuthProvider>

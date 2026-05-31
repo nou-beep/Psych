@@ -47,10 +47,10 @@ describe("Formation sidebar — all links live inside /formation", () => {
     }
   });
 
-  it("uses Formation labels (Overview / Dataset / Stats / Open Work)", () => {
+  it("uses Formation labels (Overview / Data Analysis / Open Work)", () => {
     const labels = FORMATION_NAV.flatMap((g) => g.items.map((i) => i.label));
     expect(labels).toContain("Overview");
-    expect(labels).toContain("Dataset / Stats");
+    expect(labels).toContain("Data Analysis");
     expect(labels).toContain("Open Work");
     // No leftover therapist phrasing
     expect(labels).not.toContain("Thesis Studio");
