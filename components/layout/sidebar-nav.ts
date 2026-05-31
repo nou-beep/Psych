@@ -67,7 +67,7 @@ export const FORMATION_NAV: NavGroup[] = [
     items: [
       { href: "/formation/thesis", label: "Overview", labelKey: "sidebar.items.thesisOverview", icon: GraduationCap },
       { href: "/formation/thesis/writer", label: "Writer", labelKey: "sidebar.items.thesisWriter", icon: FileText },
-      { href: "/formation/thesis/stats", label: "Dataset / Stats", labelKey: "sidebar.items.thesisStats", icon: FlaskConical },
+      { href: "/formation/memoire/analyse", label: "Data Analysis", labelKey: "analysis.nav", icon: FlaskConical },
       { href: "/formation/thesis/literature", label: "Literature", labelKey: "sidebar.items.thesisLiterature", icon: BookMarked },
       { href: "/formation/thesis/exports", label: "Exports", labelKey: "sidebar.items.thesisExports", icon: Database },
     ],
