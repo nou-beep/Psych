@@ -79,25 +79,71 @@ Patterns / Excerpts / Quotes / Fragments / Sensory / Paragraphs /
 Supervision / References) and persist in `localStorage` under
 `eyla-session-memory-v1`.
 
-### What is NOT in this pass
+### Espace séance — the Session Workspace
 
-The brief covers 19 sections; this PR delivers the foundation
-(MemoryRail, Today, FocusBlock, SideSheet). Subsequent passes
-extend:
+`/formation/internship/cases/[id]/seance/[seanceId]` is the
+per-session work surface for one séance inside a dossier de stage.
+A **Séances ✦** tab on the dossier detail page lists the dossier's
+séances (most recent first) with a **Nouvelle séance** action that
+creates one and routes straight into the workspace.
 
-- Full **Session Workspace shell** (left/center/right/bottom slots)
-- **Session Timeline** aggregating sessions / observations / reports
-  / grids / tests / transcripts / sensory events / interventions
-- **Contextual generation** rewrite — every "Generate Report" CTA
-  becomes "Generate from grids / session / transcript / worksheet /
-  supervision / observations" with explicit source attribution
+**Data model** (`lib/internship/seance.ts`, localStorage key
+`eyla-seances-v1`) — discovery found no prior session entity
+(sessions were implicit `sessionLabel` strings + daily reports), so
+the Séance record is new. Every sub-item is its own record with id +
+timestamp — the future evidence source for contextual generation:
+
+```
+Seance { id, dossierId, date, context: 'stage' | 'therapist',
+         status: 'draft' | 'finalised', archived,
+         notes[]        { id, createdAt, type, text }
+         observations[] { id, createdAt, category, value, note? }
+         linkedAssessmentIds[], linkedWorksheetIds[],
+         homework[] / followUps[] { id, text, done },
+         nextAppointment { date, note? } | null }
+```
+
+**Four-slot shell** — no slot causes a route change (SideSheet +
+FocusBlock only):
+
+- **LEFT** — Contexte du dossier (read-only identity + motifs) and
+  the clickable list of previous séances.
+- **CENTER** — Observations structurées: one row per domain
+  (Communication · Sensoriel · Attention · Régulation · Interaction
+  sociale) scored with the ScoreSet `frequencySchema` through the
+  shared `SchemaButtonGroup` (extracted from ScoreSetSection into
+  `components/internship/SchemaButtons.tsx` so both surfaces use the
+  identical renderer), each with ONE optional note. Notes de séance
+  as discrete typed records (Note / Réflexion / Événement /
+  Verbatim). A collapsed **Vue assemblée** block shows
+  `assembleSeanceText()` — deterministic formatting of the séance's
+  own records, no inference, with a copy button.
+- **RIGHT** — Outils & mémoire: the MemoryRail scoped to the séance
+  id, plus SideSheet toggles linking the dossier's existing
+  Évaluations/Grilles and Fiches de travail to this séance.
+- **BOTTOM** — Chronologie (this dossier's séances as pills, current
+  highlighted) + Devoirs + Actions de suivi + Prochain rendez-vous.
+
+**Permissions** — `sessionPermissions(context, status)` is a pure
+helper the UI reads exclusively, so the therapist context can later
+ship different rules without touching components. Stage defaults:
+draft = editable + finalisable; finalised = read-only until
+reopened; archive/restore always; **no hard delete** from this
+surface; séances visible to the Encadrant. Everything autosaves —
+no Save button.
+
+### Still deferred to later passes
+
+- **Contextual generation** — every "Generate Report" CTA becomes
+  "Generate from grids / séance / transcript / supervision" with
+  explicit source citation (the Séance model's discrete records are
+  the prepared evidence source)
 - **Print overhaul** — editorial margins, intelligent page breaks,
   metadata footers, evaluator signatures
-- Migrating each portal's existing forms to `FocusBlock` and each
-  worksheet/grid into a `SideSheet`
-
-These follow the same primitives — the next pass is mostly
-application, not new architecture.
+- **Therapist séance context** — model + permission helper are
+  ready; the Espace Thérapeute pass defines its rules
+- Migrating remaining giant forms to `FocusBlock` and remaining
+  worksheets/grids into `SideSheet`
 
 ---
 
