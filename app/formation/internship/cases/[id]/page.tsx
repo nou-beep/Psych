@@ -72,6 +72,7 @@ import {
 } from "@/components/ui/structured";
 import { ScorableGridSection } from "@/components/internship/ScorableGridSection";
 import { ScoreSetSection } from "@/components/internship/ScoreSetSection";
+import { SeancesTab } from "@/components/internship/SeancesTab";
 import { StructuredProfileForm } from "@/components/internship/StructuredProfileForm";
 
 interface PageProps {
@@ -179,6 +180,7 @@ export default function InternshipCasePage({ params }: PageProps) {
       <Tabs defaultValue="overview">
         <TabsList className="mb-4 flex-wrap">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="seances">Séances ✦</TabsTrigger>
           <TabsTrigger value="evaluation">Évaluation ✦</TabsTrigger>
           <TabsTrigger value="tests">
             Tests {caseTests.length > 0 && `(${caseTests.length})`}
@@ -190,6 +192,11 @@ export default function InternshipCasePage({ params }: PageProps) {
             Supervision {caseSupervision.length > 0 && `(${caseSupervision.length})`}
           </TabsTrigger>
         </TabsList>
+
+        {/* ═════════════════ SÉANCES ═════════════════ */}
+        <TabsContent value="seances">
+          <SeancesTab caseId={caseData.id} />
+        </TabsContent>
 
         {/* ═════════════════ OVERVIEW ═════════════════ */}
         <TabsContent value="overview">
