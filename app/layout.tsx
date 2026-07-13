@@ -14,6 +14,7 @@ import { LocaleProvider } from "@/contexts/LocaleContext";
 import { SessionMemoryProvider } from "@/contexts/SessionMemoryContext";
 import { ThesisDatasetProvider } from "@/contexts/ThesisDatasetContext";
 import { SeanceProvider } from "@/contexts/SeanceContext";
+import { CollaborateurProvider } from "@/contexts/CollaborateurContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ChromeGate } from "@/components/shared/ChromeGate";
 import { RequireAuth } from "@/components/auth/RequireAuth";
@@ -65,6 +66,7 @@ export default function RootLayout({
             <WorkspaceModeProvider>
             <SessionMemoryProvider>
             <SeanceProvider>
+            <CollaborateurProvider>
             <ToastProvider>
               <AccessibilityShell>
                 <RequireAuth>
@@ -73,6 +75,7 @@ export default function RootLayout({
                 <PWARegister />
               </AccessibilityShell>
             </ToastProvider>
+            </CollaborateurProvider>
             </SeanceProvider>
             </SessionMemoryProvider>
             </WorkspaceModeProvider>

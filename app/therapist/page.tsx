@@ -20,6 +20,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useApp } from "@/contexts/AppContext";
 import { TodayPanel } from "@/components/workspace/TodayPanel";
 import { MemoryRail } from "@/components/workspace/MemoryRail";
+import { CaseloadDashboard } from "@/components/therapist/CaseloadDashboard";
 import { computeTherapistToday } from "@/lib/clinical/today";
 import { WorkingOn } from "@/components/clinical/WorkingOn";
 import { CalendarDashboardWidgets } from "@/components/clinical/CalendarDashboardWidgets";
@@ -104,13 +105,16 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Today + Working memory */}
+      {/* Ma file active — Today + Working memory */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4">
         <TodayPanel items={todayItems} />
         <div style={{ minHeight: 220 }}>
           <MemoryRail density="comfortable" />
         </div>
       </div>
+
+      {/* Caseload cockpit — risques · climat · impact */}
+      <CaseloadDashboard />
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
