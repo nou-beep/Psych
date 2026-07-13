@@ -132,6 +132,58 @@ reopened; archive/restore always; **no hard delete** from this
 surface; séances visible to the Encadrant. Everything autosaves —
 no Save button.
 
+### Espace Thérapeute — workplace-psychology caseload cockpit
+
+One clinician supporting a company's employees; each employee is one
+dossier ("Collaborateur"). No employee logins — the clinician records
+everything. Pitched around reducing turnover, absenteeism and burnout.
+
+**Model** (`lib/therapist/collaborateurs.ts`, key
+`eyla-collaborateurs-v1`) — every sub-item is a dated record:
+`moodEntries` (functioning 0–10), `riskEntries` (flight + burnout,
+ok/watch/high), `absenceEntries`, `departure`, `assignments` (folded
+from the client portal, worksheet-library or free text), per-case
+`resources`, `checkIns` (Journal de contact — the honest version of
+"message me": the actual messaging stays in WhatsApp/SMS). Séances
+reuse the Séance model with `context: 'therapist'` and
+`dossierId = collaborateur.id`.
+
+**Routes:** `/therapist/collaborateurs` (roster with search + team +
+risk filters), `/therapist/collaborateurs/[id]` (tabs Aperçu · Suivi ·
+Séances · Évaluations · Devoirs · Ressources · Journal de contact —
+sub-tools in SideSheets, never lose the case), and
+`/therapist/rapport-direction`.
+
+**Dashboard (Accueil)** — four sections, every metric deterministic
+arithmetic over entered records: Aperçu des risques (distribution +
+current high list), Climat par équipe (average latest functioning per
+team + trend chart via `LongitudinalChart`), Ma file active
+(TodayPanel + MemoryRail), Impact rétention & absence (absence days,
+departures, risk-improvement count over 90 days — the data is shown,
+no causal claims printed).
+
+**Confidentiality** — the clinician's view has everything per
+individual; `/therapist/rapport-direction` exposes ONLY aggregates
+(risk distribution, team climate, absence totals, departures,
+improvement count). A test asserts the rapport text contains no
+names and no clinical notes.
+
+**Data safety** — one-tap JSON export/import of collaborateurs +
+séances with a visible warning to store the file securely.
+localStorage is single-browser; the export is the only loss
+safeguard.
+
+**Demo data** — ~10 sample collaborateurs across 4 teams
+(`isSample: true`), weeks of mood history, one departure, assignments
+and check-ins so every panel is populated. A "Données de
+démonstration" banner appears wherever demo records exist, with a
+one-tap clear that leaves real records untouched.
+
+**Client portal parked** — its useful features (assignments,
+resources) folded into the case detail; the gateway card is removed
+(restore instructions in `app/page.tsx`), all `/client/*` routes stay
+functional.
+
 ### Still deferred to later passes
 
 - **Contextual generation** — every "Generate Report" CTA becomes

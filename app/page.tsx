@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import {
   Stethoscope,
-  Heart,
   GraduationCap,
   Sparkles,
   ArrowRight,
@@ -77,27 +76,34 @@ const CARDS: PortalCard[] = [
     shadowHover: "0 18px 50px rgba(199,125,170,0.28)",
     accent: "#9F1239",
   },
-  {
-    id: "client",
-    titleKey: "auth.gateway.client.title",
-    blurbKey: "auth.gateway.client.blurb",
-    bulletKeys: [
-      "auth.gateway.client.bullets.a",
-      "auth.gateway.client.bullets.b",
-      "auth.gateway.client.bullets.c",
-      "auth.gateway.client.bullets.d",
-    ],
-    ctaKey: "auth.gateway.client.cta",
-    icon: Heart,
-    iconGradient: "linear-gradient(135deg, #C7B2E0, #D6A4D6)",
-    cardGradient:
-      "linear-gradient(160deg, rgba(255,255,255,0.92), rgba(230,210,240,0.78))",
-    border: "1px solid rgba(140,100,180,0.18)",
-    shadow: "0 12px 40px rgba(140,110,200,0.2)",
-    shadowHover: "0 18px 50px rgba(140,110,200,0.32)",
-    accent: "#7C4FB3",
-  },
 ];
+
+// PARKED — the standalone client portal card. Its useful features
+// (assignments, resources) folded into the therapist case detail
+// (Espace Thérapeute → Collaborateurs), so the gateway no longer
+// surfaces the card. All /client/* routes and /login/client remain
+// fully functional; to restore the card, re-add this entry to CARDS:
+//
+//   {
+//     id: "client",
+//     titleKey: "auth.gateway.client.title",
+//     blurbKey: "auth.gateway.client.blurb",
+//     bulletKeys: [
+//       "auth.gateway.client.bullets.a",
+//       "auth.gateway.client.bullets.b",
+//       "auth.gateway.client.bullets.c",
+//       "auth.gateway.client.bullets.d",
+//     ],
+//     ctaKey: "auth.gateway.client.cta",
+//     icon: Heart,
+//     iconGradient: "linear-gradient(135deg, #C7B2E0, #D6A4D6)",
+//     cardGradient:
+//       "linear-gradient(160deg, rgba(255,255,255,0.92), rgba(230,210,240,0.78))",
+//     border: "1px solid rgba(140,100,180,0.18)",
+//     shadow: "0 12px 40px rgba(140,110,200,0.2)",
+//     shadowHover: "0 18px 50px rgba(140,110,200,0.32)",
+//     accent: "#7C4FB3",
+//   },
 
 export default function GatewayPage() {
   const router = useRouter();

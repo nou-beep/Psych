@@ -117,6 +117,8 @@ export const THERAPIST_NAV: NavGroup[] = [
     label: "Clinical",
     labelKey: "sidebar.groups.clinical",
     items: [
+      { href: "/therapist/collaborateurs", label: "Team members", labelKey: "collab.nav", icon: Heart },
+      { href: "/therapist/rapport-direction", label: "Management report", labelKey: "collab.navRapport", icon: FileText },
       { href: "/cases", label: "Cases", labelKey: "sidebar.items.cases", icon: FolderOpen },
       { href: "/assessments", label: "Assessments", labelKey: "sidebar.items.assessments", icon: Brain },
       { href: "/reports", label: "Reports", labelKey: "sidebar.items.reports", icon: FileText },
